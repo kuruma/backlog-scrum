@@ -19,6 +19,17 @@ new Vue({
   components: { App },
   template: '<App/>',
   methods: {
+    cleanupLocalStorage() {
+      const keys = [
+        'backlogApiKey',
+        'backlogFqdn',
+      ];
+      for (let i = 0, l = keys.length; i < l; i += 1) {
+        if (Vue.$storage.hasKey(keys[i]) && Vue.$storage.get(keys[i] === '')) {
+          Vue.$storage.remove(keys[i]);
+        }
+      }
+    },
     loadQuery() {
       let queriesStr = window.location.search || '';
       queriesStr = queriesStr.substr(1, queriesStr.length);
@@ -49,15 +60,16 @@ new Vue({
     },
     setLatestParameter() {
       this.latestBacklogApiKey = Vue.$storage.hasKey('backlogApiKey')
-        ? (Vue.$storage.get('backlogApiKey') || Vue.$storage.remove('backlogFqdn'))
+        ? Vue.$storage.get('backlogApiKey')
         : '';
       this.latestBacklogFqdn = Vue.$storage.hasKey('backlogFqdn')
-        ? (Vue.$storage.get('backlogFqdn') || Vue.$storage.remove('backlogFqdn'))
+        ? Vue.$storage.get('backlogFqdn')
         : '';
     },
   },
   created() {
     this.loadQuery();
+    this.cleanupLocalStorage();
     this.setLatestParameter();
   },
 });
