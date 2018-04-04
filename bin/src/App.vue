@@ -4,14 +4,43 @@
       <span class="navbar-brand mb-0 h1">Backlog Scrum</span>
     </nav>
     <main>
-      <router-view/>
+      <router-view
+        :backlog-api-key="latestBacklogApiKey"
+        @notify-update-api-key="requestUpdateBacklogApiKey"
+        :backlog-fqdn="latestBacklogFqdn"
+        @notify-update-fqdn="requestUpdateBacklogFqdn"
+        />
     </main>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
+
 export default {
   name: 'App',
+  data() {
+    return {
+      latestBacklogApiKey: '',
+      latestBacklogFqdn: '',
+    };
+  },
+  methods: {
+    requestUpdateBacklogApiKey(key) {
+      if (key === '') {
+        Vue.$storage.remove('backlogApiKey');
+      } else {
+        Vue.$storage.set('backlogApiKey', key);
+      }
+    },
+    requestUpdateBacklogFqdn(fqdn) {
+      if (fqdn === '') {
+        Vue.$storage.remove('backlogFqdn');
+      } else {
+        Vue.$storage.set('backlogFqdn', fqdn);
+      }
+    },
+  },
 };
 </script>
 

@@ -6,7 +6,7 @@
         <form>
           <div class="form-group row">
             <label for="apikey" class="col-sm-3 col-md-2 col-form-label">APIキー</label>
-            <input :value="backlogApiKey"
+            <input v-model="backlogApiKey" @keyup="updateBacklogApiKey"
               type="text" class="col-sm-9 col-md-10 form-control" id="apikey"
               placeholder="[個人設定] > [API] から新規に発行したAPIキーを入力"/>
           </div>
@@ -48,11 +48,32 @@ export default {
       backlogHostname: '',
     };
   },
+  props: {
+    latestBacklogApiKey: String,
+    latestBacklogFqdn: String,
+  },
   methods: {
-    updateBacklogFqdn() {
-      this.backlogFqdn = `${this.backlogHostname}.${this.backlogDomain}`;
-      console.log(this.backlogFqdn);
+    updateBacklogApiKey() {
+      this.$emit('notify-update-api-key', this.backlogApiKey);
     },
+    updateBacklogFqdn() {
+      if (this.backlogHostname === '') {
+        this.backlogFqdn = '';
+      } else {
+        this.backlogFqdn = `${this.backlogHostname}.${this.backlogDomain}`;
+      }
+      this.$emit('notify-update-fqdn', this.backlogFqdn);
+    },
+  },
+  mounted() {
+    this.backlogApiKey = this.latestBacklogApiKey;
+    if (this.latestBacklogFqdn) {
+      const domains = this.latestBacklogFqdn.split('.');
+      if (domains.length === 3) {
+        this.backlogHostname = domains.shift();
+        this.backlogDomain = domains.join('.');
+      }
+    }
   },
 };
 </script>
