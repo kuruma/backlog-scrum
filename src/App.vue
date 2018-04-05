@@ -5,9 +5,9 @@
     </nav>
     <main>
       <router-view
-        :backlog-api-key="latestBacklogApiKey"
+        :latest-backlog-api-key="latestBacklogApiKey"
         @notify-update-api-key="requestUpdateBacklogApiKey"
-        :backlog-fqdn="latestBacklogFqdn"
+        :latest-backlog-fqdn="latestBacklogFqdn"
         @notify-update-fqdn="requestUpdateBacklogFqdn"
         />
     </main>
@@ -40,6 +40,14 @@ export default {
         Vue.$storage.set('backlogFqdn', fqdn);
       }
     },
+  },
+  created() {
+    this.latestBacklogApiKey = Vue.$storage.hasKey('backlogApiKey')
+      ? Vue.$storage.get('backlogApiKey')
+      : '';
+    this.latestBacklogFqdn = Vue.$storage.hasKey('backlogFqdn')
+      ? Vue.$storage.get('backlogFqdn')
+      : '';
   },
 };
 </script>

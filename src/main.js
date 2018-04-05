@@ -9,11 +9,13 @@ Vue.config.productionTip = false;
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  data: {
-    latestBacklogApiKey: '',
-    latestBacklogFqdn: '',
-    backlogApiKey: '',
-    backlogFqdn: '',
+  data() {
+    return {
+      latestBacklogApiKey: '',
+      latestBacklogFqdn: '',
+      backlogApiKey: '',
+      backlogFqdn: '',
+    };
   },
   router,
   components: { App },
@@ -58,18 +60,9 @@ new Vue({
         Vue.$storage.set('backlogFqdn', `${blspace}.${bldomain}`);
       }
     },
-    setLatestParameter() {
-      this.latestBacklogApiKey = Vue.$storage.hasKey('backlogApiKey')
-        ? Vue.$storage.get('backlogApiKey')
-        : '';
-      this.latestBacklogFqdn = Vue.$storage.hasKey('backlogFqdn')
-        ? Vue.$storage.get('backlogFqdn')
-        : '';
-    },
   },
   created() {
     this.loadQuery();
     this.cleanupLocalStorage();
-    this.setLatestParameter();
   },
 });
