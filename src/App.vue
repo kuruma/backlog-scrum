@@ -1,7 +1,14 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-dark bg-dark sticky-top">
-      <span class="navbar-brand mb-0 h1 mr-auto">Backlog Scrum</span>
+      <span class="navbar-brand mb-0 h1">Backlog Scrum</span>
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <router-link to="/epics" class="nav-link">
+            <icon name="chess" class="mr-1"></icon>エピック
+          </router-link>
+        </li>
+      </ul>
       <ul class="navbar-nav">
         <li class="nav-item">
           <router-link to="/settings" class="nav-link">
@@ -26,6 +33,7 @@ import Vue from 'vue';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/ellipsis-v';
+import 'vue-awesome/icons/chess';
 
 export default {
   name: 'App',
