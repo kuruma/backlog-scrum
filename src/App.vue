@@ -1,7 +1,14 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-dark bg-dark sticky-top">
-      <span class="navbar-brand mb-0 h1">Backlog Scrum</span>
+      <span class="navbar-brand mb-0 h1 mr-auto">Backlog Scrum</span>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <router-link to="/setting" class="nav-link">
+            <icon name="ellipsis-v" label="設定"></icon>
+          </router-link>
+        </li>
+      </ul>
     </nav>
     <main>
       <router-view
@@ -16,9 +23,15 @@
 
 <script>
 import Vue from 'vue';
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/ellipsis-v';
 
 export default {
   name: 'App',
+  components: {
+    Icon,
+  },
   data() {
     return {
       latestBacklogApiKey: '',
@@ -63,5 +76,11 @@ export default {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.fa-icon {
+  width: auto;
+  height: 1em;
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>

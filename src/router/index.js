@@ -16,7 +16,7 @@ Vue.use(Storage, {
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/setting',
       name: 'Setting',
       component: Setting,
     },
