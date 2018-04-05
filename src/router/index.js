@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import BootstrapVue from 'bootstrap-vue';
 import Storage from 'vue-web-storage';
-import Setting from '@/components/Setting';
+import Settings from '@/components/Settings';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -16,9 +16,9 @@ Vue.use(Storage, {
 export default new Router({
   routes: [
     {
-      path: '/setting',
-      name: 'Setting',
-      component: Setting,
+      path: '/settings',
+      name: 'Settings',
+      component: Settings,
     },
   ],
 });
