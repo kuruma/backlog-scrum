@@ -3,14 +3,14 @@
     <nav class="navbar navbar-dark bg-dark sticky-top">
       <span class="navbar-brand mb-0 h1">Backlog Scrum</span>
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
+        <li class="nav-item" :class="{'active': $route.path === '/epics'}">
           <router-link to="/epics" class="nav-link">
             <icon name="chess" class="mr-1"></icon>エピック
           </router-link>
         </li>
       </ul>
       <ul class="navbar-nav">
-        <li class="nav-item">
+        <li class="nav-item" :class="{'active': $route.path === '/settings'}">
           <router-link to="/settings" class="nav-link">
             <icon name="ellipsis-v" label="設定"></icon>
           </router-link>
