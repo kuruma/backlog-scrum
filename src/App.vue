@@ -4,7 +4,9 @@
       <span class="navbar-brand mb-0 h1 mr-auto">Backlog Scrum</span>
       <ul class="navbar-nav">
         <li class="nav-item">
-          <router-link to="/settings"><icon name="ellipsis-v" scale="2" label="設定"></icon></router-link>
+          <router-link to="/settings" class="nav-link">
+            <icon name="ellipsis-v" label="設定"></icon>
+          </router-link>
         </li>
       </ul>
     </nav>
@@ -23,7 +25,7 @@
 import Vue from 'vue';
 import Icon from 'vue-awesome/components/Icon';
 
-import 'vue-awesome/icons/ellips-v';
+import 'vue-awesome/icons/ellipsis-v';
 
 export default {
   name: 'App',
