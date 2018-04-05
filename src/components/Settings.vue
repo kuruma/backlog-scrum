@@ -1,5 +1,5 @@
 <template>
-  <div class="container" id="setting">
+  <div class="container">
     <div class="row">
       <div class="col">
         <h1>設定</h1>
