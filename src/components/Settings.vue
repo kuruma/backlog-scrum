@@ -31,6 +31,12 @@
               <option>backlog.com</option>
             </select>
           </div>
+          <div class="form-group row">
+            <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
+            <input v-model="backlogProjectKey" @keyup="updateBacklogProjectKey"
+              type="text" class="col-sm-9 col-md-10 form-control" id="projectkey"
+              placeholder="プロジェクトキーかIDを入力"/>
+          </div>
         </form>
       </div>
     </div>
@@ -48,12 +54,14 @@ export default {
       backlogDomain: 'backlog.jp',
       backlogFqdn: '',
       backlogHostname: '',
+      backlogProjectKey: '',
     };
   },
   methods: {
     ...mapActions({
       storeBacklogApiKey: 'updateApiKey',
       storeBacklogFqdn: 'updateFqdn',
+      storeBacklogProjectKey: 'updateProjectKey',
     }),
     updateBacklogApiKey() {
       this.storeBacklogApiKey(this.backlogApiKey);
@@ -66,8 +74,11 @@ export default {
       }
       this.storeBacklogFqdn(this.backlogFqdn);
     },
+    updateBacklogProjectKey() {
+      this.storeBacklogProjectKey(this.backlogProjectKey);
+    },
   },
-  mounted() {
+  created() {
     this.backlogApiKey = this.$store.state.backlogApiKey;
     if (this.$store.state.backlogFqdn) {
       const domains = this.$store.state.backlogFqdn.split('.');
@@ -76,6 +87,7 @@ export default {
         this.backlogDomain = domains.join('.');
       }
     }
+    this.backlogProjectKey = this.$store.state.backlogProjectKey;
   },
 };
 </script>

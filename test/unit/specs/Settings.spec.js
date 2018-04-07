@@ -6,6 +6,7 @@ import Settings from '@/components/Settings';
 const VALID_API_KEY = 'Dy52eJKpGXZjQdSB9WpyW3s4a7fn404OdZjNlaGi5Lprhlbf0h6K2sVpIfcemtDv';
 const VALID_SPACEID = 'foobar';
 const VALID_DOMAIN = 'backlog.com';
+const VALID_PROJ = 'deadbeaf';
 const VALID_FQDN = `${VALID_SPACEID}.${VALID_DOMAIN}`;
 
 const localVue = createLocalVue();
@@ -19,11 +20,13 @@ describe('Settings', () => {
     actions = {
       updateApiKey: sinon.stub(),
       updateFqdn: sinon.stub(),
+      updateProjectKey: sinon.stub(),
     };
     store = new Vuex.Store({
       state: {
         backlogApiKey: '',
         backlogFqdn: '',
+        backlogProjectKey: '',
       },
       actions,
     });
@@ -61,26 +64,38 @@ describe('Settings', () => {
       .is.equal(VALID_DOMAIN);
   });
 
+  it('should load project key from local store', () => {
+    store.state.backlogProjectKey = VALID_PROJ;
+    const wrapper = shallow(Settings, { localVue, store });
+    expect(wrapper.vm.backlogProjectKey)
+      .is.equal(VALID_PROJ);
+  });
+
   it('should update localstore when API key is updated', () => {
     const wrapper = shallow(Settings, { localVue, store });
     const options = {
       backlogHostname: VALID_SPACEID,
       backlogDomain: VALID_DOMAIN,
+      backlogProj: VALID_PROJ,
     };
     const keyInput = wrapper.find('#apikey');
     const domInput = wrapper.find('#domain');
     const hosInput = wrapper.find('#spaceid');
+    const proInput = wrapper.find('#projectkey');
     keyInput.trigger('keyup');
     domInput.trigger('change');
     hosInput.trigger('keyup');
     wrapper.setData(options);
     hosInput.trigger('keyup');
+    proInput.trigger('keyup');
     expect(actions.updateApiKey.calledOnce)
       .is.equal(true);
     expect(actions.updateFqdn.callCount)
       .is.equal(3);
     expect(actions.updateFqdn.thirdCall.args[1])
       .is.eql(VALID_FQDN);
+    expect(actions.updateProjectKey.calledOnce)
+      .is.equal(true);
   });
 
   it('should apply expected default values in forms', () => {
@@ -88,29 +103,14 @@ describe('Settings', () => {
     const keyInput = wrapper.find('#apikey');
     const domInput = wrapper.find('#domain');
     const hosInput = wrapper.find('#spaceid');
+    const proInput = wrapper.find('#projectkey');
     expect(keyInput.element.value)
       .is.eql('');
     expect(domInput.element.value)
       .is.not.eql('');
     expect(hosInput.element.value)
       .is.eql('');
-  });
-
-  it('should load correct local parameters to forms', () => {
-    const options = {
-      backlogApiKey: VALID_API_KEY,
-      backlogDomain: VALID_DOMAIN,
-      backlogHostname: VALID_SPACEID,
-    };
-    const wrapper = shallow(Settings, { data: options, localVue, store });
-    const keyInput = wrapper.find('#apikey');
-    const domInput = wrapper.find('#domain');
-    const hosInput = wrapper.find('#spaceid');
-    expect(keyInput.element.value)
-      .is.eql(VALID_API_KEY);
-    expect(domInput.element.value)
-      .is.eql(VALID_DOMAIN);
-    expect(hosInput.element.value)
-      .is.eql(VALID_SPACEID);
+    expect(proInput.element.value)
+      .is.eql('');
   });
 });

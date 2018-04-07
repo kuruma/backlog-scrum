@@ -47,6 +47,7 @@ export default {
       let bldomain;
       let blspace;
       let blkey;
+      let blproj;
       for (let i = 0, l = queries.length; i < l; i += 1) {
         const query = (queries[i] || '').split('=');
         const key = query[0];
@@ -61,6 +62,9 @@ export default {
           case 'blspace':
             blspace = value;
             break;
+          case 'blproj':
+            blproj = value;
+            break;
           default:
             break;
         }
@@ -69,6 +73,7 @@ export default {
         blkey,
         blspace,
         bldomain,
+        blproj,
       };
     },
   },
