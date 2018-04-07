@@ -70,4 +70,35 @@ describe('Settings', () => {
     expect(wrapper.emitted('notify-update-fqdn')[2])
       .is.eql([VALID_FQDN]);
   });
+
+  it('should apply expected default values in forms', () => {
+    const wrapper = shallow(Settings);
+    const keyInput = wrapper.find('#apikey');
+    const domInput = wrapper.find('#domain');
+    const hosInput = wrapper.find('#spaceid');
+    expect(keyInput.element.value)
+      .is.eql('');
+    expect(domInput.element.value)
+      .is.not.eql('');
+    expect(hosInput.element.value)
+      .is.eql('');
+  });
+
+  it('should mirror correct local parameters to forms', () => {
+    const options = {
+      backlogApiKey: VALID_API_KEY,
+      backlogDomain: VALID_DOMAIN,
+      backlogHostname: VALID_SPACEID,
+    };
+    const wrapper = shallow(Settings, { data: options });
+    const keyInput = wrapper.find('#apikey');
+    const domInput = wrapper.find('#domain');
+    const hosInput = wrapper.find('#spaceid');
+    expect(keyInput.element.value)
+      .is.eql(VALID_API_KEY);
+    expect(domInput.element.value)
+      .is.eql(VALID_DOMAIN);
+    expect(hosInput.element.value)
+      .is.eql(VALID_SPACEID);
+  });
 });
