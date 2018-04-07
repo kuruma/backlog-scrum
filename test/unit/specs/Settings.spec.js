@@ -46,4 +46,28 @@ describe('Setting', () => {
     expect(wrapper.vm.backlogDomain)
       .is.equal(VALID_DOMAIN);
   });
+
+  it('should emit event when parameters are updated', () => {
+    const wrapper = shallow(Settings);
+    const options = {
+      backlogHostname: VALID_SPACEID,
+      backlogDomain: VALID_DOMAIN,
+    };
+    const keyInput = wrapper.find('#apikey');
+    const domInput = wrapper.find('#domain');
+    const hosInput = wrapper.find('#spaceid');
+    keyInput.trigger('keyup');
+    domInput.trigger('change');
+    hosInput.trigger('keyup');
+    wrapper.setData(options);
+    hosInput.trigger('keyup');
+    expect(wrapper.emitted('notify-update-api-key').length)
+      .is.equal(1);
+    expect(wrapper.emitted('notify-update-fqdn').length)
+      .is.equal(3);
+    expect(wrapper.emitted('notify-update-fqdn')[1])
+      .is.eql(['']);
+    expect(wrapper.emitted('notify-update-fqdn')[2])
+      .is.eql([VALID_FQDN]);
+  });
 });
