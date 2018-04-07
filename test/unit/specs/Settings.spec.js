@@ -6,7 +6,7 @@ const VALID_SPACEID = 'foobar';
 const VALID_DOMAIN = 'backlog.com';
 const VALID_FQDN = `${VALID_SPACEID}.${VALID_DOMAIN}`;
 
-describe('Setting', () => {
+describe('Settings', () => {
   it('should be wrapped by .container node', () => {
     const wrapper = shallow(Settings);
     expect(wrapper.classes())

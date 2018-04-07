@@ -39,7 +39,7 @@
 
 <script>
 export default {
-  name: 'Setting',
+  name: 'Settings',
   data() {
     return {
       backlogApiKey: '',
