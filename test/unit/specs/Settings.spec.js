@@ -1,4 +1,6 @@
-import { shallow } from '@vue/test-utils';
+import { shallow, createLocalVue } from '@vue/test-utils';
+import Vuex from 'vuex';
+import sinon from 'sinon';
 import Settings from '@/components/Settings';
 
 const VALID_API_KEY = 'Dy52eJKpGXZjQdSB9WpyW3s4a7fn404OdZjNlaGi5Lprhlbf0h6K2sVpIfcemtDv';
@@ -6,15 +8,35 @@ const VALID_SPACEID = 'foobar';
 const VALID_DOMAIN = 'backlog.com';
 const VALID_FQDN = `${VALID_SPACEID}.${VALID_DOMAIN}`;
 
+const localVue = createLocalVue();
+localVue.use(Vuex);
+
 describe('Settings', () => {
+  let store;
+  let actions;
+
+  beforeEach(() => {
+    actions = {
+      updateApiKey: sinon.stub(),
+      updateFqdn: sinon.stub(),
+    };
+    store = new Vuex.Store({
+      state: {
+        backlogApiKey: '',
+        backlogFqdn: '',
+      },
+      actions,
+    });
+  });
+
   it('should be wrapped by .container node', () => {
-    const wrapper = shallow(Settings);
+    const wrapper = shallow(Settings, { localVue, store });
     expect(wrapper.classes())
       .include('container');
   });
 
   it('should show only one header', () => {
-    const wrapper = shallow(Settings);
+    const wrapper = shallow(Settings, { localVue, store });
     expect(wrapper.contains('h1'))
       .is.equal(true);
     expect(wrapper.findAll('h1').length)
@@ -23,32 +45,24 @@ describe('Settings', () => {
       .is.equal('設定');
   });
 
-  it('should mirror API key from parent component to local', () => {
-    const options = {
-      propsData: {
-        latestBacklogApiKey: VALID_API_KEY,
-      },
-    };
-    const wrapper = shallow(Settings, options);
+  it('should load API key parameter from local store', () => {
+    store.state.backlogApiKey = VALID_API_KEY;
+    const wrapper = shallow(Settings, { localVue, store });
     expect(wrapper.vm.backlogApiKey)
       .is.equal(VALID_API_KEY);
   });
 
-  it('should mirror FQDN from parent component to local', () => {
-    const options = {
-      propsData: {
-        latestBacklogFqdn: VALID_FQDN,
-      },
-    };
-    const wrapper = shallow(Settings, options);
+  it('should load FQDN parameter from local store', () => {
+    store.state.backlogFqdn = VALID_FQDN;
+    const wrapper = shallow(Settings, { localVue, store });
     expect(wrapper.vm.backlogHostname)
       .is.equal(VALID_SPACEID);
     expect(wrapper.vm.backlogDomain)
       .is.equal(VALID_DOMAIN);
   });
 
-  it('should emit event when parameters are updated', () => {
-    const wrapper = shallow(Settings);
+  it('should update localstore when API key is updated', () => {
+    const wrapper = shallow(Settings, { localVue, store });
     const options = {
       backlogHostname: VALID_SPACEID,
       backlogDomain: VALID_DOMAIN,
@@ -61,18 +75,16 @@ describe('Settings', () => {
     hosInput.trigger('keyup');
     wrapper.setData(options);
     hosInput.trigger('keyup');
-    expect(wrapper.emitted('notify-update-api-key').length)
-      .is.equal(1);
-    expect(wrapper.emitted('notify-update-fqdn').length)
+    expect(actions.updateApiKey.calledOnce)
+      .is.equal(true);
+    expect(actions.updateFqdn.callCount)
       .is.equal(3);
-    expect(wrapper.emitted('notify-update-fqdn')[1])
-      .is.eql(['']);
-    expect(wrapper.emitted('notify-update-fqdn')[2])
-      .is.eql([VALID_FQDN]);
+    expect(actions.updateFqdn.thirdCall.args[1])
+      .is.eql(VALID_FQDN);
   });
 
   it('should apply expected default values in forms', () => {
-    const wrapper = shallow(Settings);
+    const wrapper = shallow(Settings, { localVue, store });
     const keyInput = wrapper.find('#apikey');
     const domInput = wrapper.find('#domain');
     const hosInput = wrapper.find('#spaceid');
@@ -84,13 +96,13 @@ describe('Settings', () => {
       .is.eql('');
   });
 
-  it('should mirror correct local parameters to forms', () => {
+  it('should load correct local parameters to forms', () => {
     const options = {
       backlogApiKey: VALID_API_KEY,
       backlogDomain: VALID_DOMAIN,
       backlogHostname: VALID_SPACEID,
     };
-    const wrapper = shallow(Settings, { data: options });
+    const wrapper = shallow(Settings, { data: options, localVue, store });
     const keyInput = wrapper.find('#apikey');
     const domInput = wrapper.find('#domain');
     const hosInput = wrapper.find('#spaceid');

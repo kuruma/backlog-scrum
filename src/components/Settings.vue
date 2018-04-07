@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'Settings',
   data() {
@@ -48,13 +50,13 @@ export default {
       backlogHostname: '',
     };
   },
-  props: {
-    latestBacklogApiKey: String,
-    latestBacklogFqdn: String,
-  },
   methods: {
+    ...mapActions({
+      storeBacklogApiKey: 'updateApiKey',
+      storeBacklogFqdn: 'updateFqdn',
+    }),
     updateBacklogApiKey() {
-      this.$emit('notify-update-api-key', this.backlogApiKey);
+      this.storeBacklogApiKey(this.backlogApiKey);
     },
     updateBacklogFqdn() {
       if (this.backlogHostname === '') {
@@ -62,13 +64,13 @@ export default {
       } else {
         this.backlogFqdn = `${this.backlogHostname}.${this.backlogDomain}`;
       }
-      this.$emit('notify-update-fqdn', this.backlogFqdn);
+      this.storeBacklogFqdn(this.backlogFqdn);
     },
   },
   mounted() {
-    this.backlogApiKey = this.latestBacklogApiKey;
-    if (this.latestBacklogFqdn) {
-      const domains = this.latestBacklogFqdn.split('.');
+    this.backlogApiKey = this.$store.state.backlogApiKey;
+    if (this.$store.state.backlogFqdn) {
+      const domains = this.$store.state.backlogFqdn.split('.');
       if (domains.length === 3) {
         this.backlogHostname = domains.shift();
         this.backlogDomain = domains.join('.');

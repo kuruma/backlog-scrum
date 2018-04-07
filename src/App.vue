@@ -19,17 +19,12 @@
     </nav>
     <main>
       <router-view
-        :latest-backlog-api-key="latestBacklogApiKey"
-        @notify-update-api-key="requestUpdateBacklogApiKey"
-        :latest-backlog-fqdn="latestBacklogFqdn"
-        @notify-update-fqdn="requestUpdateBacklogFqdn"
         />
     </main>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/ellipsis-v';
@@ -42,33 +37,44 @@ export default {
   },
   data() {
     return {
-      latestBacklogApiKey: '',
-      latestBacklogFqdn: '',
     };
   },
   methods: {
-    requestUpdateBacklogApiKey(key) {
-      if (key === '') {
-        Vue.$storage.remove('backlogApiKey');
-      } else {
-        Vue.$storage.set('backlogApiKey', key);
+    getUriQueries() {
+      let queriesStr = window.location.search || '';
+      queriesStr = queriesStr.substr(1, queriesStr.length);
+      const queries = queriesStr.split('&');
+      let bldomain;
+      let blspace;
+      let blkey;
+      for (let i = 0, l = queries.length; i < l; i += 1) {
+        const query = (queries[i] || '').split('=');
+        const key = query[0];
+        const value = query[1];
+        switch (key) {
+          case 'bldomain':
+            bldomain = value.toLowerCase();
+            break;
+          case 'blkey':
+            blkey = value;
+            break;
+          case 'blspace':
+            blspace = value;
+            break;
+          default:
+            break;
+        }
       }
-    },
-    requestUpdateBacklogFqdn(fqdn) {
-      if (fqdn === '') {
-        Vue.$storage.remove('backlogFqdn');
-      } else {
-        Vue.$storage.set('backlogFqdn', fqdn);
-      }
+      return {
+        blkey,
+        blspace,
+        bldomain,
+      };
     },
   },
   created() {
-    this.latestBacklogApiKey = Vue.$storage.hasKey('backlogApiKey')
-      ? Vue.$storage.get('backlogApiKey')
-      : '';
-    this.latestBacklogFqdn = Vue.$storage.hasKey('backlogFqdn')
-      ? Vue.$storage.get('backlogFqdn')
-      : '';
+    const params = this.getUriQueries();
+    this.$store.dispatch('initialize', params);
   },
 };
 </script>
