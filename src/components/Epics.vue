@@ -15,10 +15,6 @@ export default {
     return {
     };
   },
-  props: {
-    latestBacklogApiKey: String,
-    latestBacklogFqdn: String,
-  },
 };
 </script>
 
