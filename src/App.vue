@@ -78,7 +78,6 @@ export default {
     const params = this.getUriQueries();
     try {
       await this.$store.dispatch('initialize', params);
-      console.log(9);
       this.$refs.main.$emit('datastore-updated');
     } catch (e) {
       // TODO
