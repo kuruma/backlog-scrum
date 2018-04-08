@@ -2,6 +2,9 @@
   <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
     <div class="row mt-3">
       <div class="col">
+        <p class="mt-2 text-center text-muted" v-if="loading">
+          <icon name="sync-alt" scale="5" label="Loading..." spin></icon>
+        </p>
         <draggable @end="movedEpic" :options="{
             animation: 250,
             delay: 50,
@@ -38,11 +41,14 @@ import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/bars';
+import 'vue-awesome/icons/sync-alt';
 
 export default {
   name: 'Epics',
   data() {
     return {
+      firstView: true,
+      loading: true,
       epics: {},
       projects: {},
       space: {},
@@ -81,6 +87,7 @@ export default {
       });
     },
     applyDatastore() {
+      this.loading = true;
       this.requestor('space')
         .then(() =>
           this.requestor(`projects/${this.projectKey}`))
@@ -95,13 +102,21 @@ export default {
             },
             'epics',
           ))
+        .then(() => {
+          this.loading = false;
+        })
         .catch(() => {
+          this.loading = false;
           // TODO
         });
     },
   },
   created() {
-    this.$on('datastore-updated', this.applyDatastore);
+    if (this.projectKey) {
+      this.applyDatastore();
+    } else {
+      this.$on('datastore-updated', this.applyDatastore);
+    }
   },
   computed: {
     ...mapGetters({
