@@ -19,6 +19,7 @@
     </nav>
     <main>
       <router-view
+        ref="main"
         />
     </main>
   </div>
@@ -73,9 +74,15 @@ export default {
       };
     },
   },
-  created() {
+  async mounted() {
     const params = this.getUriQueries();
-    this.$store.dispatch('initialize', params);
+    try {
+      await this.$store.dispatch('initialize', params);
+      console.log(9);
+      this.$refs.main.$emit('datastore-updated');
+    } catch (e) {
+      // TODO
+    }
   },
 };
 </script>

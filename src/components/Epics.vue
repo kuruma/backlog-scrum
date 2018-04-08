@@ -38,50 +38,52 @@ export default {
     };
   },
   methods: {
-    requestor(path, queries = {}, resolve = (() => {}), reject = (() => {})) {
-      const name = path.split('/')[0];
-      const keys = Object.keys(queries);
-      const l = keys.length;
-      let qStr = '';
-      for (let i = 0; i < l; i += 1) {
-        qStr += '&';
-        qStr += encodeURIComponent(keys[i]);
-        qStr += '=';
-        qStr += encodeURIComponent(queries[keys[i]]);
-      }
-      axios.get(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}${qStr}`)
-        .then((res) => {
-          Vue.set(this, name, res.data);
-        })
-        .then(() => {
-          resolve();
-        })
-        .catch(() => {
-          reject();
-        });
-    },
-    initialize() {
-      new Promise((resolve, reject) => {
-        this.requestor(`projects/${this.projectKey}`, {}, resolve, reject);
-      }).then(() => {
-        this.requestor('issues', {
-          'projectId[]': this.projects.id,
-          parentChild: 1, // Except child task
-          count: 100,
-          sort: 'updated',
-        });
+    requestor(path, queries = {}) {
+      return new Promise((resolve, reject) => {
+        const name = path.split('/')[0];
+        const keys = Object.keys(queries);
+        const l = keys.length;
+        let qStr = '';
+        for (let i = 0; i < l; i += 1) {
+          qStr += `&${keys[i]}=`;
+          qStr += encodeURIComponent(queries[keys[i]]);
+        }
+        axios.get(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}${qStr}`)
+          .then((res) => {
+            Vue.set(this, name, res.data);
+            resolve(res.status);
+          }).catch(() => {
+            reject(0);
+          });
       });
     },
+    applyDatastore() {
+      this.requestor('space')
+        .then(() =>
+          this.requestor(`projects/${this.projectKey}`))
+        .then(() =>
+          this.requestor(
+            'issues', {
+              'projectId[]': this.projects.id,
+              parentChild: 1, // Except child task
+              count: 100,
+              sort: 'updated',
+            }))
+        .catch(() => {
+          // TODO
+        });
+    },
   },
-  async created() {
-    this.initialize(this.projectKey);
-    this.requestSpaceInfo();
+  created() {
+    this.$on('datastore-updated', this.applyDatastore);
   },
-  ...mapGetters({
-    apiKey: 'backlogApiKey',
-    fqdn: 'backlogFqdn',
-    projectKey: 'backlogProjectKey',
-  }),
+  computed: {
+    ...mapGetters({
+      apiKey: 'backlogApiKey',
+      fqdn: 'backlogFqdn',
+      projectKey: 'backlogProjectKey',
+    }),
+  },
 };
 </script>
 
