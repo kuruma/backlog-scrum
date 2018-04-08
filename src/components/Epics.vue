@@ -1,8 +1,7 @@
 <template>
   <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
-    <div class="row">
+    <div class="row mt-3">
       <div class="col">
-        <h1>エピック</h1>
         <draggable @end="movedEpic" :options="{
             animation: 250,
             delay: 50,

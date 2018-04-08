@@ -23,16 +23,4 @@ describe('Epics', () => {
       .include('container');
     stub.restore();
   });
-
-  it('should show only one header', () => {
-    const stub = sinon.stub(Epics.methods, 'requestor');
-    const wrapper = shallow(Epics, { localVue, store });
-    expect(wrapper.contains('h1'))
-      .is.equal(true);
-    expect(wrapper.findAll('h1').length)
-      .is.equal(1);
-    expect(wrapper.find('h1').text())
-      .is.equal('エピック');
-    stub.restore();
-  });
 });
