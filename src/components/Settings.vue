@@ -2,7 +2,7 @@
   <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
     <div class="row">
       <div class="col">
-        <h1>設定</h1>
+        <h1 class="h2 border-bottom mt-2 mb-3">設定</h1>
         <form>
           <div class="form-group row">
             <label for="apikey" class="col-sm-3 col-md-2 col-form-label">APIキー</label>
