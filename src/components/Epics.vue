@@ -3,11 +3,19 @@
     <div class="row">
       <div class="col">
         <h1>エピック</h1>
-        <ol id="issues" class="list-group">
+        <draggable :options="{
+            animation: 250,
+            delay: 50,
+            handle: '.handle',
+          }"
+          element="ol" id="issues" class="list-group">
           <li v-for="issue in issues" :key="issue.id"
             class="list-group-item flex-column align-items-start mb-2">
             <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{ issue.summary }}</h5>
+              <h5 class="mb-1">
+                <span class="handle mr-2"><icon name="bars"></icon></span>
+                {{ issue.summary }}
+              </h5>
               <small>{{ issue.created }}</small>
             </div>
             <div class="issue-details">
@@ -15,7 +23,7 @@
               <small>{{ issue.createdUser.name }} @ {{ issue.created }}</small>
             </div>
           </li>
-        </ol>
+        </draggable>
         <hr>
         {{ space.updated }}
       </div>
@@ -27,6 +35,10 @@
 import Vue from 'vue';
 import { mapGetters } from 'vuex';
 import axios from 'axios';
+import draggable from 'vuedraggable';
+import Icon from 'vue-awesome/components/Icon';
+
+import 'vue-awesome/icons/bars';
 
 export default {
   name: 'Epics',
@@ -36,6 +48,10 @@ export default {
       projects: {},
       space: {},
     };
+  },
+  components: {
+    draggable,
+    Icon,
   },
   methods: {
     requestor(path, queries = {}) {
