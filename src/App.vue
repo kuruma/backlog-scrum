@@ -35,10 +35,6 @@ export default {
   components: {
     Icon,
   },
-  data() {
-    return {
-    };
-  },
   methods: {
     getUriQueries() {
       let queriesStr = window.location.search || '';
