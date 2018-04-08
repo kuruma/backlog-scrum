@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
     <div class="row">
       <div class="col">
         <h1>設定</h1>
@@ -36,6 +36,14 @@
             <input v-model="backlogProjectKey"
               type="text" class="col-sm-9 col-md-10 form-control" id="projectkey"
               placeholder="プロジェクトキーかIDを入力"/>
+          </div>
+          <div class="form-group row">
+            <span class="col-sm-3 col-md-2 col-form-label">表示設定</span>
+            <div class="form-check col-sm-9 col-md-10 pt-2 pb-2">
+              <input v-model="isFixedViewMode"
+                class="form-check-input" type="checkbox" value="" id="viewmode"/>
+              <label class="form-check-label" for="viewmode">固定幅で表示する</label>
+            </div>
           </div>
         </form>
       </div>
@@ -102,6 +110,14 @@ export default {
       },
       set(value) {
         this.store.dispatch('updateProjectKey', value);
+      },
+    },
+    isFixedViewMode: {
+      get() {
+        return this.$store.getters.isFixedViewMode;
+      },
+      set(value) {
+        this.$store.dispatch('changeViewMode', value);
       },
     },
   },

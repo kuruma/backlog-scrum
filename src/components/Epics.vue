@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
     <div class="row">
       <div class="col">
         <h1>エピック</h1>
@@ -82,6 +82,7 @@ export default {
       apiKey: 'backlogApiKey',
       fqdn: 'backlogFqdn',
       projectKey: 'backlogProjectKey',
+      isFixedViewMode: 'isFixedViewMode',
     }),
   },
 };

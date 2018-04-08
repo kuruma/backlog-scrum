@@ -9,6 +9,7 @@ const state = {
   backlogApiKey: '',
   backlogFqdn: '',
   backlogProjectKey: '',
+  isFixedViewMode: true,
 };
 
 const actions = {
@@ -38,6 +39,10 @@ const actions = {
   updateProjectKey({ commit }, key) {
     commit('storeProjectKey', key);
   },
+  changeViewMode({ commit }, mode) {
+    console.log(2, mode);
+    commit('storeViewMode', mode);
+  },
 };
 
 const mutations = {
@@ -53,6 +58,10 @@ const mutations = {
     state.backlogProjectKey = str;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogProj`, str);
   },
+  storeViewMode(s, mode) {
+    state.isFixedViewMode = mode;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}viewMode`, mode);
+  },
 };
 
 const getters = {
@@ -61,6 +70,7 @@ const getters = {
   backlogFqdn: s => s.backlogFqdn,
   backlogHostname: s => s.backlogFqdn.split('.')[0],
   backlogProjectKey: s => s.backlogProjectKey,
+  isFixedViewMode: s => s.isFixedViewMode,
 };
 
 export default new Vuex.Store({
