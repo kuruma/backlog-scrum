@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col">
         <h1>エピック</h1>
-        <draggable :options="{
+        <draggable @end="movedIssue" :options="{
             animation: 250,
             delay: 50,
             handle: '.handle',
@@ -54,6 +54,14 @@ export default {
     Icon,
   },
   methods: {
+    movedIssue(event) {
+      if (event.from !== event.to) {
+        console.log(`${event.from.id} was updated`);
+        console.log(`${event.to.id} was updated`);
+      } else if (event.oldIndex !== event.newIndex) {
+        console.log(`${event.from.id} was updated`);
+      }
+    },
     requestor(path, queries = {}) {
       return new Promise((resolve, reject) => {
         const name = path.split('/')[0];
