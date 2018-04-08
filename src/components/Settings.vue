@@ -68,7 +68,7 @@ export default {
       } else if (this.backlogHostname !== '') {
         fqdn = `${this.backlogHostname}.${obj.domain}`;
       }
-      this.store.dispatch('updateFqdn', fqdn);
+      this.$store.dispatch('updateFqdn', fqdn);
     },
   },
   computed: {
@@ -93,7 +93,7 @@ export default {
         return this.$store.getters.backlogFqdn;
       },
       set(value) {
-        this.store.dispatch('updateFqdn', value);
+        this.$store.dispatch('updateFqdn', value);
       },
     },
     backlogHostname: {
@@ -109,7 +109,7 @@ export default {
         return this.$store.getters.backlogProjectKey;
       },
       set(value) {
-        this.store.dispatch('updateProjectKey', value);
+        this.$store.dispatch('updateProjectKey', value);
       },
     },
     isFixedViewMode: {
