@@ -6,7 +6,7 @@
         <form>
           <div class="form-group row">
             <label for="apikey" class="col-sm-3 col-md-2 col-form-label">APIキー</label>
-            <input v-model="backlogApiKey" @keyup="updateBacklogApiKey"
+            <input v-model="backlogApiKey"
               type="text" class="col-sm-9 col-md-10 form-control" id="apikey"
               placeholder="[個人設定] > [API] から新規に発行したAPIキーを入力"/>
           </div>
@@ -16,7 +16,7 @@
               <div class="input-group-prepend">
                 <div class="input-group-text">https://</div>
               </div>
-              <input v-model="backlogHostname" @keyup="updateBacklogFqdn"
+              <input v-model="backlogHostname"
                 type="text" class="form-control" id="spaceid" placeholder="ホスト部を入力"/>
               <div class="input-group-postpend">
                 <div class="input-group-text">.{{ backlogDomain }}</div>
@@ -25,7 +25,7 @@
           </div>
           <div class="form-group row">
             <label for="domain" class="col-sm-3 col-md-2 col-form-label">接続先</label>
-            <select v-model="backlogDomain" @change="updateBacklogFqdn"
+            <select v-model="backlogDomain"
               class="col-sm-9 col-md-10 form-control" id="domain">
               <option selected="selected">backlog.jp</option>
               <option>backlog.com</option>
@@ -33,7 +33,7 @@
           </div>
           <div class="form-group row">
             <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
-            <input v-model="backlogProjectKey" @keyup="updateBacklogProjectKey"
+            <input v-model="backlogProjectKey"
               type="text" class="col-sm-9 col-md-10 form-control" id="projectkey"
               placeholder="プロジェクトキーかIDを入力"/>
           </div>
@@ -44,50 +44,66 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
-
 export default {
   name: 'Settings',
   data() {
     return {
-      backlogApiKey: '',
-      backlogDomain: 'backlog.jp',
-      backlogFqdn: '',
-      backlogHostname: '',
-      backlogProjectKey: '',
+      defaultDomain: 'backlog.jp',
     };
   },
   methods: {
-    ...mapActions({
-      storeBacklogApiKey: 'updateApiKey',
-      storeBacklogFqdn: 'updateFqdn',
-      storeBacklogProjectKey: 'updateProjectKey',
-    }),
-    updateBacklogApiKey() {
-      this.storeBacklogApiKey(this.backlogApiKey);
-    },
-    updateBacklogFqdn() {
-      if (this.backlogHostname === '') {
-        this.backlogFqdn = '';
-      } else {
-        this.backlogFqdn = `${this.backlogHostname}.${this.backlogDomain}`;
+    updateFqdn(obj) {
+      // obj has each key from this: { hostname: 'FOO', domian: 'BAR' }
+      let fqdn = '';
+      if (obj.hostname) {
+        fqdn = `${obj.hostname}.${this.backlogDomain}`;
+      } else if (this.backlogHostname !== '') {
+        fqdn = `${this.backlogHostname}.${obj.domain}`;
       }
-      this.storeBacklogFqdn(this.backlogFqdn);
-    },
-    updateBacklogProjectKey() {
-      this.storeBacklogProjectKey(this.backlogProjectKey);
+      this.store.dispatch('updateFqdn', fqdn);
     },
   },
-  created() {
-    this.backlogApiKey = this.$store.state.backlogApiKey;
-    if (this.$store.state.backlogFqdn) {
-      const domains = this.$store.state.backlogFqdn.split('.');
-      if (domains.length === 3) {
-        this.backlogHostname = domains.shift();
-        this.backlogDomain = domains.join('.');
-      }
-    }
-    this.backlogProjectKey = this.$store.state.backlogProjectKey;
+  computed: {
+    backlogApiKey: {
+      get() {
+        return this.$store.getters.backlogApiKey;
+      },
+      set(value) {
+        this.$store.dispatch('updateApiKey', value);
+      },
+    },
+    backlogDomain: {
+      get() {
+        return this.$store.getters.backlogDomain || this.defaultDomain;
+      },
+      set(value) {
+        this.updateFqdn({ domain: value });
+      },
+    },
+    backlogFqdn: {
+      get() {
+        return this.$store.getters.backlogFqdn;
+      },
+      set(value) {
+        this.store.dispatch('updateFqdn', value);
+      },
+    },
+    backlogHostname: {
+      get() {
+        return this.$store.getters.backlogHostname;
+      },
+      set(value) {
+        this.updateFqdn({ hostname: value });
+      },
+    },
+    backlogProjectKey: {
+      get() {
+        return this.$store.getters.backlogProjectKey;
+      },
+      set(value) {
+        this.store.dispatch('updateProjectKey', value);
+      },
+    },
   },
 };
 </script>

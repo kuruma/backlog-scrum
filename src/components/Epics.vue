@@ -25,15 +25,13 @@
 
 <script>
 import Vue from 'vue';
+import { mapGetters } from 'vuex';
 import axios from 'axios';
 
 export default {
   name: 'Epics',
   data() {
     return {
-      apiKey: this.$store.state.backlogApiKey,
-      fqdn: this.$store.state.backlogFqdn,
-      projectKey: this.$store.state.backlogProjectKey,
       issues: {},
       projects: {},
       space: {},
@@ -81,6 +79,11 @@ export default {
     this.initialize(this.projectKey);
     this.requestSpaceInfo();
   },
+  ...mapGetters({
+    apiKey: 'backlogApiKey',
+    fqdn: 'backlogFqdn',
+    projectKey: 'backlogProjectKey',
+  }),
 };
 </script>
 

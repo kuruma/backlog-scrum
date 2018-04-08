@@ -55,8 +55,17 @@ const mutations = {
   },
 };
 
+const getters = {
+  backlogApiKey: s => s.backlogApiKey,
+  backlogDomain: s => s.backlogFqdn.split('.').slice(1).join('.'),
+  backlogFqdn: s => s.backlogFqdn,
+  backlogHostname: s => s.backlogFqdn.split('.')[0],
+  backlogProjectKey: s => s.backlogProjectKey,
+};
+
 export default new Vuex.Store({
   state,
   actions,
   mutations,
+  getters,
 });
