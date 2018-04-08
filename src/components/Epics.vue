@@ -40,7 +40,6 @@ export default {
   methods: {
     requestor(path, queries = {}, resolve = (() => {}), reject = (() => {})) {
       const name = path.split('/')[0];
-      console.log(name);
       const keys = Object.keys(queries);
       const l = keys.length;
       let qStr = '';
@@ -53,7 +52,6 @@ export default {
       axios.get(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}${qStr}`)
         .then((res) => {
           Vue.set(this, name, res.data);
-          console.log(name, 1, this[name]);
         })
         .then(() => {
           resolve();
