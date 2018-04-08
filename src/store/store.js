@@ -31,7 +31,6 @@ const actions = {
     commit('storeFqdn', fqdn);
     commit('storeProjectKey', proj);
     const mode = (localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`).toLowerCase() === 'true');
-    console.log(mode);
     commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
   },
   updateApiKey({ commit }, key) {
@@ -44,7 +43,6 @@ const actions = {
     commit('storeProjectKey', key);
   },
   changeViewMode({ commit }, mode) {
-    console.log(2, mode);
     commit('storeViewMode', mode);
   },
 };
