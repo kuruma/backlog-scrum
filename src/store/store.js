@@ -4,12 +4,13 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 const LOCAL_STORAGE_PREFIX = 'blscrum_';
+const DEFAULT_VIEW_MODE = true;
 
 const state = {
   backlogApiKey: '',
   backlogFqdn: '',
   backlogProjectKey: '',
-  isFixedViewMode: true,
+  isFixedViewMode: DEFAULT_VIEW_MODE,
 };
 
 const actions = {
@@ -29,6 +30,9 @@ const actions = {
     commit('storeApiKey', key);
     commit('storeFqdn', fqdn);
     commit('storeProjectKey', proj);
+    const mode = (localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`).toLowerCase() === 'true');
+    console.log(mode);
+    commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
   },
   updateApiKey({ commit }, key) {
     commit('storeApiKey', key);
