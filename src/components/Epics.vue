@@ -3,24 +3,24 @@
     <div class="row">
       <div class="col">
         <h1>エピック</h1>
-        <draggable @end="movedIssue" :options="{
+        <draggable @end="movedEpic" :options="{
             animation: 250,
             delay: 50,
             handle: '.handle',
           }"
-          element="ol" id="issues" class="list-group">
-          <li v-for="issue in issues" :key="issue.id"
+          element="ol" id="epics" class="list-group">
+          <li v-for="epic in epics" :key="epic.id"
             class="list-group-item flex-column align-items-start mb-2">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">
                 <span class="handle mr-2"><icon name="bars"></icon></span>
-                {{ issue.summary }}
+                {{ epic.summary }}
               </h5>
-              <small>{{ issue.created }}</small>
+              <small>{{ epic.created }}</small>
             </div>
-            <div class="issue-details">
-              <p class="mb-1">{{ issue.description }}</p>
-              <small>{{ issue.createdUser.name }} @ {{ issue.created }}</small>
+            <div class="epic-details">
+              <p class="mb-1">{{ epic.description }}</p>
+              <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
             </div>
           </li>
         </draggable>
@@ -44,7 +44,7 @@ export default {
   name: 'Epics',
   data() {
     return {
-      issues: {},
+      epics: {},
       projects: {},
       space: {},
     };
@@ -54,7 +54,7 @@ export default {
     Icon,
   },
   methods: {
-    movedIssue(event) {
+    movedEpic(event) {
       if (event.from !== event.to) {
         console.log(`${event.from.id} was updated`);
         console.log(`${event.to.id} was updated`);
@@ -62,9 +62,9 @@ export default {
         console.log(`${event.from.id} was updated`);
       }
     },
-    requestor(path, queries = {}) {
+    requestor(path, queries = {}, dataName) {
+      const name = dataName || path.split('/')[0];
       return new Promise((resolve, reject) => {
-        const name = path.split('/')[0];
         const keys = Object.keys(queries);
         const l = keys.length;
         let qStr = '';
@@ -87,12 +87,15 @@ export default {
           this.requestor(`projects/${this.projectKey}`))
         .then(() =>
           this.requestor(
-            'issues', {
+            'issues',
+            {
               'projectId[]': this.projects.id,
               parentChild: 1, // Except child task
               count: 100,
               sort: 'updated',
-            }))
+            },
+            'epics',
+          ))
         .catch(() => {
           // TODO
         });
