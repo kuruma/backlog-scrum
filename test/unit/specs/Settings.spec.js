@@ -112,11 +112,11 @@ describe('Settings', () => {
     const proInput = wrapper.find('#projectkey');
     const viewmodeCheck = wrapper.find('#viewmode');
     expect(keyInput.element.value)
-      .is.eql('');
+      .is.equal('');
     expect(domInput.element.value)
-      .is.not.eql('');
+      .is.not.equal('');
     expect(hosInput.element.value)
-      .is.eql('');
+      .is.equal('');
     expect(viewmodeCheck.element.value)
       .is.equal('');
   });
