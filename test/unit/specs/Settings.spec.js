@@ -32,10 +32,13 @@ describe('Settings', () => {
     });
   });
 
-  it('should be wrapped by .container node', () => {
+  xit('should be wrapped by .container node in default', () => {
     const wrapper = shallow(Settings, { localVue, store });
     expect(wrapper.classes())
       .include('container');
+  });
+
+  xit('should be wrapped by .container-fluid node if a flag is true', () => {
   });
 
   it('should show only one header', () => {
