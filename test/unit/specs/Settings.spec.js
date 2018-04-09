@@ -110,13 +110,14 @@ describe('Settings', () => {
     const domInput = wrapper.find('#domain');
     const hosInput = wrapper.find('#spaceid');
     const proInput = wrapper.find('#projectkey');
+    const viewmodeCheck = wrapper.find('#viewmode');
     expect(keyInput.element.value)
       .is.eql('');
     expect(domInput.element.value)
       .is.not.eql('');
     expect(hosInput.element.value)
       .is.eql('');
-    expect(proInput.element.value)
-      .is.eql('');
+    expect(viewmodeCheck.element.value)
+      .is.equal('');
   });
 });
