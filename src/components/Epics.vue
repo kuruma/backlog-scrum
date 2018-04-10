@@ -23,6 +23,11 @@
             <div class="epic-details">
               <p class="mb-1">{{ epic.description }}</p>
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
+              <b-button size="sm" class="float-right"
+                v-b-tooltip.hover title="最上位に移動する"
+                @click="moveEpicToTop">
+                <icon name="level-up-alt" lavel="最上位に移動する"/>
+              </b-button>
             </div>
           </li>
         </draggable>
@@ -42,6 +47,7 @@ import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
+import 'vue-awesome/icons/level-up-alt';
 
 export default {
   name: 'Epics',
@@ -66,6 +72,10 @@ export default {
       } else if (event.oldIndex !== event.newIndex) {
         console.log(`${event.from.id} was updated`);
       }
+    },
+    moveEpicToTop() {
+      // FIXME: Should animate epics
+      this.epics.unshift(this.epics.splice(2, 1)[0]);
     },
     requestor(path, queries = {}, dataName) {
       const name = dataName || path.split('/')[0];
