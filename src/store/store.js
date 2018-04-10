@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import Jssha from 'jssha';
 
 Vue.use(Vuex);
 
@@ -74,6 +75,11 @@ const getters = {
   backlogHostname: s => s.backlogFqdn.split('.')[0],
   backlogProjectKey: s => s.backlogProjectKey,
   isFixedViewMode: s => s.isFixedViewMode,
+  projectHash: (s) => {
+    const sha = new Jssha('SHA3-224', 'TEXT');
+    sha.update(`${s.backlogHostname}.${s.backlogDomain}@${s.backlogProjectKey}`);
+    return sha.getHash('HEX');
+  },
 };
 
 export default new Vuex.Store({

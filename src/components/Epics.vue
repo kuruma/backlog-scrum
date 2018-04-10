@@ -123,6 +123,7 @@ export default {
   },
   created() {
     this.$on('datastore-updated', this.applyDatastore);
+    console.log(this.$store.getters.projectHash);
     // datastore-updated only called this page is loaded at 1st time
     if (this.projectKey) {
       this.applyDatastore();
