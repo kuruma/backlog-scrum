@@ -23,7 +23,9 @@
             <div class="epic-details">
               <p class="mb-1">{{ epic.description }}</p>
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
-              <button class="btn btn-outline-dark btn-sm float-right" @click="moveEpicToTop">
+              <button class="btn btn-outline-dark btn-sm float-right"
+                data-toggle="tooltip" data-placement="top" title="最上位に移動する"
+                @click="moveEpicToTop">
                 <icon name="level-up-alt" lavel="最上位に移動する"/>
               </button>
             </div>
