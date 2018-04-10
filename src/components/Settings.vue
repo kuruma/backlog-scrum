@@ -1,20 +1,20 @@
 <template>
   <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
-    <div class="row">
-      <div class="col">
+    <b-row>
+      <b-col>
         <h1 class="h2 border-bottom mt-2 mb-3">設定</h1>
         <form>
           <div class="form-group row">
             <label for="apikey" class="col-sm-3 col-md-2 col-form-label">APIキー</label>
-            <div class="col">
+            <b-col>
               <input v-model="backlogApiKey"
                 type="text" class="form-control" id="apikey"
                 placeholder="[個人設定] > [API] から新規に発行したAPIキーを入力"/>
-            </div>
+            </b-col>
           </div>
           <div class="form-group row">
             <label for="spaceid" class="col-sm-3 col-md-2 col-form-label">スペースID</label>
-            <div class="col">
+            <b-col>
               <div class="input-group pl-0 pr-0">
                 <div class="input-group-prepend">
                   <div class="input-group-text">https://</div>
@@ -25,25 +25,25 @@
                   <div class="input-group-text">.{{ backlogDomain }}</div>
                 </div>
               </div>
-            </div>
+            </b-col>
           </div>
           <div class="form-group row">
             <label for="domain" class="col-sm-3 col-md-2 col-form-label">接続先</label>
-            <div class="col">
+            <b-col>
               <select v-model="backlogDomain"
                 class="form-control" id="domain">
                 <option selected="selected">backlog.jp</option>
                 <option>backlog.com</option>
               </select>
-            </div>
+            </b-col>
           </div>
           <div class="form-group row">
             <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
-            <div class="col">
+            <b-col>
               <input v-model="backlogProjectKey"
                 type="text" class="form-control" id="projectkey"
                 placeholder="プロジェクトキーかIDを入力"/>
-            </div>
+            </b-col>
           </div>
           <div class="form-group row">
             <span class="col-sm-3 col-md-2 col-form-label mr-3">表示設定</span>
@@ -54,8 +54,8 @@
             </div>
           </div>
         </form>
-      </div>
-    </div>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
