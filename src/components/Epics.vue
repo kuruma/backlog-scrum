@@ -122,10 +122,10 @@ export default {
     },
   },
   created() {
+    this.$on('datastore-updated', this.applyDatastore);
+    // datastore-updated only called this page is loaded at 1st time
     if (this.projectKey) {
       this.applyDatastore();
-    } else {
-      this.$on('datastore-updated', this.applyDatastore);
     }
   },
   computed: {
