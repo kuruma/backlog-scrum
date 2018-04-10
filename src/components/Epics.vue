@@ -23,7 +23,7 @@
             <div class="epic-details">
               <p class="mb-1">{{ epic.description }}</p>
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
-              <button class="btn btn-outline-dark btn-sm float-right">
+              <button class="btn btn-outline-dark btn-sm float-right" @click="moveEpicToTop">
                 <icon name="level-up-alt" lavel="最上位に移動する"/>
               </button>
             </div>
@@ -70,6 +70,10 @@ export default {
       } else if (event.oldIndex !== event.newIndex) {
         console.log(`${event.from.id} was updated`);
       }
+    },
+    moveEpicToTop() {
+      // FIXME: Should animate epics
+      this.epics.unshift(this.epics.splice(2, 1)[0]);
     },
     requestor(path, queries = {}, dataName) {
       const name = dataName || path.split('/')[0];
