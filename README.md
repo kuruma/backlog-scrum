@@ -1,6 +1,6 @@
 # backlog-scrum
 
-> Kanman-style backlog viewer for scrum team
+> Kanban-style backlog viewer for scrum team
 
 ## Build Setup
 
