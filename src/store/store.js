@@ -11,6 +11,7 @@ const state = {
   backlogApiKey: '',
   backlogFqdn: '',
   backlogProjectKey: '',
+  firebaseUri: '',
   isFixedViewMode: DEFAULT_VIEW_MODE,
 };
 
@@ -34,9 +35,14 @@ const actions = {
     const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
     const mode = (modeStr === undefined) ? false : (modeStr.toLowerCase() === 'true');
     commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
+    const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
+    commit('storeFirebaseUri', (fburi === undefined) ? '' : fburi.toString());
   },
   updateApiKey({ commit }, key) {
     commit('storeApiKey', key);
+  },
+  updateFirebaseUri({ commit }, uri) {
+    commit('storeFirebaseUri', uri);
   },
   updateFqdn({ commit }, fqdn) {
     commit('storeFqdn', fqdn);
@@ -53,6 +59,10 @@ const mutations = {
   storeApiKey(s, str) {
     state.backlogApiKey = str;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`, str);
+  },
+  storeFirebaseUri(s, str) {
+    state.firebaseUri = str;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`, str);
   },
   storeFqdn(s, str) {
     state.backlogFqdn = str;
@@ -74,6 +84,7 @@ const getters = {
   backlogFqdn: s => s.backlogFqdn,
   backlogHostname: s => s.backlogFqdn.split('.')[0],
   backlogProjectKey: s => s.backlogProjectKey,
+  firebaseUri: s => s.firebaseUri,
   isFixedViewMode: s => s.isFixedViewMode,
   projectHash: (s) => {
     const sha = new Jssha('SHA3-224', 'TEXT');

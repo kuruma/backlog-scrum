@@ -46,6 +46,18 @@
             </b-col>
           </div>
           <div class="form-group row">
+            <label for="firebaseuri" class="col-sm-3 col-md-2 col-form-label">Firebase URI</label>
+            <b-col sm="7" md="8">
+              <!-- TODO 初期値設定する -->
+              <input type="text" class="form-control" id="firebaseuri"
+                v-model="firebaseUri"
+                placeholder="Firebase Realtime DatabaseのURIを入力"/>
+            </b-col>
+            <b-col size="2">
+              <b-button @click="updateFirebaseUri">適用</b-button>
+            </b-col>
+          </div>
+          <div class="form-group row">
             <span class="col-sm-3 col-md-2 col-form-label mr-3">表示設定</span>
             <div class="form-check col pt-2 pb-2">
               <input v-model="isFixedViewMode"
@@ -68,6 +80,9 @@ export default {
     };
   },
   methods: {
+    updateFirebaseUri() {
+      this.$store.dispatch('updateFirebaseUri', document.getElementById('firebaseuri').value);
+    },
     updateFqdn(obj) {
       // obj has each key from this: { hostname: 'FOO', domian: 'BAR' }
       let fqdn = '';
@@ -120,6 +135,13 @@ export default {
         this.$store.dispatch('updateProjectKey', value);
       },
     },
+    firebaseUri: {
+      get() {
+        return this.$store.getters.firebaseUri;
+      },
+      set() {
+      },
+    },
     isFixedViewMode: {
       get() {
         return this.$store.getters.isFixedViewMode;
@@ -133,4 +155,7 @@ export default {
 </script>
 
 <style scoped>
+button {
+  width: 100%;
+}
 </style>
