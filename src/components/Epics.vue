@@ -25,7 +25,7 @@
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
               <b-button size="sm" class="float-right"
                 v-b-tooltip.hover title="最上位に移動する"
-                @click="moveEpicToTop" v-if="key !== 0">
+                @click="moveEpicToTop(key)" v-if="key !== 0">
                 <icon name="level-up-alt" lavel="最上位に移動する"/>
               </b-button>
             </div>
@@ -73,9 +73,9 @@ export default {
         console.log(`${event.from.id} was updated`);
       }
     },
-    moveEpicToTop() {
+    moveEpicToTop(key) {
       // FIXME: Should animate epics
-      this.epics.unshift(this.epics.splice(2, 1)[0]);
+      this.epics.unshift(this.epics.splice(key, 1)[0]);
     },
     requestor(path, queries = {}, dataName) {
       const name = dataName || path.split('/')[0];
