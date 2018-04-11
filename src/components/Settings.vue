@@ -3,69 +3,84 @@
     <b-row>
       <b-col>
         <h1 class="h2 border-bottom mt-2 mb-3">設定</h1>
-        <form>
-          <div class="form-group row">
-            <label for="apikey" class="col-sm-3 col-md-2 col-form-label">APIキー</label>
-            <b-col>
-              <input v-model="backlogApiKey"
-                type="text" class="form-control" id="apikey"
-                placeholder="[個人設定] > [API] から新規に発行したAPIキーを入力"/>
-            </b-col>
-          </div>
-          <div class="form-group row">
-            <label for="spaceid" class="col-sm-3 col-md-2 col-form-label">スペースID</label>
-            <b-col>
-              <div class="input-group pl-0 pr-0">
-                <div class="input-group-prepend">
-                  <div class="input-group-text">https://</div>
+        <b-card no-body>
+          <b-tabs card no-fade>
+            <b-tab title="接続先" active>
+              <form>
+                <div class="form-group row">
+                  <label for="apikey" class="col-sm-3 col-md-2 col-form-label">APIキー</label>
+                  <b-col>
+                    <input v-model="backlogApiKey"
+                      type="text" class="form-control" id="apikey"
+                      placeholder="[個人設定] > [API] から新規に発行したAPIキーを入力"/>
+                  </b-col>
                 </div>
-                <input v-model="backlogHostname"
-                  type="text" class="form-control" id="spaceid" placeholder="ホスト部を入力"/>
-                <div class="input-group-postpend">
-                  <div class="input-group-text">.{{ backlogDomain }}</div>
+                <div class="form-group row">
+                  <label for="spaceid" class="col-sm-3 col-md-2 col-form-label">スペースID</label>
+                  <b-col>
+                    <div class="input-group pl-0 pr-0">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">https://</div>
+                      </div>
+                      <input v-model="backlogHostname"
+                        type="text" class="form-control" id="spaceid" placeholder="ホスト部を入力"/>
+                      <div class="input-group-postpend">
+                        <div class="input-group-text">.{{ backlogDomain }}</div>
+                      </div>
+                    </div>
+                  </b-col>
                 </div>
+                <div class="form-group row">
+                  <label for="domain" class="col-sm-3 col-md-2 col-form-label">接続先</label>
+                  <b-col>
+                    <select v-model="backlogDomain"
+                      class="form-control" id="domain">
+                      <option selected="selected">backlog.jp</option>
+                      <option>backlog.com</option>
+                    </select>
+                  </b-col>
+                </div>
+              </form>
+            </b-tab>
+            <b-tab title="チーム">
+              <form>
+                <div class="form-group row">
+                  <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
+                  <b-col>
+                    <input v-model="backlogProjectKey"
+                      type="text" class="form-control" id="projectkey"
+                      placeholder="プロジェクトキーかIDを入力"/>
+                  </b-col>
+                </div>
+              </form>
+            </b-tab>
+            <b-tab title="同期">
+              <form>
+                <div class="form-group row">
+                  <label for="firebaseuri" class="col-sm-3 col-md-2 col-form-label">
+                    Firebase URI
+                  </label>
+                  <b-col sm="7" md="8">
+                    <!-- TODO 初期値設定する -->
+                    <input type="text" class="form-control" id="firebaseuri"
+                      v-model="firebaseUri"
+                      placeholder="Firebase Realtime DatabaseのURIを入力"/>
+                  </b-col>
+                  <b-col size="2">
+                    <b-button @click="updateFirebaseUri">適用</b-button>
+                  </b-col>
+                </div>
+              </form>
+            </b-tab>
+            <b-tab title="表示">
+              <div>
+                <b-form-checkbox id="viewmode" v-model="isFixedViewMode">
+                  固定幅で表示する
+                </b-form-checkbox>
               </div>
-            </b-col>
-          </div>
-          <div class="form-group row">
-            <label for="domain" class="col-sm-3 col-md-2 col-form-label">接続先</label>
-            <b-col>
-              <select v-model="backlogDomain"
-                class="form-control" id="domain">
-                <option selected="selected">backlog.jp</option>
-                <option>backlog.com</option>
-              </select>
-            </b-col>
-          </div>
-          <div class="form-group row">
-            <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
-            <b-col>
-              <input v-model="backlogProjectKey"
-                type="text" class="form-control" id="projectkey"
-                placeholder="プロジェクトキーかIDを入力"/>
-            </b-col>
-          </div>
-          <div class="form-group row">
-            <label for="firebaseuri" class="col-sm-3 col-md-2 col-form-label">Firebase URI</label>
-            <b-col sm="7" md="8">
-              <!-- TODO 初期値設定する -->
-              <input type="text" class="form-control" id="firebaseuri"
-                v-model="firebaseUri"
-                placeholder="Firebase Realtime DatabaseのURIを入力"/>
-            </b-col>
-            <b-col size="2">
-              <b-button @click="updateFirebaseUri">適用</b-button>
-            </b-col>
-          </div>
-          <div class="form-group row">
-            <span class="col-sm-3 col-md-2 col-form-label mr-3">表示設定</span>
-            <div class="form-check col pt-2 pb-2">
-              <input v-model="isFixedViewMode"
-                class="form-check-input" type="checkbox" value="" id="viewmode"/>
-              <label class="form-check-label" for="viewmode">固定幅で表示する</label>
-            </div>
-          </div>
-        </form>
+            </b-tab>
+          </b-tabs>
+        </b-card>
       </b-col>
     </b-row>
   </div>
