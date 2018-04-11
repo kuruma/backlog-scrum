@@ -52,6 +52,27 @@
                       placeholder="プロジェクトキーかIDを入力"/>
                   </b-col>
                 </div>
+                <div class="form-group row">
+                  <label for="epicid" class="col-sm-3 col-md-2 col-form-label">エピック</label>
+                  <b-col>
+                    <b-form-select v-model.number="backlogEpicId"
+                      :options="categories" size="auto" id="epicid"/>
+                  </b-col>
+                </div>
+                <div class="form-group row">
+                  <label for="storyid" class="col-sm-3 col-md-2 col-form-label">ユーザストーリ</label>
+                  <b-col>
+                    <b-form-select v-model.number="backlogUserStoryId" :options="categories"
+                      size="auto" id="storyid"/>
+                  </b-col>
+                </div>
+                <div class="form-group row">
+                  <label for="taskids" class="col-sm-3 col-md-2 col-form-label">タスク</label>
+                  <b-col>
+                    <b-form-select multiple :select-size="4" v-model="backlogTaskIds"
+                      :options="categories" size="auto" id="taskid"/>
+                  </b-col>
+                </div>
               </form>
             </b-tab>
             <b-tab title="同期">
@@ -92,6 +113,7 @@ export default {
   data() {
     return {
       defaultDomain: 'backlog.jp',
+      categories: [1, 2, 3],
     };
   },
   methods: {
@@ -126,6 +148,14 @@ export default {
         this.updateFqdn({ domain: value });
       },
     },
+    backlogEpicId: {
+      get() {
+        return this.$store.getters.backlogEpicId;
+      },
+      set(value) {
+        this.$store.dispatch('updateEpicId', value);
+      },
+    },
     backlogFqdn: {
       get() {
         return this.$store.getters.backlogFqdn;
@@ -148,6 +178,22 @@ export default {
       },
       set(value) {
         this.$store.dispatch('updateProjectKey', value);
+      },
+    },
+    backlogTaskIds: {
+      get() {
+        return this.$store.getters.backlogTaskIds || [];
+      },
+      set(arr) {
+        this.$store.dispatch('updateTaskIds', arr.map(x => parseInt(x, 10)));
+      },
+    },
+    backlogUserStoryId: {
+      get() {
+        return this.$store.getters.backlogUserStoryId;
+      },
+      set(num) {
+        this.$store.dispatch('updateUserStoryId', num);
       },
     },
     firebaseUri: {

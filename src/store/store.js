@@ -9,8 +9,11 @@ const DEFAULT_VIEW_MODE = true;
 
 const state = {
   backlogApiKey: '',
+  backlogEpicId: -1,
   backlogFqdn: '',
   backlogProjectKey: '',
+  backlogTaskIds: [],
+  backlogUserStoryId: -1,
   firebaseUri: '',
   isFixedViewMode: DEFAULT_VIEW_MODE,
 };
@@ -32,6 +35,12 @@ const actions = {
     commit('storeApiKey', key);
     commit('storeFqdn', fqdn);
     commit('storeProjectKey', proj);
+    const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '-1';
+    const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogStoryId`) || '-1';
+    const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
+    commit('storeEpicId', parseInt(epicid, 10));
+    commit('storeUserStoryId', parseInt(storyid, 10));
+    commit('storeTaskIds', JSON.parse(taskids));
     const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
     const mode = (modeStr === undefined) ? false : (modeStr.toLowerCase() === 'true');
     commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
@@ -40,6 +49,9 @@ const actions = {
   },
   updateApiKey({ commit }, key) {
     commit('storeApiKey', key);
+  },
+  updateEpicId({ commit }, id) {
+    commit('storeEpicId', id);
   },
   updateFirebaseUri({ commit }, uri) {
     commit('storeFirebaseUri', uri);
@@ -50,6 +62,12 @@ const actions = {
   updateProjectKey({ commit }, key) {
     commit('storeProjectKey', key);
   },
+  updateTaskIds({ commit }, ids) {
+    commit('storeTaskIds', ids);
+  },
+  updateUserStoryId({ commit }, id) {
+    commit('storeUserStoryId', id);
+  },
   changeViewMode({ commit }, mode) {
     commit('storeViewMode', mode);
   },
@@ -59,6 +77,10 @@ const mutations = {
   storeApiKey(s, str) {
     state.backlogApiKey = str;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`, str);
+  },
+  storeEpicId(s, num) {
+    state.backlogEpicId = num;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`, num);
   },
   storeFirebaseUri(s, str) {
     state.firebaseUri = str;
@@ -71,6 +93,14 @@ const mutations = {
   storeProjectKey(s, str) {
     state.backlogProjectKey = str;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogProj`, str);
+  },
+  storeTaskIds(s, arr) {
+    state.backlogTaskIds = arr;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`, JSON.stringify(arr));
+  },
+  storeUserStoryId(s, num) {
+    state.backlogUserStoryId = num;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`, num);
   },
   storeViewMode(s, mode) {
     state.isFixedViewMode = mode;
