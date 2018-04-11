@@ -50,7 +50,7 @@
             <div class="form-check col pt-2 pb-2">
               <input v-model="isFixedViewMode"
                 class="form-check-input" type="checkbox" value="" id="viewmode"/>
-              <label class="form-check-label" for="viewmode">固定幅で表示する</label>
+              <label class="form-check-label" for="viewmode">画面横に余白を入れて見やすくする</label>
             </div>
           </div>
         </form>
