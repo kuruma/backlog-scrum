@@ -141,7 +141,7 @@
             <b-tab title="表示">
               <div>
                 <b-form-checkbox id="viewmode" v-model="isFixedViewMode">
-                  固定幅で表示する
+                  画面横に余白を入れて見やすくする
                 </b-form-checkbox>
               </div>
             </b-tab>
