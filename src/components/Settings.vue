@@ -47,20 +47,21 @@
                 <div class="form-group row">
                   <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
                   <b-col sm="5" md="6">
-                    <input v-model="backlogProjectKey"
+                    <input :disabled="isLockedTeamSettings"
+                      v-model="backlogProjectKey"
                       type="text" class="form-control" id="projectkey"
                       placeholder="プロジェクトキーかIDを入力"/>
                   </b-col>
                   <b-col size="4">
-                    <b-button @click="requestProjectParameters">設定を取り込む</b-button>
+                    <b-button :disabled="isLockedTeamSettings"
+                      @click="requestProjectParameters">設定を取り込む</b-button>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="epicid" class="col-sm-3 col-md-2 col-form-label">エピック</label>
                   <b-col>
-                    <select v-model.number="backlogEpicId"
+                    <select v-model.number="backlogEpicId" :disabled="isLockedTeamSettings"
                       class="custom-select" id="epicid">
-                      <option value="-1" selected disabled>選択してください</option>
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
@@ -70,9 +71,8 @@
                 <div class="form-group row">
                   <label for="storyid" class="col-sm-3 col-md-2 col-form-label">ユーザストーリ</label>
                   <b-col>
-                    <select v-model.number="backlogUserStoryId"
+                    <select v-model.number="backlogUserStoryId" :disabled="isLockedTeamSettings"
                       class="custom-select" id="storyid">
-                      <option value="-1" selected disabled>選択してください</option>
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
@@ -82,7 +82,7 @@
                 <div class="form-group row">
                   <label for="taskids" class="col-sm-3 col-md-2 col-form-label">タスク</label>
                   <b-col>
-                    <select v-model.number="backlogTaskIds"
+                    <select v-model.number="backlogTaskIds" :disabled="isLockedTeamSettings"
                       class="custom-select" id="taskid" multiple>
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
@@ -93,7 +93,7 @@
                 <div class="form-group row">
                   <label for="urgentid" class="col-sm-3 col-md-2 col-form-label">緊急タスク</label>
                   <b-col>
-                    <select v-model.number="backlogUrgentId"
+                    <select v-model.number="backlogUrgentId" :disabled="isLockedTeamSettings"
                       class="custom-select" id="urgent">
                       <option value="-1" selected>設定しない</option>
                       <option v-for="c in categories" :value="c.id"
@@ -102,6 +102,20 @@
                     <small class="form-text text-muted">
                       ここで選択したカテゴリのユーザストーリやタスクは緊急タスクとして強調表示されます。
                     </small>
+                  </b-col>
+                </div>
+                <div class="form-group row">
+                  <b-col class="text-right">
+                    <b-button variant="primary" v-if="!isLockedTeamSettings"
+                      @click="changeLockedTeamSettings(true)">
+                      <icon name="lock" class="mr-1"></icon>
+                      確定
+                    </b-button>
+                    <b-button variant="secondary" v-if="isLockedTeamSettings"
+                      @click="changeLockedTeamSettings(false)">
+                      <icon name="unlock" class="mr-1"></icon>
+                      再編集
+                    </b-button>
                   </b-col>
                 </div>
               </form>
@@ -139,7 +153,11 @@
 </template>
 
 <script>
+import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
+
+import 'vue-awesome/icons/lock';
+import 'vue-awesome/icons/unlock';
 
 export default {
   name: 'Settings',
@@ -151,14 +169,16 @@ export default {
       types: [],
     };
   },
+  components: {
+    Icon,
+  },
   methods: {
+    changeLockedTeamSettings(toLocked) {
+      this.isLockedTeamSettings = toLocked;
+    },
     requestProjectParameters() {
       this.requestor(`projects/${this.backlogProjectKey}/issueTypes`, undefined, 'types');
-      this.requestor(`projects/${this.backlogProjectKey}/categories`, undefined, 'categories')
-        .then(() => {
-          console.log(this.types);
-          console.log(this.categories);
-        });
+      this.requestor(`projects/${this.backlogProjectKey}/categories`, undefined, 'categories');
     },
     updateFirebaseUri() {
       this.$store.dispatch('updateFirebaseUri', document.getElementById('firebaseuri').value);
@@ -262,6 +282,22 @@ export default {
         this.$store.dispatch('changeViewMode', value);
       },
     },
+    isLockedTeamSettings: {
+      get() {
+        return this.$store.getters.isLockedTeamSettings;
+      },
+      set(value) {
+        this.$store.dispatch('changeLockedTeamSettings', value);
+      },
+    },
+  },
+  created() {
+    this.$on('datastore-updated', this.requestProjectParameters);
+    console.log(this.$store.getters.projectHash);
+    // datastore-updated only called this page is loaded at 1st time
+    if (this.projectKey) {
+      this.requestProjectParameters();
+    }
   },
 };
 </script>

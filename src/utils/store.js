@@ -17,6 +17,7 @@ const state = {
   backlogUserStoryId: -1,
   firebaseUri: '',
   isFixedViewMode: DEFAULT_VIEW_MODE,
+  isLockedTeamSettings: false,
 };
 
 const actions = {
@@ -49,6 +50,8 @@ const actions = {
     commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
     const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
     commit('storeFirebaseUri', (fburi === undefined) ? '' : fburi.toString());
+    const locked = (localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`));
+    commit('storeLockedTeamSettings', locked);
   },
   updateApiKey({ commit }, key) {
     commit('storeApiKey', key);
@@ -76,6 +79,9 @@ const actions = {
   },
   changeViewMode({ commit }, mode) {
     commit('storeViewMode', mode);
+  },
+  changeLockedTeamSettings({ commit }, bool) {
+    commit('storeLockedTeamSettings', bool);
   },
 };
 
@@ -116,6 +122,14 @@ const mutations = {
     state.isFixedViewMode = mode;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}viewMode`, mode);
   },
+  storeLockedTeamSettings(s, bool) {
+    state.isLockedTeamSettings = bool;
+    if (bool) {
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}isLocked`, bool);
+    } else {
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}isLocked`);
+    }
+  },
 };
 
 const getters = {
@@ -127,6 +141,7 @@ const getters = {
   backlogUrgentId: s => s.backlogUrgentId,
   firebaseUri: s => s.firebaseUri,
   isFixedViewMode: s => s.isFixedViewMode,
+  isLockedTeamSettings: s => s.isLockedTeamSettings,
   projectHash: (s) => {
     const sha = new Jssha('SHA3-224', 'TEXT');
     sha.update(`${s.backlogHostname}.${s.backlogDomain}@${s.backlogProjectKey}`);
