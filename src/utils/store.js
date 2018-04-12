@@ -51,8 +51,8 @@ const actions = {
       commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
       const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
       commit('storeFirebaseUri', (typeof fburi === 'string') ? fburi : '');
-      const locked = (localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`));
-      commit('storeLockedTeamSettings', locked);
+      const locked = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`) || false;
+      commit('storeLockedTeamSettings', (typeof locked === 'string' && locked.toLocaleLowerCase() === 'true'));
       resolve();
     });
   },
