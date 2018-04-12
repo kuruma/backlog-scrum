@@ -46,23 +46,26 @@
               <form>
                 <div class="form-group row">
                   <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
-                  <b-col>
+                  <b-col sm="5" md="6">
                     <input v-model="backlogProjectKey"
                       type="text" class="form-control" id="projectkey"
                       placeholder="プロジェクトキーかIDを入力"/>
+                  </b-col>
+                  <b-col size="4">
+                    <b-button @click="requestIssueTypes">種別情報を反映</b-button>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="epicid" class="col-sm-3 col-md-2 col-form-label">エピック</label>
                   <b-col>
                     <b-form-select v-model.number="backlogEpicId"
-                      :options="categories" size="auto" id="epicid"/>
+                      :options="types" size="auto" id="epicid"/>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="storyid" class="col-sm-3 col-md-2 col-form-label">ユーザストーリ</label>
                   <b-col>
-                    <b-form-select v-model.number="backlogUserStoryId" :options="categories"
+                    <b-form-select v-model.number="backlogUserStoryId" :options="types"
                       size="auto" id="storyid"/>
                   </b-col>
                 </div>
@@ -70,7 +73,7 @@
                   <label for="taskids" class="col-sm-3 col-md-2 col-form-label">タスク</label>
                   <b-col>
                     <b-form-select multiple :select-size="4" v-model="backlogTaskIds"
-                      :options="categories" size="auto" id="taskid"/>
+                      :options="types" size="auto" id="taskid"/>
                   </b-col>
                 </div>
               </form>
@@ -108,15 +111,21 @@
 </template>
 
 <script>
+import backlog from '@/utils/backlog';
+
 export default {
   name: 'Settings',
+  mixins: [backlog],
   data() {
     return {
       defaultDomain: 'backlog.jp',
-      categories: [1, 2, 3],
+      types: [],
     };
   },
   methods: {
+    requestIssueTypes() {
+      this.requestor(`projects/${this.backlogProjectKey}/issueTypes`, undefined, 'types');
+    },
     updateFirebaseUri() {
       this.$store.dispatch('updateFirebaseUri', document.getElementById('firebaseuri').value);
     },
