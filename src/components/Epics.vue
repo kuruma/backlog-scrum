@@ -39,11 +39,9 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import { mapGetters } from 'vuex';
-import axios from 'axios';
 import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
+import backlog from '@/utils/backlog';
 
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
@@ -51,6 +49,7 @@ import 'vue-awesome/icons/level-up-alt';
 
 export default {
   name: 'Epics',
+  mixins: [backlog],
   data() {
     return {
       firstView: true,
@@ -76,25 +75,6 @@ export default {
     moveEpicToTop() {
       // FIXME: Should animate epics
       this.epics.unshift(this.epics.splice(2, 1)[0]);
-    },
-    requestor(path, queries = {}, dataName) {
-      const name = dataName || path.split('/')[0];
-      return new Promise((resolve, reject) => {
-        const keys = Object.keys(queries);
-        const l = keys.length;
-        let qStr = '';
-        for (let i = 0; i < l; i += 1) {
-          qStr += `&${keys[i]}=`;
-          qStr += encodeURIComponent(queries[keys[i]]);
-        }
-        axios.get(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}${qStr}`)
-          .then((res) => {
-            Vue.set(this, name, res.data);
-            resolve(res.status);
-          }).catch(() => {
-            reject(0);
-          });
-      });
     },
     applyDatastore() {
       this.loading = true;
@@ -128,14 +108,6 @@ export default {
     if (this.projectKey) {
       this.applyDatastore();
     }
-  },
-  computed: {
-    ...mapGetters({
-      apiKey: 'backlogApiKey',
-      fqdn: 'backlogFqdn',
-      projectKey: 'backlogProjectKey',
-      isFixedViewMode: 'isFixedViewMode',
-    }),
   },
 };
 </script>
