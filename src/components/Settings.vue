@@ -58,22 +58,33 @@
                 <div class="form-group row">
                   <label for="epicid" class="col-sm-3 col-md-2 col-form-label">エピック</label>
                   <b-col>
-                    <b-form-select v-model.number="backlogEpicId"
-                      :options="types" size="auto" id="epicid"/>
+                    <select v-model.number="backlogEpicId"
+                      class="custom-select" id="epicid">
+                      <option value="-1" selected disabled>選択してください</option>
+                      <option v-for="t in types" :value="t.id"
+                        :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
+                    </select>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="storyid" class="col-sm-3 col-md-2 col-form-label">ユーザストーリ</label>
                   <b-col>
-                    <b-form-select v-model.number="backlogUserStoryId" :options="types"
-                      size="auto" id="storyid"/>
+                    <select v-model.number="backlogUserStoryId"
+                      class="custom-select" id="storyid">
+                      <option value="-1" selected disabled>選択してください</option>
+                      <option v-for="t in types" :value="t.id"
+                        :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
+                    </select>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="taskids" class="col-sm-3 col-md-2 col-form-label">タスク</label>
                   <b-col>
-                    <b-form-select multiple :select-size="4" v-model="backlogTaskIds"
-                      :options="types" size="auto" id="taskid"/>
+                    <select v-model.number="backlogTaskIds"
+                      class="custom-select" id="taskid" multiple>
+                      <option v-for="t in types" :value="t.id"
+                        :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
+                    </select>
                   </b-col>
                 </div>
               </form>
