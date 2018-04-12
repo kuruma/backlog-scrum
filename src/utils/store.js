@@ -13,6 +13,7 @@ const state = {
   backlogFqdn: '',
   backlogProjectKey: '',
   backlogTaskIds: [],
+  backlogUrgentId: -1,
   backlogUserStoryId: -1,
   firebaseUri: '',
   isFixedViewMode: DEFAULT_VIEW_MODE,
@@ -36,9 +37,11 @@ const actions = {
     commit('storeFqdn', fqdn);
     commit('storeProjectKey', proj);
     const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '-1';
+    const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '-1';
     const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogStoryId`) || '-1';
     const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
     commit('storeEpicId', parseInt(epicid, 10));
+    commit('storeUrgentId', parseInt(urgentid, 10));
     commit('storeUserStoryId', parseInt(storyid, 10));
     commit('storeTaskIds', JSON.parse(taskids));
     const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
@@ -64,6 +67,9 @@ const actions = {
   },
   updateTaskIds({ commit }, ids) {
     commit('storeTaskIds', ids);
+  },
+  updateUrgentId({ commit }, id) {
+    commit('storeUrgentId', id);
   },
   updateUserStoryId({ commit }, id) {
     commit('storeUserStoryId', id);
@@ -98,6 +104,10 @@ const mutations = {
     state.backlogTaskIds = arr;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`, JSON.stringify(arr));
   },
+  storeUrgentId(s, num) {
+    state.backlogUrgentId = num;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`, num);
+  },
   storeUserStoryId(s, num) {
     state.backlogUserStoryId = num;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`, num);
@@ -114,6 +124,7 @@ const getters = {
   backlogFqdn: s => s.backlogFqdn,
   backlogHostname: s => s.backlogFqdn.split('.')[0],
   backlogProjectKey: s => s.backlogProjectKey,
+  backlogUrgentId: s => s.backlogUrgentId,
   firebaseUri: s => s.firebaseUri,
   isFixedViewMode: s => s.isFixedViewMode,
   projectHash: (s) => {

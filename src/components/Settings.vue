@@ -52,7 +52,7 @@
                       placeholder="プロジェクトキーかIDを入力"/>
                   </b-col>
                   <b-col size="4">
-                    <b-button @click="requestIssueTypes">種別情報を反映</b-button>
+                    <b-button @click="requestProjectParameters">設定を取り込む</b-button>
                   </b-col>
                 </div>
                 <div class="form-group row">
@@ -64,6 +64,7 @@
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
+                    <small class="form-text text-muted">選択した種別の親タスクがエピックとして扱われます。</small>
                   </b-col>
                 </div>
                 <div class="form-group row">
@@ -75,6 +76,7 @@
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
+                    <small class="form-text text-muted">選択した種別の子タスクがユーザストーリとして扱われます。</small>
                   </b-col>
                 </div>
                 <div class="form-group row">
@@ -85,6 +87,21 @@
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
+                    <small class="form-text text-muted">選択した種別の子タスクがユーザストーリに関連するタスクとして扱われます。</small>
+                  </b-col>
+                </div>
+                <div class="form-group row">
+                  <label for="urgentid" class="col-sm-3 col-md-2 col-form-label">緊急タスク</label>
+                  <b-col>
+                    <select v-model.number="backlogUrgentId"
+                      class="custom-select" id="urgent">
+                      <option value="-1" selected>設定しない</option>
+                      <option v-for="c in categories" :value="c.id"
+                        :key="`${c.projectId}_${c.id}`">{{ c.name }}</option>
+                    </select>
+                    <small class="form-text text-muted">
+                      ここで選択したカテゴリのユーザストーリやタスクは緊急タスクとして強調表示されます。
+                    </small>
                   </b-col>
                 </div>
               </form>
@@ -130,12 +147,18 @@ export default {
   data() {
     return {
       defaultDomain: 'backlog.jp',
+      categories: [],
       types: [],
     };
   },
   methods: {
-    requestIssueTypes() {
+    requestProjectParameters() {
       this.requestor(`projects/${this.backlogProjectKey}/issueTypes`, undefined, 'types');
+      this.requestor(`projects/${this.backlogProjectKey}/categories`, undefined, 'categories')
+        .then(() => {
+          console.log(this.types);
+          console.log(this.categories);
+        });
     },
     updateFirebaseUri() {
       this.$store.dispatch('updateFirebaseUri', document.getElementById('firebaseuri').value);
@@ -206,6 +229,14 @@ export default {
       },
       set(arr) {
         this.$store.dispatch('updateTaskIds', arr.map(x => parseInt(x, 10)));
+      },
+    },
+    backlogUrgentId: {
+      get() {
+        return this.$store.getters.backlogUrgentId;
+      },
+      set(num) {
+        this.$store.dispatch('updateUrgentId', num);
       },
     },
     backlogUserStoryId: {
