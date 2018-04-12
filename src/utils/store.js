@@ -22,36 +22,39 @@ const state = {
 
 const actions = {
   initialize({ commit }, params) {
-    const key = (params.blkey !== undefined)
-      ? params.blkey
-      : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`).toString()
-        || '';
-    const fqdn = (params.bldomain !== undefined && params.blspace !== undefined)
-      ? `${params.blspace}.${params.bldomain}`
-      : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogFqdn`).toString()
-        || '';
-    const proj = (params.blproj !== undefined)
-      ? params.blproj
-      : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogProj`).toString()
-        || '';
-    commit('storeApiKey', key);
-    commit('storeFqdn', fqdn);
-    commit('storeProjectKey', proj);
-    const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '-1';
-    const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '-1';
-    const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogStoryId`) || '-1';
-    const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
-    commit('storeEpicId', parseInt(epicid, 10));
-    commit('storeUrgentId', parseInt(urgentid, 10));
-    commit('storeUserStoryId', parseInt(storyid, 10));
-    commit('storeTaskIds', JSON.parse(taskids));
-    const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
-    const mode = (modeStr === undefined) ? false : (modeStr.toLowerCase() === 'true');
-    commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
-    const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
-    commit('storeFirebaseUri', (fburi === undefined) ? '' : fburi.toString());
-    const locked = (localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`));
-    commit('storeLockedTeamSettings', locked);
+    return new Promise((resolve) => {
+      const key = (params.blkey !== undefined)
+        ? params.blkey
+        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`).toString()
+          || '';
+      const fqdn = (params.bldomain !== undefined && params.blspace !== undefined)
+        ? `${params.blspace}.${params.bldomain}`
+        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogFqdn`).toString()
+          || '';
+      const proj = (params.blproj !== undefined)
+        ? params.blproj
+        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogProj`).toString()
+          || '';
+      commit('storeApiKey', key);
+      commit('storeFqdn', fqdn);
+      commit('storeProjectKey', proj);
+      const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '-1';
+      const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '-1';
+      const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogStoryId`) || '-1';
+      const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
+      commit('storeEpicId', parseInt(epicid, 10));
+      commit('storeUrgentId', parseInt(urgentid, 10));
+      commit('storeUserStoryId', parseInt(storyid, 10));
+      commit('storeTaskIds', JSON.parse(taskids));
+      const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
+      const mode = (typeof modeStr === 'string' && modeStr.toLowerCase() === 'true');
+      commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
+      const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
+      commit('storeFirebaseUri', (typeof fburi === 'string') ? fburi : '');
+      const locked = (localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`));
+      commit('storeLockedTeamSettings', locked);
+      resolve();
+    });
   },
   updateApiKey({ commit }, key) {
     commit('storeApiKey', key);
