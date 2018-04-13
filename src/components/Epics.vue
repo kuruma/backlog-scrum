@@ -21,17 +21,70 @@
               <small>{{ epic.created }}</small>
             </div>
             <div class="epic-details">
-              <p class="mb-1">{{ epic.description }}</p>
+              <b-row class="mb-1">
+                <b-col>
+                  <p class="mb-1">{{ epic.description }}</p>
+                </b-col>
+              </b-row>
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
-              <b-button size="sm" class="float-right"
-                v-b-tooltip.hover title="最上位に移動する"
-                @click="moveEpicToTop(key)" v-if="key !== 0">
-                <icon name="level-up-alt" lavel="最上位に移動する"/>
-              </b-button>
+              <div class="float-right">
+                <b-button size="sm"
+                  v-b-tooltip.hover title="最上位に移動する"
+                  @click="moveEpicToTop(key)" v-if="key !== 0">
+                  <icon name="level-up-alt" lavel="最上位に移動する"/>
+                </b-button>
+                <b-button size="sm"
+                  @click="setParentEpic(epic)"
+                  v-b-tooltip.hover title="ユーザストーリを追加する"
+                  v-b-modal.addUserStoryModal>
+                  <icon name="plus" label="ユーザストーリを追加する"/>
+                </b-button>
+              </div>
             </div>
           </li>
         </draggable>
-        <hr>
+        <b-modal id="addUserStoryModal" title="ユーザストーリの追加" size="lg"
+          ok-title="続けて追加する" cancel-title="追加して閉じる"
+          @ok="addUserStoryAndContinue" @cancel="addUserStory" @hide="clearPendingUserStory">
+          <div class="d-block">
+            <b-row class="form-group">
+              <b-col>
+                <b-form-input v-model="pendingUserStory.summary"
+                  id="story" type="text" placeholder="概要"/>
+              </b-col>
+            </b-row>
+            <p><mark>{{ parentEpic.summary }}</mark>にむけて、</p>
+            <div class="form-group row">
+              <b-col sm="9" md="10">
+                <b-form-input v-model="pendingUserStory.who" id="story4who" type="text"
+                  placeholder="嬉しいのは誰？変わる影響を受けるのは誰？" size="sm"/>
+              </b-col>
+              <span class="col-sm-3 col-md-2 col-form-label-sm">が、</span>
+            </div>
+            <div class="form-group row">
+              <b-col sm="9" md="10">
+                <b-form-input v-model="pendingUserStory.why" id="story4why" type="text"
+                  placeholder="どんな価値？どう変える/変わる？何が嬉しい？" size="sm"/>
+              </b-col>
+              <span class="col-sm-3 col-md-2 col-form-label-sm">のために、</span>
+            </div>
+            <div class="form-group row">
+              <b-col sm="9" md="10">
+                <b-form-input v-model="pendingUserStory.goal" id="goal4story" type="text"
+                  placeholder="ゴールは？終わったときに何を見せる？何ができている？" size="sm"/>
+              </b-col>
+              <span class="col-sm-3 col-md-2 col-form-label-sm">をする。</span>
+            </div>
+            <div class="form-group row">
+              <b-col>
+                <label for="details" class="col-form-label-sm">詳細は</label>
+                <b-form-textarea id="details" v-model="pendingUserStory.details"
+                  placeholder="詳細（メモ）" :rows="4" size="sm"></b-form-textarea>
+              </b-col>
+            </div>
+          </div>
+        </b-modal>
+       <hr>
         {{ space.updated }}
       </div>
     </div>
@@ -46,6 +99,7 @@ import backlog from '@/utils/backlog';
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
 import 'vue-awesome/icons/level-up-alt';
+import 'vue-awesome/icons/plus';
 
 export default {
   name: 'Epics',
@@ -57,6 +111,8 @@ export default {
       epics: {},
       projects: {},
       space: {},
+      parentEpic: {},
+      pendingUserStory: {},
     };
   },
   components: {
@@ -64,6 +120,21 @@ export default {
     Icon,
   },
   methods: {
+    addUserStory() {
+      // TODO: impl.
+    },
+    addUserStoryAndContinue(event) {
+      event.preventDefault();
+      this.addUserStory();
+      // FIXME: Should not touch DOM directry
+      document.getElementById('story').focus();
+      this.clearPendingUserStory();
+    },
+    clearPendingUserStory() {
+      Object.keys(this.pendingUserStory).forEach((prop) => {
+        this.pendingUserStory[prop] = '';
+      });
+    },
     movedEpic(event) {
       if (event.from !== event.to) {
         console.log(`${event.from.id} was updated`);
@@ -75,6 +146,9 @@ export default {
     moveEpicToTop(key) {
       // FIXME: Should animate epics
       this.epics.unshift(this.epics.splice(key, 1)[0]);
+    },
+    setParentEpic(epic) {
+      this.parentEpic = epic;
     },
     applyDatastore() {
       this.loading = true;
