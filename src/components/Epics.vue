@@ -81,17 +81,23 @@ export default {
       this.requestor('space')
         .then(() =>
           this.requestor(`projects/${this.projectKey}`))
-        .then(() =>
+        .then(() => {
+          const param = {
+            'projectId[]': this.projects.id,
+            parentChild: 1, // Except child task
+            count: 100,
+            sort: 'updated',
+          };
+          const eid = this.$store.getters.backlogEpicId;
+          if (eid > 0) {
+            param['issueTypeId[]'] = `${eid}`;
+          }
           this.requestor(
             'issues',
-            {
-              'projectId[]': this.projects.id,
-              parentChild: 1, // Except child task
-              count: 100,
-              sort: 'updated',
-            },
+            param,
             'epics',
-          ))
+          );
+        })
         .then(() => {
           this.loading = false;
         })
