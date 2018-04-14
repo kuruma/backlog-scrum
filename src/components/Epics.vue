@@ -22,7 +22,7 @@
             </b-button>
           </div>
           <div>
-            <b-button variant="outline-dark"
+            <b-button variant="outline-dark" @click="openAddEpicModal"
               v-b-tooltip.hover title="エピックを追加">
               <icon name="file" label="エピックを追加"></icon>
             </b-button>
@@ -61,7 +61,7 @@
                       </b-badge>
                     </b-list-group-item>
                     <b-list-group-item button @click="openUserStoryModal" :data-epickey="`${key}`">
-                      <icon name="plus" label="ユーザストーリを追加する"/>新しいユーザストーリを追加
+                      <icon name="plus" class="mr-2" label="ユーザストーリを追加する"/>新しいユーザストーリを追加
                     </b-list-group-item>
                   </b-list-group>
                 </b-col>
@@ -73,6 +73,26 @@
             </div>
           </li>
         </draggable>
+        <b-modal id="addEpicModal" title="エピックの追加" size="lg"
+          ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addEpicModal"
+          @ok="addEpicAndContinue" @cancel="addEpic"
+          @shown="showAddEpicModal" @hide="clearPendingEpic">
+          <div class="d-block">
+            <b-row class="form-group">
+              <b-col>
+                <b-form-input v-model="pendingEpic.summary" ref="epic"
+                  id="epic" type="text" placeholder="概要"/>
+              </b-col>
+            </b-row>
+          </div>
+          <div class="form-group row">
+            <b-col>
+              <label for="details" class="col-form-label-sm">詳細は</label>
+              <b-form-textarea id="details" v-model="pendingUserStory.details"
+                placeholder="詳細（メモ）" :rows="4" size="sm"></b-form-textarea>
+            </b-col>
+          </div>
+        </b-modal>
         <b-modal id="addUserStoryModal" title="ユーザストーリの追加" size="lg"
           ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addUserStoryModal"
           @ok="addUserStoryAndContinue" @cancel="addUserStory"
@@ -159,6 +179,7 @@ export default {
       parentEpic: {},
       categories: {},
       pendingUserStory: {},
+      pendingEpic: {},
       isShownUserStories: false,
     };
   },
@@ -167,12 +188,25 @@ export default {
     Icon,
   },
   methods: {
+    openAddEpicModal() {
+      this.$refs.addEpicModal.show();
+    },
     openUserStoryModal(event) {
       this.$refs.addUserStoryModal.show();
       this.parentEpic = this.epics[event.target.dataset.epickey];
     },
+    addEpic() {
+      // TODO: impl.
+    },
     addUserStory() {
       // TODO: impl.
+    },
+    addEpicAndContinue(event) {
+      event.preventDefault();
+      this.addEpic();
+      // FIXME: Should not touch DOM directry
+      document.getElementById('epic').focus();
+      this.clearPendingEpic();
     },
     addUserStoryAndContinue(event) {
       event.preventDefault();
@@ -180,6 +214,11 @@ export default {
       // FIXME: Should not touch DOM directry
       document.getElementById('story').focus();
       this.clearPendingUserStory();
+    },
+    clearPendingEpic() {
+      Object.keys(this.pendingEpic).forEach((prop) => {
+        this.pendingEpic[prop] = '';
+      });
     },
     clearPendingUserStory() {
       Object.keys(this.pendingUserStory).forEach((prop) => {
@@ -233,6 +272,9 @@ export default {
       this.$refs.epics.$el.insertBefore(
         this.$refs[epicref][0],
         this.$refs.epics.$el.children[0]);
+    },
+    showAddEpicModal() {
+      this.$refs.epic.focus();
     },
     showAddUserStoryModal() {
       this.$refs.story.focus();
