@@ -42,9 +42,12 @@
                 <span class="handle p-2 pr-4"><icon name="bars"></icon></span>
                 {{ epic.summary }}
               </h5>
-              <small>{{ epic.created }}</small>
+              <b-button size="sm" :data-epicref="`epic_${key}`"
+                v-b-tooltip.hover title="最上位に移動する" @click="moveEpicToTop" class="moveToTopButton">
+                <icon name="level-up-alt" lavel="最上位に移動する"/>
+              </b-button>
             </div>
-            <div class="epic-details" v-if="isShownUserStories">
+            <div class="epic-details mt-2" v-if="isShownUserStories">
               <b-row class="mb-1">
                 <b-col>
                   <b-list-group>
@@ -65,13 +68,7 @@
               </b-row>
               <div class="d-flex justify-content-between align-items-end">
                 <small>{{ epic.createdUser.name }}</small>
-                <small>
-                  <b-button size="sm" :data-epicref="`epic_${key}`"
-                    v-b-tooltip.hover title="最上位に移動する"
-                    @click="moveEpicToTop" class="moveToTopButton">
-                    <icon name="level-up-alt" lavel="最上位に移動する"/>
-                  </b-button>
-                </small>
+                <small>{{ epic.created }}</small>
               </div>
             </div>
           </li>
