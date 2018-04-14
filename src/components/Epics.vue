@@ -118,8 +118,6 @@
             </div>
           </div>
         </b-modal>
-       <hr>
-        {{ space.updated }}
       </div>
     </div>
   </div>
