@@ -45,11 +45,12 @@
         </draggable>
         <b-modal id="addUserStoryModal" title="ユーザストーリの追加" size="lg"
           ok-title="続けて追加する" cancel-title="追加して閉じる"
-          @ok="addUserStoryAndContinue" @cancel="addUserStory" @hide="clearPendingUserStory">
+          @ok="addUserStoryAndContinue" @cancel="addUserStory"
+          @shown="showAddUserStoryModal" @hide="clearPendingUserStory">
           <div class="d-block">
             <b-row class="form-group">
               <b-col>
-                <b-form-input v-model="pendingUserStory.summary"
+                <b-form-input v-model="pendingUserStory.summary" ref="story"
                   id="story" type="text" placeholder="概要"/>
               </b-col>
             </b-row>
@@ -75,6 +76,16 @@
               </b-col>
               <span class="col-sm-3 col-md-2 col-form-label-sm">をする。</span>
             </div>
+            <b-row>
+              <b-col>
+                <b-button-group size="sm">
+                  <b-button v-for="c in categories" :key="`${c.projectId}_${c.id}`"
+                    variant="outline-primary" :pressed.sync="c.state">
+                    {{ c.name }}
+                  </b-button>
+                </b-button-group>
+              </b-col>
+            </b-row>
             <div class="form-group row">
               <b-col>
                 <label for="details" class="col-form-label-sm">詳細は</label>
@@ -112,6 +123,7 @@ export default {
       projects: {},
       space: {},
       parentEpic: {},
+      categories: {},
       pendingUserStory: {},
     };
   },
@@ -147,6 +159,9 @@ export default {
       // FIXME: Should animate epics
       this.epics.unshift(this.epics.splice(key, 1)[0]);
     },
+    showAddUserStoryModal() {
+      this.$refs.story.focus();
+    },
     setParentEpic(epic) {
       this.parentEpic = epic;
     },
@@ -171,6 +186,19 @@ export default {
             param,
             'epics',
           );
+        })
+        .then(() =>
+          this.requestor(`projects/${this.projectKey}/categories`, undefined, 'categories'))
+        .then(() => {
+          this.categories = this.categories.filter(
+            value =>
+              this.$store.getters.backlogCategoryIds.findIndex(
+                v =>
+                  value.id === v,
+              ) >= 0);
+          this.categories.forEach((element, index) => {
+            this.$set(this.categories[index], 'state', false);
+          });
         })
         .then(() => {
           this.loading = false;

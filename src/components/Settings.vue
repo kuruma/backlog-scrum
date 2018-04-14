@@ -45,6 +45,15 @@
             <b-tab title="チーム">
               <form>
                 <div class="form-group row">
+                  <b-col class="text-right">
+                    <b-button variant="secondary" v-if="isLockedTeamSettings"
+                      @click="changeLockedTeamSettings(false)">
+                      <icon name="unlock" class="mr-1"></icon>
+                      再編集
+                    </b-button>
+                  </b-col>
+                </div>
+                <div class="form-group row">
                   <label for="project" class="col-sm-3 col-md-2 col-form-label">プロジェクト</label>
                   <b-col sm="5" md="6">
                     <input :disabled="isLockedTeamSettings"
@@ -91,6 +100,20 @@
                   </b-col>
                 </div>
                 <div class="form-group row">
+                  <label for="taskids" class="col-sm-3 col-md-2 col-form-label">カテゴリ</label>
+                  <b-col>
+                    <select v-model.number="backlogCategoryIds" :disabled="isLockedTeamSettings"
+                      class="custom-select" id="categoryid" multiple>
+                      <option v-for="c in categories" :value="c.id"
+                        :key="`${c.projectId}_${c.id}`">{{ c.name }}</option>
+                    </select>
+                    <small class="form-text text-muted">
+                      タスクやユーザストーリのフィルタリングに使用するカテゴリを選択します。
+                      たとえばチーム名などを設定します。
+                    </small>
+                  </b-col>
+                </div>
+                <div class="form-group row">
                   <label for="urgentid" class="col-sm-3 col-md-2 col-form-label">緊急タスク</label>
                   <b-col>
                     <select v-model.number="backlogUrgentId" :disabled="isLockedTeamSettings"
@@ -100,7 +123,7 @@
                         :key="`${c.projectId}_${c.id}`">{{ c.name }}</option>
                     </select>
                     <small class="form-text text-muted">
-                      ここで選択したカテゴリのユーザストーリやタスクは緊急タスクとして強調表示されます。
+                      ここで選択したカテゴリのユーザストーリやタスクを緊急タスクとして強調表示します。
                     </small>
                   </b-col>
                 </div>
@@ -110,11 +133,6 @@
                       @click="changeLockedTeamSettings(true)">
                       <icon name="lock" class="mr-1"></icon>
                       確定
-                    </b-button>
-                    <b-button variant="secondary" v-if="isLockedTeamSettings"
-                      @click="changeLockedTeamSettings(false)">
-                      <icon name="unlock" class="mr-1"></icon>
-                      再編集
                     </b-button>
                   </b-col>
                 </div>
@@ -203,6 +221,14 @@ export default {
         this.$store.dispatch('updateApiKey', value);
       },
     },
+    backlogCategoryIds: {
+      get() {
+        return this.$store.getters.backlogCategoryIds || [];
+      },
+      set(arr) {
+        this.$store.dispatch('updateCategoryIds', arr.map(x => parseInt(x, 10)));
+      },
+    },
     backlogDomain: {
       get() {
         return this.$store.getters.backlogDomain || this.defaultDomain;
@@ -218,6 +244,15 @@ export default {
       set(value) {
         this.$store.dispatch('updateEpicId', value);
       },
+    },
+    backlogEpicName() {
+      let str = '';
+      if (this.types.length > 0) {
+        const index = this.types.findIndex(x => x.id === this.backlogEpicId);
+        console.log(this.types[index]);
+        str = this.types[index].name;
+      }
+      return str;
     },
     backlogFqdn: {
       get() {
@@ -293,7 +328,6 @@ export default {
   },
   created() {
     this.$on('datastore-updated', this.requestProjectParameters);
-    console.log(this.$store.getters.projectHash);
     // datastore-updated only called this page is loaded at 1st time
     if (this.projectKey) {
       this.requestProjectParameters();

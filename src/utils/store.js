@@ -9,6 +9,7 @@ const DEFAULT_VIEW_MODE = true;
 
 const state = {
   backlogApiKey: '',
+  backlogCategoryIds: '',
   backlogEpicId: -1,
   backlogFqdn: '',
   backlogProjectKey: '',
@@ -42,10 +43,12 @@ const actions = {
       const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '-1';
       const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogStoryId`) || '-1';
       const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
+      const categoryids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`) || '[]';
       commit('storeEpicId', parseInt(epicid, 10));
       commit('storeUrgentId', parseInt(urgentid, 10));
       commit('storeUserStoryId', parseInt(storyid, 10));
       commit('storeTaskIds', JSON.parse(taskids));
+      commit('storeCategoryIds', JSON.parse(categoryids));
       const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
       const mode = (typeof modeStr === 'string' && modeStr.toLowerCase() === 'true');
       commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
@@ -58,6 +61,9 @@ const actions = {
   },
   updateApiKey({ commit }, key) {
     commit('storeApiKey', key);
+  },
+  updateCategoryIds({ commit }, ids) {
+    commit('storeCategoryIds', ids);
   },
   updateEpicId({ commit }, id) {
     commit('storeEpicId', id);
@@ -92,6 +98,10 @@ const mutations = {
   storeApiKey(s, str) {
     state.backlogApiKey = str;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`, str);
+  },
+  storeCategoryIds(s, ids) {
+    state.backlogCategoryIds = ids;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`, JSON.stringify(ids));
   },
   storeEpicId(s, num) {
     state.backlogEpicId = num;
@@ -137,11 +147,13 @@ const mutations = {
 
 const getters = {
   backlogApiKey: s => s.backlogApiKey,
+  backlogCategoryIds: s => s.backlogCategoryIds,
   backlogDomain: s => s.backlogFqdn.split('.').slice(1).join('.'),
   backlogEpicId: s => s.backlogEpicId,
   backlogFqdn: s => s.backlogFqdn,
   backlogHostname: s => s.backlogFqdn.split('.')[0],
   backlogProjectKey: s => s.backlogProjectKey,
+  backlogTaskIds: s => s.backlogTaskIds,
   backlogUrgentId: s => s.backlogUrgentId,
   backlogUserStoryId: s => s.backlogUserStoryId,
   firebaseUri: s => s.firebaseUri,
