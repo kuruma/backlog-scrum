@@ -13,9 +13,9 @@
               <icon name="save" label="エピックの優先順位を保存"></icon>
             </b-button>
             <b-button :pressed.sync="isShownEpicInfo" variant="outline-dark"
-              v-b-tooltip.hover title="エピックの詳細を表示を切り替え">
+              v-b-tooltip.hover :title="isShownEpicInfo ? 'エピックの詳細を隠す' : 'エピックの詳細を表示'">
               <icon name="calendar" title="エピックの詳細を表示" v-if="!isShownEpicInfo"></icon>
-              <icon name="calendar-alt" title="エピックの詳細を非表示" v-if="isShownEpicInfo"></icon>
+              <icon name="calendar-alt" title="エピックの詳細を隠す" v-if="isShownEpicInfo"></icon>
             </b-button>
             <b-button @click="loadUserStories" variant="outline-dark"
               v-b-tooltip.hover title="ユーザストーリを読込" v-if="!isShownUserStories">
