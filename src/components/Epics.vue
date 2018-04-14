@@ -5,6 +5,12 @@
         <p class="mt-2 text-center text-muted" v-if="loading">
           <icon name="sync-alt" scale="5" label="Loading..." spin></icon>
         </p>
+        <div class="controllers mb-3" v-if="!loading">
+          <b-button @click="syncEpicsOrder" variant="outline-dark"
+            v-b-tooltip.hover title="エピックの優先順位を保存">
+            <icon name="save" label="エピックの優先順位を保存"></icon>
+          </b-button>
+        </div>
         <draggable @end="endMovingEpic" :options="{
             animation: 250,
             delay: 50,
@@ -13,7 +19,7 @@
           }" ref="epics"
           element="ol" id="epics" class="list-group">
           <li v-for="(epic, key) in epics" :key="epic.id" :ref="`epic_${key}`"
-            class="list-group-item flex-column align-items-start mb-2">
+            class="list-group-item flex-column align-items-start mb-2" :data-epickey="`${key}`">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">
                 <span class="handle p-2 pr-4"><icon name="bars"></icon></span>
@@ -108,6 +114,7 @@ import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
 
+import 'vue-awesome/icons/save';
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
 import 'vue-awesome/icons/level-up-alt';
@@ -170,6 +177,16 @@ export default {
     },
     setParentEpic(epic) {
       this.parentEpic = epic;
+    },
+    syncEpicsOrder() {
+      const l = this.$refs.epics.$el.children.length;
+      for (let i = 0; i < l;) {
+        const epicNode = this.$refs.epics.$el.children[i];
+        const epic = this.epics[epicNode.dataset.epickey];
+        i += 1;
+        // TODO: impl. save priority of epics
+        console.log(`${epic.summary}の優先度を${i}で上書きします`);
+      }
     },
     applyDatastore() {
       this.loading = true;
