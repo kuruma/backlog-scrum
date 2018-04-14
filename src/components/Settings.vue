@@ -70,61 +70,67 @@
                   <label for="epicid" class="col-sm-3 col-md-2 col-form-label">エピック</label>
                   <b-col>
                     <select v-model.number="backlogEpicId" :disabled="isLockedTeamSettings"
-                      class="custom-select" id="epicid">
+                      class="custom-select" id="epicid" aria-describedby="backlogEpicIdHelp">
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
-                    <small class="form-text text-muted">選択した種別の親タスクがエピックとして扱われます。</small>
+                    <b-form-text id="backlogEpicIdHelp">選択した種別の親タスクがエピックとして扱われます。</b-form-text>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="storyid" class="col-sm-3 col-md-2 col-form-label">ユーザストーリ</label>
                   <b-col>
                     <select v-model.number="backlogUserStoryId" :disabled="isLockedTeamSettings"
-                      class="custom-select" id="storyid">
+                      class="custom-select" id="storyid" aria-describedby="backlogUserStoryIdHelp">
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
-                    <small class="form-text text-muted">選択した種別の子タスクがユーザストーリとして扱われます。</small>
+                    <b-form-text id="backlogUserStoryIdHelp">
+                      選択した種別の子タスクがユーザストーリとして扱われます。
+                    </b-form-text>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="taskids" class="col-sm-3 col-md-2 col-form-label">タスク</label>
                   <b-col>
                     <select v-model.number="backlogTaskIds" :disabled="isLockedTeamSettings"
-                      class="custom-select" id="taskid" multiple>
+                      class="custom-select" id="taskid" multiple
+                      aria-describedby="backlogTaskIdsHelp">
                       <option v-for="t in types" :value="t.id"
                         :key="`${t.projectId}_${t.id}`">{{ t.name }}</option>
                     </select>
-                    <small class="form-text text-muted">選択した種別の子タスクがユーザストーリに関連するタスクとして扱われます。</small>
+                    <b-form-text id="backlogTaskIdsHelp">
+                      選択した種別の子タスクがユーザストーリに関連するタスクとして扱われます。
+                    </b-form-text>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="taskids" class="col-sm-3 col-md-2 col-form-label">カテゴリ</label>
                   <b-col>
                     <select v-model.number="backlogCategoryIds" :disabled="isLockedTeamSettings"
-                      class="custom-select" id="categoryid" multiple>
+                      class="custom-select" id="categoryid" multiple
+                      aria-describedby="backlogCategoryIdsHelp">
                       <option v-for="c in categories" :value="c.id"
                         :key="`${c.projectId}_${c.id}`">{{ c.name }}</option>
                     </select>
-                    <small class="form-text text-muted">
+                    <b-form-text id="backlogCategoryIdsHelp">
                       タスクやユーザストーリのフィルタリングに使用するカテゴリを選択します。
                       たとえばチーム名などを設定します。
-                    </small>
+                    </b-form-text>
                   </b-col>
                 </div>
                 <div class="form-group row">
                   <label for="urgentid" class="col-sm-3 col-md-2 col-form-label">緊急タスク</label>
                   <b-col>
                     <select v-model.number="backlogUrgentId" :disabled="isLockedTeamSettings"
-                      class="custom-select" id="urgent">
+                      class="custom-select" id="urgent" aria-describedby="backlogUrgentIdHelp">
                       <option value="-1" selected>設定しない</option>
                       <option v-for="c in categories" :value="c.id"
                         :key="`${c.projectId}_${c.id}`">{{ c.name }}</option>
                     </select>
-                    <small class="form-text text-muted">
+                    <b-form-text id="backlogUrgentIdHelp">
                       ここで選択したカテゴリのユーザストーリやタスクを緊急タスクとして強調表示します。
-                    </small>
+                    </b-form-text>
                   </b-col>
                 </div>
                 <div class="form-group row">
