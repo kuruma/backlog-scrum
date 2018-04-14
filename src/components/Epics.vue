@@ -3,7 +3,7 @@
     <div class="row mt-3">
       <div class="col">
         <p class="mt-2 text-center text-muted" v-if="loading">
-          <icon name="sync-alt" scale="5" label="Loading..." spin></icon>
+          <icon name="spinner" scale="5" label="Loading..." spin></icon>
         </p>
         <div v-if="!loading"
           class="controllers mb-3 d-flex justify-content-between align-item-center">
@@ -176,7 +176,7 @@ import 'vue-awesome/icons/angle-double-down';
 import 'vue-awesome/icons/angle-double-up';
 import 'vue-awesome/icons/file';
 import 'vue-awesome/icons/bars';
-import 'vue-awesome/icons/sync-alt';
+import 'vue-awesome/icons/spinner';
 import 'vue-awesome/icons/level-up-alt';
 import 'vue-awesome/icons/plus';
 
