@@ -200,10 +200,10 @@ export default {
             count: 100,
             sort: 'updated',
           };
-          // const eid = this.$store.getters.backlogEpicId;
-          // if (eid > 0) {
-          //   param['issueTypeId[]'] = `${eid}`;
-          // }
+          const eid = this.$store.getters.backlogEpicId;
+          if (eid > 0) {
+            param['issueTypeId[]'] = `${eid}`;
+          }
           this.requestor(
             'issues',
             param,
