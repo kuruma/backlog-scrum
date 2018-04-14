@@ -53,6 +53,9 @@
                         ?
                       </b-badge>
                     </b-list-group-item>
+                    <b-list-group-item button @click="openUserStoryModal" :data-epickey="`${key}`">
+                      <icon name="plus" label="ユーザストーリを追加する"/>新しいユーザストーリを追加
+                    </b-list-group-item>
                   </b-list-group>
                 </b-col>
               </b-row>
@@ -64,19 +67,13 @@
                     @click="moveEpicToTop" class="moveToTopButton">
                     <icon name="level-up-alt" lavel="最上位に移動する"/>
                   </b-button>
-                  <b-button size="sm"
-                    @click="setParentEpic(epic)"
-                    v-b-tooltip.hover title="ユーザストーリを追加する"
-                    v-b-modal.addUserStoryModal>
-                    <icon name="plus" label="ユーザストーリを追加する"/>
-                  </b-button>
                 </small>
               </div>
             </div>
           </li>
         </draggable>
         <b-modal id="addUserStoryModal" title="ユーザストーリの追加" size="lg"
-          ok-title="続けて追加する" cancel-title="追加して閉じる"
+          ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addUserStoryModal"
           @ok="addUserStoryAndContinue" @cancel="addUserStory"
           @shown="showAddUserStoryModal" @hide="clearPendingUserStory">
           <div class="d-block">
@@ -167,6 +164,10 @@ export default {
     Icon,
   },
   methods: {
+    openUserStoryModal(event) {
+      this.$refs.addUserStoryModal.show();
+      this.parentEpic = this.epics[event.target.dataset.epickey];
+    },
     addUserStory() {
       // TODO: impl.
     },
