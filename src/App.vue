@@ -11,7 +11,7 @@
       </ul>
       <ul class="navbar-nav">
         <li class="nav-item" :class="{'active': $route.path === '/settings'}">
-          <router-link to="/settings" class="nav-link">
+          <router-link to="/settings" class="nav-link pr-3 pl-3">
             <icon name="ellipsis-v" label="設定"></icon>
           </router-link>
         </li>
