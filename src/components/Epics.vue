@@ -5,15 +5,24 @@
         <p class="mt-2 text-center text-muted" v-if="loading">
           <icon name="sync-alt" scale="5" label="Loading..." spin></icon>
         </p>
-        <div class="controllers mb-3" v-if="!loading">
-          <b-button @click="syncEpicsOrder" variant="outline-dark"
-            v-b-tooltip.hover title="エピックの優先順位を保存">
-            <icon name="save" label="エピックの優先順位を保存"></icon>
-          </b-button>
-          <b-button @click="loadUserStories" variant="outline-dark"
-            v-b-tooltip.hover title="ユーザストーリを読込">
-            <icon name="download" title="ユーザストーリを読込"></icon>
-          </b-button>
+        <div v-if="!loading"
+          class="controllers mb-3 d-flex justify-content-between align-item-center">
+          <div>
+            <b-button @click="syncEpicsOrder" variant="outline-dark"
+              v-b-tooltip.hover title="エピックの優先順位を保存">
+              <icon name="save" label="エピックの優先順位を保存"></icon>
+            </b-button>
+            <b-button @click="loadUserStories" variant="outline-dark"
+              v-b-tooltip.hover title="ユーザストーリを読込">
+              <icon name="download" title="ユーザストーリを読込"></icon>
+            </b-button>
+          </div>
+          <div>
+            <b-button variant="outline-dark"
+              v-b-tooltip.hover title="エピックを追加">
+              <icon name="file" label="エピックを追加"></icon>
+            </b-button>
+          </div>
         </div>
         <draggable @end="endMovingEpic" :options="{
             animation: 250,
@@ -130,6 +139,7 @@ import backlog from '@/utils/backlog';
 
 import 'vue-awesome/icons/save';
 import 'vue-awesome/icons/download';
+import 'vue-awesome/icons/file';
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
 import 'vue-awesome/icons/level-up-alt';
