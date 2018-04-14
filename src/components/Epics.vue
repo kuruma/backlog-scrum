@@ -131,7 +131,7 @@
             </div>
             <b-row>
               <b-col>
-                <b-button-group size="sm">
+                <b-button-group size="sm" :state="pendingUserStoryCategoriesState">
                   <b-button v-for="c in categories" :key="`${c.projectId}_${c.id}`"
                     variant="outline-primary" :pressed.sync="c.state">
                     {{ c.name }}
@@ -180,6 +180,7 @@ export default {
       userStories: {},
       loadedUserStory: {},
       parentEpic: {},
+      parentEpicKey: -1,
       categories: {},
       pendingUserStory: {
         sumary: '',
@@ -207,7 +208,8 @@ export default {
     },
     pendingUserStoryState() {
       return (this.pendingUserStorySummaryState
-        && this.pendingUserStoryGoalState);
+        && this.pendingUserStoryGoalState
+        && this.pendingUserStoryCategoriesState);
     },
     pendingUserStorySummaryState() {
       return (this.pendingUserStory.summary !== undefined
@@ -217,6 +219,15 @@ export default {
       return (this.pendingUserStory.goal !== undefined
         && this.pendingUserStory.goal.length > 0);
     },
+    pendingUserStoryCategoriesState() {
+      const l = this.categories.length;
+      for (let i = 0; i < l; i += 1) {
+        if (this.categories[i].state) {
+          return true;
+        }
+      }
+      return false;
+    },
   },
   methods: {
     openAddEpicModal() {
@@ -225,6 +236,7 @@ export default {
     openUserStoryModal(event) {
       this.$refs.addUserStoryModal.show();
       this.parentEpic = this.epics[event.target.dataset.epickey];
+      this.parentEpicKey = event.target.dataset.epickey;
     },
     addEpic() {
       const param = {
@@ -246,24 +258,46 @@ export default {
         });
     },
     addUserStory() {
-      console.log(this.pendingUserStory);
-      // // TODO: set epic id as parent issue
-      // const param = {
-      //   'projectId': this.projects.id,
-      //   'issueTypeId': this.$store.getters.backlogEpicId,
-      //   // priorityId: 2, // FIXME: Should be customizable
-      //   // parentIssueId: 2, // Only child task
-      //   summary: this.pendingUserStory.summary,
-      //   // TODO: append other parameters
-      // };
-      // this.postRequestor('issues', param, 'response')
-      //   .then(() => {
-      //     // TODO: insert response issuce to the last of user story list
-      //   })
-      //   .then(() => {
-      //     this.response = {};
-      //   });
-      // // TODO: impl.
+      const categories = [];
+      const l = this.categories.length;
+      for (let i = 0; i < l; i += 1) {
+        if (this.categories[i].state) {
+          categories.push(this.categories[i].id);
+        }
+      }
+      const detailItems = [];
+      if (this.pendingUserStory.who.length > 0) {
+        detailItems.push(`# 誰のために\n\n${this.pendingUserStory.who}`);
+      }
+      if (this.pendingUserStory.why.length > 0) {
+        detailItems.push(`# 何のために\n\n${this.pendingUserStory.why}`);
+      }
+      if (this.pendingUserStory.goal.length > 0) {
+        detailItems.push(`# ゴール\n\n${this.pendingUserStory.goal}`);
+      }
+      if (this.pendingUserStory.details.length > 0) {
+        detailItems.push(`# 詳細\n\n${this.pendingUserStory.details}`);
+      }
+      // TODO: set epic id as parent issue
+      // const epicid = this.parentEpic.id;
+      const param = {
+        projectId: this.projects.id,
+        issueTypeId: this.$store.getters.backlogUserStoryId,
+        priorityId: 3, // FIXME: Should be customizable
+        // parentIssueId: epicid,
+        summary: this.pendingUserStory.summary,
+        categoryId: categories,
+        // TODO: append other parameters
+        description: detailItems.join('\n\n'),
+      };
+      this.postRequestor('issues', param, 'response')
+        .then(() => {
+          // TODO: insert response issuce to the last of user story list
+          this.userStories[this.parentEpicKey].push(this.response);
+        })
+        .then(() => {
+          this.response = {};
+        });
     },
     addEpicAndContinue(event) {
       event.preventDefault();
@@ -301,6 +335,7 @@ export default {
     },
     hideUserStories() {
       this.isShownUserStories = false;
+      this.parentEpicKey = -1;
     },
     loadUserStories() {
       this.isShownUserStories = true;
