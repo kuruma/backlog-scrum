@@ -13,8 +13,12 @@
               <icon name="save" label="エピックの優先順位を保存"></icon>
             </b-button>
             <b-button @click="loadUserStories" variant="outline-dark"
-              v-b-tooltip.hover title="ユーザストーリを読込">
-              <icon name="download" title="ユーザストーリを読込"></icon>
+              v-b-tooltip.hover title="ユーザストーリを読込" v-if="!isShownUserStories">
+              <icon name="angle-double-down" title="ユーザストーリを読込"></icon>
+            </b-button>
+            <b-button @click="hideUserStories" variant="outline-dark"
+              v-b-tooltip.hover title="ユーザストーリを隠す" v-if="isShownUserStories">
+              <icon name="angle-double-up" title="ユーザストーリを隠す"></icon>
             </b-button>
           </div>
           <div>
@@ -40,7 +44,7 @@
               </h5>
               <small>{{ epic.created }}</small>
             </div>
-            <div class="epic-details">
+            <div class="epic-details" v-if="isShownUserStories">
               <b-row class="mb-1">
                 <b-col>
                   <b-list-group>
@@ -135,7 +139,8 @@ import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
 
 import 'vue-awesome/icons/save';
-import 'vue-awesome/icons/download';
+import 'vue-awesome/icons/angle-double-down';
+import 'vue-awesome/icons/angle-double-up';
 import 'vue-awesome/icons/file';
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
@@ -157,6 +162,7 @@ export default {
       parentEpic: {},
       categories: {},
       pendingUserStory: {},
+      isShownUserStories: false,
     };
   },
   components: {
@@ -193,7 +199,11 @@ export default {
         console.log(`${event.from.id} was updated`);
       }
     },
+    hideUserStories() {
+      this.isShownUserStories = false;
+    },
     loadUserStories() {
+      this.isShownUserStories = true;
       // FIXME: Flexible limitation
       const l = (this.$refs.epics.$el.children.length < 20)
         ? this.$refs.epics.$el.children.length
