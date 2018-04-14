@@ -47,19 +47,21 @@
                   </b-list-group>
                 </b-col>
               </b-row>
-              <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
-              <div class="float-right">
-                <b-button size="sm" :data-epicref="`epic_${key}`"
-                  v-b-tooltip.hover title="最上位に移動する"
-                  @click="moveEpicToTop" class="moveToTopButton">
-                  <icon name="level-up-alt" lavel="最上位に移動する"/>
-                </b-button>
-                <b-button size="sm"
-                  @click="setParentEpic(epic)"
-                  v-b-tooltip.hover title="ユーザストーリを追加する"
-                  v-b-modal.addUserStoryModal>
-                  <icon name="plus" label="ユーザストーリを追加する"/>
-                </b-button>
+              <div class="d-flex justify-content-between align-items-end">
+                <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
+                <small>
+                  <b-button size="sm" :data-epicref="`epic_${key}`"
+                    v-b-tooltip.hover title="最上位に移動する"
+                    @click="moveEpicToTop" class="moveToTopButton">
+                    <icon name="level-up-alt" lavel="最上位に移動する"/>
+                  </b-button>
+                  <b-button size="sm"
+                    @click="setParentEpic(epic)"
+                    v-b-tooltip.hover title="ユーザストーリを追加する"
+                    v-b-modal.addUserStoryModal>
+                    <icon name="plus" label="ユーザストーリを追加する"/>
+                  </b-button>
+                </small>
               </div>
             </div>
           </li>
