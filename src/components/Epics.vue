@@ -16,7 +16,7 @@
             class="list-group-item flex-column align-items-start mb-2">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">
-                <span class="handle mr-2"><icon name="bars"></icon></span>
+                <span class="handle p-2 pr-4"><icon name="bars"></icon></span>
                 {{ epic.summary }}; {{ key }}
               </h5>
               <small>{{ epic.created }}</small>
