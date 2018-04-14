@@ -75,12 +75,13 @@
         </draggable>
         <b-modal id="addEpicModal" title="エピックの追加" size="lg"
           ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addEpicModal"
-          @ok="addEpicAndContinue" @cancel="addEpic"
+          @ok="addEpicAndContinue" @cancel="addEpic" :busy="!pendingEpicSummaryState"
           @shown="showAddEpicModal" @hide="clearPendingEpic">
           <div class="d-block">
             <b-row class="form-group">
               <b-col>
-                <b-form-input v-model="pendingEpic.summary" ref="epic"
+                <b-form-input ref="epic" v-model="pendingEpic.summary"
+                  :state="pendingEpicSummaryState"
                   id="epic" type="text" placeholder="概要"/>
               </b-col>
             </b-row>
@@ -88,7 +89,7 @@
           <div class="form-group row">
             <b-col>
               <label for="details" class="col-form-label-sm">詳細は</label>
-              <b-form-textarea id="details" v-model="pendingUserStory.details"
+              <b-form-textarea id="details" v-model="pendingEpic.details"
                 placeholder="詳細（メモ）" :rows="4" size="sm"></b-form-textarea>
             </b-col>
           </div>
@@ -100,8 +101,9 @@
           <div class="d-block">
             <b-row class="form-group">
               <b-col>
-                <b-form-input v-model="pendingUserStory.summary" ref="story"
-                  id="story" type="text" placeholder="概要"/>
+                <b-form-input v-model="pendingUserStory.summary"
+                  :state="pendingUserStorySummaryState"
+                  ref="story" id="story" type="text" placeholder="概要"/>
               </b-col>
             </b-row>
             <p><mark>{{ parentEpic.summary }}</mark>にむけて、</p>
@@ -178,14 +180,34 @@ export default {
       loadedUserStory: {},
       parentEpic: {},
       categories: {},
-      pendingUserStory: {},
-      pendingEpic: {},
+      pendingUserStory: {
+        sumary: '',
+        who: '',
+        why: '',
+        goal: '',
+        details: '',
+      },
+      pendingEpic: {
+        summary: '',
+        details: '',
+      },
+      response: {},
       isShownUserStories: false,
     };
   },
   components: {
     draggable,
     Icon,
+  },
+  computed: {
+    pendingEpicSummaryState() {
+      return (this.pendingEpic.summary !== undefined
+        && this.pendingEpic.summary.length > 0);
+    },
+    pendingUserStorySummaryState() {
+      return (this.pendingUserStory.summary !== undefined
+        && this.pendingUserStory.summary.length > 0);
+    },
   },
   methods: {
     openAddEpicModal() {
@@ -196,10 +218,43 @@ export default {
       this.parentEpic = this.epics[event.target.dataset.epickey];
     },
     addEpic() {
-      // TODO: impl.
+      const param = {
+        projectId: this.projects.id,
+        issueTypeId: this.$store.getters.backlogEpicId,
+        priorityId: 3, // FIXME: Should be customizable
+        summary: this.pendingEpic.summary,
+        description: this.pendingEpic.details === '' ? '' : this.pendingEpic.details,
+      };
+      this.postRequestor('issues', param, 'response')
+        .then(() => {
+          this.epics.push(this.response);
+        })
+        .then(() => {
+          this.moveEpicToTopByIndex(`epic_${this.epics.length - 1}`);
+        })
+        .then(() => {
+          this.response = {};
+        });
     },
     addUserStory() {
-      // TODO: impl.
+      console.log(this.pendingUserStory);
+      // // TODO: set epic id as parent issue
+      // const param = {
+      //   'projectId': this.projects.id,
+      //   'issueTypeId': this.$store.getters.backlogEpicId,
+      //   // priorityId: 2, // FIXME: Should be customizable
+      //   // parentIssueId: 2, // Only child task
+      //   summary: this.pendingUserStory.summary,
+      //   // TODO: append other parameters
+      // };
+      // this.postRequestor('issues', param, 'response')
+      //   .then(() => {
+      //     // TODO: insert response issuce to the last of user story list
+      //   })
+      //   .then(() => {
+      //     this.response = {};
+      //   });
+      // // TODO: impl.
     },
     addEpicAndContinue(event) {
       event.preventDefault();
@@ -269,8 +324,11 @@ export default {
     moveEpicToTop(event) {
       const btnNode = event.target.closest('button');
       const epicref = btnNode.dataset.epicref;
+      this.moveEpicToTopByIndex(epicref);
+    },
+    moveEpicToTopByIndex(idx) {
       this.$refs.epics.$el.insertBefore(
-        this.$refs[epicref][0],
+        this.$refs[idx][0],
         this.$refs.epics.$el.children[0]);
     },
     showAddEpicModal() {

@@ -23,6 +23,18 @@ export default {
           });
       });
     },
+    postRequestor(path, queries = {}, dataName) {
+      const name = dataName || path.split('/')[0];
+      return new Promise((resolve, reject) => {
+        axios.post(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}`, queries)
+          .then((res) => {
+            Vue.set(this, name, res.data);
+            resolve(res.status);
+          }).catch(() => {
+            reject(0);
+          });
+      });
+    },
   },
   computed: {
     ...mapGetters({
