@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import BootstrapVue from 'bootstrap-vue';
 import Settings from '@/components/Settings';
 import Epics from '@/components/Epics';
+import UserStories from '@/components/UserStories';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -21,6 +22,11 @@ export default new Router({
       path: '/epics',
       name: 'Epics',
       component: Epics,
+    },
+    {
+      path: '/stories',
+      name: 'UserStories',
+      component: UserStories,
     },
   ],
 });

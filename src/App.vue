@@ -2,10 +2,15 @@
   <div id="app">
     <nav class="navbar navbar-dark bg-dark sticky-top">
       <span class="navbar-brand mb-0 h1">Backlog Scrum</span>
-      <ul class="navbar-nav mr-auto">
+      <ul class="navbar-nav mr-auto flex-row">
         <li class="nav-item" :class="{'active': $route.path === '/epics'}">
           <router-link to="/epics" class="nav-link">
             <icon name="chess" class="mr-1"></icon>エピック
+          </router-link>
+        </li>
+        <li class="nav-item" :class="{'active': $route.path === '/stories'}">
+          <router-link to="/stories" class="nav-link">
+            <icon name="sort" class="mr-1"></icon>ユーザストーリ
           </router-link>
         </li>
       </ul>
@@ -30,6 +35,7 @@ import Icon from 'vue-awesome/components/Icon';
 
 import 'vue-awesome/icons/ellipsis-v';
 import 'vue-awesome/icons/chess';
+import 'vue-awesome/icons/sort';
 
 export default {
   name: 'App',
@@ -103,5 +109,9 @@ export default {
   height: 1em;
   max-width: 100%;
   max-height: 100%;
+}
+.navbar-nav .nav-link {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 </style>
