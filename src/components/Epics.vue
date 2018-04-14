@@ -12,6 +12,11 @@
               v-b-tooltip.hover title="エピックの優先順位を保存">
               <icon name="save" label="エピックの優先順位を保存"></icon>
             </b-button>
+            <b-button :pressed.sync="isShownEpicInfo" variant="outline-dark"
+              v-b-tooltip.hover title="エピックの詳細を表示を切り替え">
+              <icon name="calendar" title="エピックの詳細を表示" v-if="!isShownEpicInfo"></icon>
+              <icon name="calendar-alt" title="エピックの詳細を非表示" v-if="isShownEpicInfo"></icon>
+            </b-button>
             <b-button @click="loadUserStories" variant="outline-dark"
               v-b-tooltip.hover title="ユーザストーリを読込" v-if="!isShownUserStories">
               <icon name="angle-double-down" title="ユーザストーリを読込"></icon>
@@ -66,9 +71,14 @@
                   </b-list-group>
                 </b-col>
               </b-row>
+            </div>
+            <div class="epic-info" v-if="isShownEpicInfo">
               <div class="d-flex justify-content-between align-items-end">
                 <small>{{ epic.createdUser.name }}</small>
-                <small>{{ epic.created }}</small>
+                <small v-if="epic.dueDate">
+                  <icon name="calendar-alt" label="期限" class="mr-2"></icon>
+                  {{ dateToString(epic.dueDate) }}
+                </small>
               </div>
             </div>
           </li>
@@ -157,8 +167,11 @@
 import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
+import date from '@/utils/date';
 
 import 'vue-awesome/icons/save';
+import 'vue-awesome/icons/calendar';
+import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/angle-double-down';
 import 'vue-awesome/icons/angle-double-up';
 import 'vue-awesome/icons/file';
@@ -169,7 +182,10 @@ import 'vue-awesome/icons/plus';
 
 export default {
   name: 'Epics',
-  mixins: [backlog],
+  mixins: [
+    backlog,
+    date,
+  ],
   data() {
     return {
       firstView: true,
@@ -195,6 +211,7 @@ export default {
       },
       response: {},
       isShownUserStories: false,
+      isShownEpicInfo: false,
     };
   },
   components: {
