@@ -17,7 +17,7 @@
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">
                 <span class="handle p-2 pr-4"><icon name="bars"></icon></span>
-                {{ epic.summary }}; {{ key }}
+                {{ epic.summary }}
               </h5>
               <small>{{ epic.created }}</small>
             </div>
@@ -150,15 +150,16 @@ export default {
     },
     endMovingEpic(event) {
       if (event.from !== event.to) {
+        // TODO: impl. to sync
         console.log(`${event.from.id} was updated`);
         console.log(`${event.to.id} was updated`);
       } else if (event.oldIndex !== event.newIndex) {
+        // TODO: impl. to sync
         console.log(`${event.from.id} was updated`);
       }
     },
     moveEpicToTop(event) {
       const btnNode = event.target.closest('button');
-      console.log(btnNode);
       const epicref = btnNode.dataset.epicref;
       this.$refs.epics.$el.insertBefore(
         this.$refs[epicref][0],
@@ -216,7 +217,6 @@ export default {
   },
   created() {
     this.$on('datastore-updated', this.applyDatastore);
-    console.log(this.$store.getters.projectHash);
     // datastore-updated only called this page is loaded at 1st time
     if (this.projectKey) {
       this.applyDatastore();
