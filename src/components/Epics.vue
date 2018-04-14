@@ -64,7 +64,7 @@
                 </b-col>
               </b-row>
               <div class="d-flex justify-content-between align-items-end">
-                <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
+                <small>{{ epic.createdUser.name }}</small>
                 <small>
                   <b-button size="sm" :data-epicref="`epic_${key}`"
                     v-b-tooltip.hover title="最上位に移動する"
