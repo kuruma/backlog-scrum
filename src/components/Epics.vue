@@ -5,10 +5,11 @@
         <p class="mt-2 text-center text-muted" v-if="loading">
           <icon name="sync-alt" scale="5" label="Loading..." spin></icon>
         </p>
-        <draggable @end="movedEpic" :options="{
+        <draggable @end="endMovingEpic" :options="{
             animation: 250,
             delay: 50,
             handle: '.handle',
+            dragClass: 'dragging',
           }" ref="epics"
           element="ol" id="epics" class="list-group">
           <li v-for="(epic, key) in epics" :key="epic.id" :ref="`epic_${key}`"
@@ -147,7 +148,7 @@ export default {
         this.pendingUserStory[prop] = '';
       });
     },
-    movedEpic(event) {
+    endMovingEpic(event) {
       if (event.from !== event.to) {
         console.log(`${event.from.id} was updated`);
         console.log(`${event.to.id} was updated`);
@@ -227,5 +228,12 @@ export default {
 <style scoped>
 #epics li:first-child .moveToTopButton {
   display: none;
+}
+.handle {
+  cursor: grab;
+}
+.dragging .handle {
+  /* FIXME: Does not applied */
+  cursor: grabbing;
 }
 </style>
