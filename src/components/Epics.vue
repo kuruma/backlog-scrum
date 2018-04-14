@@ -9,14 +9,14 @@
             animation: 250,
             delay: 50,
             handle: '.handle',
-          }"
+          }" ref="epics"
           element="ol" id="epics" class="list-group">
-          <li v-for="(epic, key) in epics" :key="epic.id"
+          <li v-for="(epic, key) in epics" :key="epic.id" :ref="`epic_${key}`"
             class="list-group-item flex-column align-items-start mb-2">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">
                 <span class="handle mr-2"><icon name="bars"></icon></span>
-                {{ epic.summary }}
+                {{ epic.summary }}; {{ key }}
               </h5>
               <small>{{ epic.created }}</small>
             </div>
@@ -28,9 +28,9 @@
               </b-row>
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
               <div class="float-right">
-                <b-button size="sm"
+                <b-button size="sm" :data-epicref="`epic_${key}`"
                   v-b-tooltip.hover title="最上位に移動する"
-                  @click="moveEpicToTop(key)" v-if="key !== 0">
+                  @click="moveEpicToTop" class="moveToTopButton">
                   <icon name="level-up-alt" lavel="最上位に移動する"/>
                 </b-button>
                 <b-button size="sm"
@@ -119,7 +119,7 @@ export default {
     return {
       firstView: true,
       loading: true,
-      epics: {},
+      epics: [],
       projects: {},
       space: {},
       parentEpic: {},
@@ -155,9 +155,13 @@ export default {
         console.log(`${event.from.id} was updated`);
       }
     },
-    moveEpicToTop(key) {
-      // FIXME: Should animate epics
-      this.epics.unshift(this.epics.splice(key, 1)[0]);
+    moveEpicToTop(event) {
+      const btnNode = event.target.closest('button');
+      console.log(btnNode);
+      const epicref = btnNode.dataset.epicref;
+      this.$refs.epics.$el.insertBefore(
+        this.$refs[epicref][0],
+        this.$refs.epics.$el.children[0]);
     },
     showAddUserStoryModal() {
       this.$refs.story.focus();
@@ -177,10 +181,10 @@ export default {
             count: 100,
             sort: 'updated',
           };
-          const eid = this.$store.getters.backlogEpicId;
-          if (eid > 0) {
-            param['issueTypeId[]'] = `${eid}`;
-          }
+          // const eid = this.$store.getters.backlogEpicId;
+          // if (eid > 0) {
+          //   param['issueTypeId[]'] = `${eid}`;
+          // }
           this.requestor(
             'issues',
             param,
@@ -221,4 +225,7 @@ export default {
 </script>
 
 <style scoped>
+#epics li:first-child .moveToTopButton {
+  display: none;
+}
 </style>
