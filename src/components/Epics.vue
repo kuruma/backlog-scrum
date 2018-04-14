@@ -10,6 +10,10 @@
             v-b-tooltip.hover title="エピックの優先順位を保存">
             <icon name="save" label="エピックの優先順位を保存"></icon>
           </b-button>
+          <b-button @click="loadUserStories" variant="outline-dark"
+            v-b-tooltip.hover title="ユーザストーリを読込">
+            <icon name="download" title="ユーザストーリを読込"></icon>
+          </b-button>
         </div>
         <draggable @end="endMovingEpic" :options="{
             animation: 250,
@@ -30,7 +34,17 @@
             <div class="epic-details">
               <b-row class="mb-1">
                 <b-col>
-                  <p class="mb-1">{{ epic.description }}</p>
+                  <b-list-group>
+                    <b-list-group-item v-for="story in userStories[key]" :key="story.id"
+                      :ref="`stories_${key}`"
+                      class="d-flex justify-content-between align-item-center align-middle"
+                      :class="{ 'list-group-item-dark': story.status.name === '完了' }">
+                      {{ story.summary }}
+                      <b-badge pill :class="{ 'badge-light': story.status.name === '完了' }">
+                        ?
+                      </b-badge>
+                    </b-list-group-item>
+                  </b-list-group>
                 </b-col>
               </b-row>
               <small>{{ epic.createdUser.name }} @ {{ epic.created }}</small>
@@ -115,6 +129,7 @@ import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
 
 import 'vue-awesome/icons/save';
+import 'vue-awesome/icons/download';
 import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/sync-alt';
 import 'vue-awesome/icons/level-up-alt';
@@ -130,6 +145,8 @@ export default {
       epics: [],
       projects: {},
       space: {},
+      userStories: {},
+      loadedUserStory: {},
       parentEpic: {},
       categories: {},
       pendingUserStory: {},
@@ -164,6 +181,33 @@ export default {
         // TODO: impl. to sync
         console.log(`${event.from.id} was updated`);
       }
+    },
+    loadUserStories() {
+      // FIXME: Flexible limitation
+      const l = (this.$refs.epics.$el.children.length < 20)
+        ? this.$refs.epics.$el.children.length
+        : 20;
+      for (let i = 0; i < l; i += 1) {
+        const key = this.$refs.epics.$el.children[i].dataset.epickey;
+        // TODO: Support Parent/Child issues
+        // const id = this.epics[key].id;
+        const param = {
+          'projectId[]': this.projects.id,
+          // 'parentIssueId[]': id,
+          'issueTypeId[]': this.$store.getters.backlogUserStoryId,
+          // parentChild: 2, // Only child task
+          count: 100,
+          sort: 'updated',
+        };
+        if (this.userStories[key] === undefined) {
+          this.$set(this.userStories, key, []);
+        }
+        this.requestor('issues', param, 'loadedUserStory')
+          .then(() => {
+            this.userStories[key] = this.loadedUserStory;
+          });
+      }
+      this.loadedUserStory = {};
     },
     moveEpicToTop(event) {
       const btnNode = event.target.closest('button');

@@ -41,7 +41,7 @@ const actions = {
       commit('storeProjectKey', proj);
       const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '-1';
       const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '-1';
-      const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogStoryId`) || '-1';
+      const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`) || '-1';
       const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
       const categoryids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`) || '[]';
       commit('storeEpicId', parseInt(epicid, 10));
