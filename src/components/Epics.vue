@@ -96,7 +96,7 @@
         </b-modal>
         <b-modal id="addUserStoryModal" title="ユーザストーリの追加" size="lg"
           ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addUserStoryModal"
-          @ok="addUserStoryAndContinue" @cancel="addUserStory"
+          @ok="addUserStoryAndContinue" @cancel="addUserStory" :busy="!pendingUserStoryState"
           @shown="showAddUserStoryModal" @hide="clearPendingUserStory">
           <div class="d-block">
             <b-row class="form-group">
@@ -124,6 +124,7 @@
             <div class="form-group row">
               <b-col sm="9" md="10">
                 <b-form-input v-model="pendingUserStory.goal" id="goal4story" type="text"
+                  :state="pendingUserStoryGoalState"
                   placeholder="ゴールは？終わったときに何を見せる？何ができている？" size="sm"/>
               </b-col>
               <span class="col-sm-3 col-md-2 col-form-label-sm">をする。</span>
@@ -204,9 +205,17 @@ export default {
       return (this.pendingEpic.summary !== undefined
         && this.pendingEpic.summary.length > 0);
     },
+    pendingUserStoryState() {
+      return (this.pendingUserStorySummaryState
+        && this.pendingUserStoryGoalState);
+    },
     pendingUserStorySummaryState() {
       return (this.pendingUserStory.summary !== undefined
         && this.pendingUserStory.summary.length > 0);
+    },
+    pendingUserStoryGoalState() {
+      return (this.pendingUserStory.goal !== undefined
+        && this.pendingUserStory.goal.length > 0);
     },
   },
   methods: {
