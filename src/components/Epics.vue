@@ -450,6 +450,7 @@ export default {
           };
           const eid = this.$store.getters.backlogEpicId;
           if (eid > 0) {
+            // TODO: Should be error handling
             param['issueTypeId[]'] = `${eid}`;
           }
           this.requestor(
