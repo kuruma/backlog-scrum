@@ -1,32 +1,34 @@
 <template>
   <div id="app">
-    <nav class="navbar navbar-dark bg-dark sticky-top">
-      <span class="navbar-brand mb-0 h1">Backlog Scrum</span>
-      <ul class="navbar-nav mr-auto flex-row">
-        <li class="nav-item" :class="{'active': $route.path === '/epics'}">
-          <router-link to="/epics" class="nav-link">
-            <icon name="chess" class="mr-1"></icon>エピック
-          </router-link>
-        </li>
-        <li class="nav-item" :class="{'active': $route.path === '/stories'}">
-          <router-link to="/stories" class="nav-link">
-            <icon name="sort" class="mr-1"></icon>ユーザストーリ
-          </router-link>
-        </li>
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item" :class="{'active': $route.path === '/settings'}">
-          <router-link to="/settings" class="nav-link pr-3 pl-3">
-            <icon name="ellipsis-v" label="設定"></icon>
-          </router-link>
-        </li>
-      </ul>
-    </nav>
-    <main>
-      <router-view
-        ref="main"
-        />
-    </main>
+    <el-container>
+      <el-header class="headerWrapper">
+        <el-row align="middle" type="flex">
+          <el-col :span="4">
+            <h1 class="brand">Backlog Scrum</h1>
+          </el-col>
+          <el-col :span="20">
+            <el-menu mode="horizontal" :default-active="$route.path" :router="true">
+              <template v-for="rule in $router.options.routes">
+                <el-menu-item v-if="rule.group === 1" :index="rule.path" :key="rule.path">
+                  <icon :name="rule.icon"
+                    v-if="rule.icon !== undefined"></icon>
+                  {{ rule.title }}
+                </el-menu-item>
+                <el-menu-item v-else :index="rule.path" :key="rule.path" class="weakitem">
+                  <icon v-if="rule.icon !== undefined" :name="rule.icon" :label="rule.label"></icon>
+                  <span v-if="rule.icon === undefined">{{ rule.title }}</span>
+                </el-menu-item>
+              </template>
+            </el-menu>
+          </el-col>
+        </el-row>
+      </el-header>
+      <div class="contentsWrapper">
+        <router-view
+          ref="main"
+          />
+      </div>
+    </el-container>
   </div>
 </template>
 
@@ -110,8 +112,31 @@ export default {
   max-width: 100%;
   max-height: 100%;
 }
-.navbar-nav .nav-link {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+body {
+  margin: 0;
+}
+.headerWrapper {
+  position: fixed;
+  background: #fff;
+  z-index: 100;
+  width: 100%;
+}
+.contentsWrapper {
+  position: fixed;
+  top: 60px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
+.el-menu-item .fa-icon {
+  margin-right: 0.25rem;
+}
+.el-menu .weakitem {
+  float: right;
+}
+.brand {
+  font-size: inherit;
+  font-weight: bold;
 }
 </style>

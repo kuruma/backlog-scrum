@@ -1,32 +1,36 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import BootstrapVue from 'bootstrap-vue';
 import Settings from '@/components/Settings';
 import Epics from '@/components/Epics';
 import UserStories from '@/components/UserStories';
 
-import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
-
 Vue.use(Router);
-Vue.use(BootstrapVue);
 
 export default new Router({
   routes: [
     {
-      path: '/settings',
-      name: 'Settings',
-      component: Settings,
-    },
-    {
       path: '/epics',
       name: 'Epics',
       component: Epics,
+      group: 1,
+      icon: 'chess',
+      title: 'エピック',
     },
     {
       path: '/stories',
       name: 'UserStories',
       component: UserStories,
+      group: 1,
+      icon: 'sort',
+      title: 'ユーザストーリ',
+    },
+    {
+      path: '/settings',
+      name: 'Settings',
+      component: Settings,
+      group: 2,
+      icon: 'ellipsis-v',
+      title: '設定',
     },
   ],
 });

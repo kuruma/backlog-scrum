@@ -1,166 +1,182 @@
 <template>
-  <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
-    <div class="row mt-3">
-      <div class="col">
-        <p class="mt-2 text-center text-muted" v-if="loading">
-          <icon name="spinner" scale="5" label="Loading..." spin></icon>
-        </p>
-        <div v-if="!loading"
-          class="controllers mb-3 d-flex justify-content-between align-item-center">
-          <div>
-            <b-button @click="syncEpicsOrder" variant="outline-dark"
-              v-b-tooltip.hover title="エピックの優先順位を保存">
-              <icon name="save" label="エピックの優先順位を保存"></icon>
-            </b-button>
-            <b-button :pressed.sync="isShownEpicInfo" variant="outline-dark"
-              v-b-tooltip.hover :title="isShownEpicInfo ? 'エピックの詳細を隠す' : 'エピックの詳細を表示'">
-              <icon name="calendar" title="エピックの詳細を表示" v-if="!isShownEpicInfo"></icon>
-              <icon name="calendar-alt" title="エピックの詳細を隠す" v-if="isShownEpicInfo"></icon>
-            </b-button>
-            <b-button @click="loadUserStories" variant="outline-dark"
-              v-b-tooltip.hover title="ユーザストーリを読込" v-if="!isShownUserStories">
-              <icon name="angle-double-down" title="ユーザストーリを読込"></icon>
-            </b-button>
-            <b-button @click="hideUserStories" variant="outline-dark"
-              v-b-tooltip.hover title="ユーザストーリを隠す" v-if="isShownUserStories">
-              <icon name="angle-double-up" title="ユーザストーリを隠す"></icon>
-            </b-button>
-          </div>
-          <div>
-            <b-button variant="outline-dark" @click="openAddEpicModal"
-              v-b-tooltip.hover title="エピックを追加">
-              <icon name="file" label="エピックを追加"></icon>
-            </b-button>
-          </div>
+  <el-main v-loading="loading">
+    <el-row class="controllers">
+      <el-col justify="start" :span="16">
+        <el-tooltip content="エピックを追加" effect="dark" placement="top">
+          <el-button @click="showAddEpicModal">
+            <icon name="plus" label="エピックを追加"/>
+          </el-button>
+        </el-tooltip>
+        <el-tooltip content="エピックの詳細を隠す" v-if="isShownEpicInfo" effect="dark" placement="top">
+          <el-button @click="hideEpicInfo">
+            <icon name="file-alt" title="エピックの詳細を隠す"/>
+          </el-button>
+        </el-tooltip>
+        <el-tooltip content="エピックの詳細を表示" v-if="!isShownEpicInfo" effect="dark" placement="top">
+          <el-button @click="showEpicInfo">
+            <icon name="file" title="エピックの詳細を表示" v-if="!isShownEpicInfo"/>
+          </el-button>
+        </el-tooltip>
+        <el-tooltip content="ユーザストーリを読込" v-if="!isShownUserStories" effect="dark" placement="top">
+          <el-button @click="loadUserStories">
+            <icon name="angle-double-down" title="ユーザストーリを読込"/>
+          </el-button>
+        </el-tooltip>
+        <el-tooltip content="ユーザストーリを隠す" v-if="isShownUserStories" effect="dark" placement="top">
+          <el-button @click="hideUserStories">
+            <icon name="angle-double-up" title="ユーザストーリを隠す"/>
+          </el-button>
+        </el-tooltip>
+      </el-col>
+      <el-col justify="end" :span="8" align="right">
+        <el-tooltip content="エピックの優先順位を保存" effect="dark" placement="top">
+          <el-button @click="syncEpicsOrder">
+            <icon name="save" label="エピックの優先順位を保存"/>
+          </el-button>
+        </el-tooltip>
+      </el-col>
+    </el-row>
+    <draggable @end="endMovingEpic" :options="{
+        animation: 250,
+        delay: 50,
+        handle: '.handle',
+      }" element="el-collapse" id="epics" ref="epics">
+      <el-collapse-item v-for="(epic, key) in epics" :key="epic.id" :name="epic.id"
+        :ref="`epic_${key}`" :data-epickey="`${key}`" class="epic-item">
+        <template slot="title">
+          <el-row type="flex">
+            <el-col :span="18">
+              <span class="handle"><icon name="bars"/></span>
+              {{ epic.summary }}
+            </el-col>
+            <el-col justify="end" :span="3" align="right">
+              <small v-if="epic.dueDate">
+                <icon name="calendar-alt" label="期限"/>
+                {{ dateToString(epic.dueDate) }}
+              </small>
+            </el-col>
+            <el-col justify="end" :span="3" align="center">
+              <el-tooltip content="最上位に移動" effect="dark" placement="top">
+                <el-button @click="moveEpicToTop" class="move-to-top-button" :data-epicref="key"
+                  round size="small">
+                  <icon name="level-up-alt" label="最上位に移動"/>
+                </el-button>
+              </el-tooltip>
+            </el-col>
+          </el-row>
+        </template>
+        <div class="epic-details" v-if="isShownUserStories">
+          <ul class="user-stories">
+            <li v-for="story in userStories[key]" :key="story.id" :ref="`stories_${key}`"
+              :class="{ 'completed-story': story.status.name === '完了' }">
+              <el-row>
+                {{ story.summary }}
+              </el-row>
+              <el-row type="flex" justify="end">
+                <!-- TODO: Set story point here -->
+                <el-radio-group size="mini">
+                  <el-radio-button disabled label="1"/>
+                  <el-radio-button disabled label="2"/>
+                  <el-radio-button disabled label="3"/>
+                  <el-radio-button disabled label="5"/>
+                  <el-radio-button disabled label="8"/>
+                  <el-radio-button disabled label="13"/>
+                  <el-radio-button disabled label="21"/>
+                  <el-radio-button disabled label="∞"/>
+                  <el-radio-button label="?" selected/>
+                </el-radio-group>
+              </el-row>
+            </li>
+            <li>
+              <el-button @click="showAddUserStoryModal" :data-epickey="`${key}`"
+                size="small" type="text">
+                <icon name="plus"/>
+                新しいユーザストーリを追加
+              </el-button>
+            </li>
+          </ul>
         </div>
-        <draggable @end="endMovingEpic" :options="{
-            animation: 250,
-            delay: 50,
-            handle: '.handle',
-            dragClass: 'dragging',
-          }" ref="epics"
-          element="ol" id="epics" class="list-group">
-          <li v-for="(epic, key) in epics" :key="epic.id" :ref="`epic_${key}`"
-            class="list-group-item flex-column align-items-start mb-2" :data-epickey="`${key}`">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">
-                <span class="handle p-2 pr-4"><icon name="bars"></icon></span>
-                {{ epic.summary }}
-              </h5>
-              <b-button size="sm" :data-epicref="`epic_${key}`"
-                v-b-tooltip.hover title="最上位に移動する" @click="moveEpicToTop" class="moveToTopButton">
-                <icon name="level-up-alt" lavel="最上位に移動する"/>
-              </b-button>
-            </div>
-            <div class="epic-details mt-2" v-if="isShownUserStories">
-              <b-row class="mb-1">
-                <b-col>
-                  <b-list-group>
-                    <b-list-group-item v-for="story in userStories[key]" :key="story.id"
-                      :ref="`stories_${key}`"
-                      class="d-flex justify-content-between align-item-center align-middle"
-                      :class="{ 'list-group-item-dark': story.status.name === '完了' }">
-                      {{ story.summary }}
-                      <b-badge pill :class="{ 'badge-light': story.status.name === '完了' }">
-                        ?
-                      </b-badge>
-                    </b-list-group-item>
-                    <b-list-group-item button @click="openUserStoryModal" :data-epickey="`${key}`">
-                      <icon name="plus" class="mr-2" label="ユーザストーリを追加する"/>新しいユーザストーリを追加
-                    </b-list-group-item>
-                  </b-list-group>
-                </b-col>
-              </b-row>
-            </div>
-            <div class="epic-info" v-if="isShownEpicInfo">
-              <div class="d-flex justify-content-between align-items-end">
-                <small>{{ epic.createdUser.name }}</small>
-                <small v-if="epic.dueDate">
-                  <icon name="calendar-alt" label="期限" class="mr-2"></icon>
-                  {{ dateToString(epic.dueDate) }}
-                </small>
-              </div>
-            </div>
-          </li>
-        </draggable>
-        <b-modal id="addEpicModal" title="エピックの追加" size="lg"
-          ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addEpicModal"
-          @ok="addEpicAndContinue" @cancel="addEpic" :busy="!pendingEpicSummaryState"
-          @shown="showAddEpicModal" @hide="clearPendingEpic">
-          <div class="d-block">
-            <b-row class="form-group">
-              <b-col>
-                <b-form-input ref="epic" v-model="pendingEpic.summary"
-                  :state="pendingEpicSummaryState"
-                  id="epic" type="text" placeholder="概要"/>
-              </b-col>
-            </b-row>
-          </div>
-          <div class="form-group row">
-            <b-col>
-              <label for="details" class="col-form-label-sm">詳細は</label>
-              <b-form-textarea id="details" v-model="pendingEpic.details"
-                placeholder="詳細（メモ）" :rows="4" size="sm"></b-form-textarea>
-            </b-col>
-          </div>
-        </b-modal>
-        <b-modal id="addUserStoryModal" title="ユーザストーリの追加" size="lg"
-          ok-title="続けて追加する" cancel-title="追加して閉じる" ref="addUserStoryModal"
-          @ok="addUserStoryAndContinue" @cancel="addUserStory" :busy="!pendingUserStoryState"
-          @shown="showAddUserStoryModal" @hide="clearPendingUserStory">
-          <div class="d-block">
-            <b-row class="form-group">
-              <b-col>
-                <b-form-input v-model="pendingUserStory.summary"
-                  :state="pendingUserStorySummaryState"
-                  ref="story" id="story" type="text" placeholder="概要"/>
-              </b-col>
-            </b-row>
-            <p><mark>{{ parentEpic.summary }}</mark>にむけて、</p>
-            <div class="form-group row">
-              <b-col sm="9" md="10">
-                <b-form-input v-model="pendingUserStory.who" id="story4who" type="text"
-                  placeholder="嬉しいのは誰？変わる影響を受けるのは誰？" size="sm"/>
-              </b-col>
-              <span class="col-sm-3 col-md-2 col-form-label-sm">が、</span>
-            </div>
-            <div class="form-group row">
-              <b-col sm="9" md="10">
-                <b-form-input v-model="pendingUserStory.why" id="story4why" type="text"
-                  placeholder="どんな価値？どう変える/変わる？何が嬉しい？" size="sm"/>
-              </b-col>
-              <span class="col-sm-3 col-md-2 col-form-label-sm">のために、</span>
-            </div>
-            <div class="form-group row">
-              <b-col sm="9" md="10">
-                <b-form-input v-model="pendingUserStory.goal" id="goal4story" type="text"
-                  :state="pendingUserStoryGoalState"
-                  placeholder="ゴールは？終わったときに何を見せる？何ができている？" size="sm"/>
-              </b-col>
-              <span class="col-sm-3 col-md-2 col-form-label-sm">をする。</span>
-            </div>
-            <b-row>
-              <b-col>
-                <b-button-group size="sm" :state="pendingUserStoryCategoriesState">
-                  <b-button v-for="c in categories" :key="`${c.projectId}_${c.id}`"
-                    variant="outline-primary" :pressed.sync="c.state">
-                    {{ c.name }}
-                  </b-button>
-                </b-button-group>
-              </b-col>
-            </b-row>
-            <div class="form-group row">
-              <b-col>
-                <label for="details" class="col-form-label-sm">詳細は</label>
-                <b-form-textarea id="details" v-model="pendingUserStory.details"
-                  placeholder="詳細（メモ）" :rows="4" size="sm"></b-form-textarea>
-              </b-col>
-            </div>
-          </div>
-        </b-modal>
-      </div>
-    </div>
-  </div>
+        <div class="epic-info" v-if="isShownEpicInfo">
+          <p>{{ epic.description }}</p>
+          <small>{{ epic.createdUser.name }}</small>
+        </div>
+      </el-collapse-item>
+    </draggable>
+    <el-dialog title="エピックの追加" :visible.sync="isShownAddEpicModal"
+      @close="clearPendingEpic" width="90%" append-to-body class="addEpicModal">
+      <el-form :model="pendingEpic" :rules="epicRules" ref="pendingEpic">
+        <el-form-item label="概要" prop="summary">
+          <el-input v-model="pendingEpic.summary" auto-complete="off"
+            placeholder="エピックのゴールを簡潔に" ref="epicSummaryForm"/>
+        </el-form-item>
+        <el-form-item label="詳細">
+          <el-input type="textarea" v-model="pendingEpic.details" placeholder="詳細（メモ）"/>
+        </el-form-item>
+        <el-form-item class="buttons">
+          <el-row type="flex" justify="end">
+            <el-button type="info" @click="addEpicThenClose">
+              追加して閉じる
+            </el-button>
+            <el-button type="primary" @click="addEpicAndContinue">
+              続けて追加する
+            </el-button>
+          </el-row>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-dialog title="ユーザストーリの追加" :visible.sync="isShownAddUserStoryModal"
+      @close="clearPendingUserStory" width="90%" append-to-body class="addUserStoryModal">
+      <el-form :model="pendingUserStory" :rules="userStoryRules" ref="pendingUserStory">
+        <el-form-item prop="summary">
+          <el-input v-model="pendingUserStory.summary" auto-complete="off"
+            placeholder="概要" ref="userStorySummaryForm"/>
+        </el-form-item>
+        <el-form-item>
+          <p><mark>{{ parentEpic.summary }}</mark>に向けて、</p>
+        </el-form-item>
+        <el-form-item prop="who">
+          <el-input v-model="pendingUserStory.who" size="small"
+            placeholder="嬉しいのは誰？変わる影響を受けるのは誰？">
+            <template slot="append">が、</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="why">
+          <el-input v-model="pendingUserStory.why" size="small"
+            placeholder="どんな価値？どう変える/変わる？何が嬉しい？">
+            <template slot="append">のために、</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="goal">
+          <el-input v-model="pendingUserStory.goal" size="small"
+            placeholder="ゴールは？終わった時に何を見せる/出来ている？">
+            <template slot="append">をする。</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="categories">
+          <el-checkbox-group v-model="pendingUserStory.categories">
+            <el-checkbox v-for="c in categories" :key="`${c.projectId}_${c.id}`"
+              :label="c.id" border>
+              {{ c.name }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="詳細">
+          <el-input type="textarea" v-model="pendingUserStory.details"
+            placeholder="詳細（メモ）" size="small"/>
+        </el-form-item>
+        <el-form-item class="buttons">
+          <el-row type="flex" justify="end">
+            <el-button type="info" @click="addUserStoryThenClose">
+              追加して閉じる
+            </el-button>
+            <el-button type="primary" @click="addUserStoryAndContinue">
+              続けて追加する
+            </el-button>
+          </el-row>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+  </el-main>
 </template>
 
 <script>
@@ -170,13 +186,12 @@ import backlog from '@/utils/backlog';
 import date from '@/utils/date';
 
 import 'vue-awesome/icons/save';
-import 'vue-awesome/icons/calendar';
-import 'vue-awesome/icons/calendar-alt';
+import 'vue-awesome/icons/file';
+import 'vue-awesome/icons/file-alt';
 import 'vue-awesome/icons/angle-double-down';
 import 'vue-awesome/icons/angle-double-up';
-import 'vue-awesome/icons/file';
 import 'vue-awesome/icons/bars';
-import 'vue-awesome/icons/spinner';
+import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/level-up-alt';
 import 'vue-awesome/icons/plus';
 
@@ -188,12 +203,26 @@ export default {
   ],
   data() {
     return {
+      collapsedEpics: [],
       firstView: true,
+      epicRules: {
+        summary: [
+          { required: true, message: '必須項目です', trigger: 'blur' },
+        ],
+      },
       loading: true,
       epics: [],
       projects: {},
       space: {},
       userStories: {},
+      userStoryRules: {
+        summary: [
+          { required: true, message: '必須項目です', trigger: 'blur' },
+        ],
+        categories: [
+          { min: 1, message: '少なくとも1つ以上のカテゴリに属する必要があります', trigger: 'blur,change' },
+        ],
+      },
       loadedUserStory: {},
       parentEpic: {},
       parentEpicKey: -1,
@@ -203,6 +232,7 @@ export default {
         who: '',
         why: '',
         goal: '',
+        categories: [],
         details: '',
       },
       pendingEpic: {
@@ -212,48 +242,33 @@ export default {
       response: {},
       isShownUserStories: false,
       isShownEpicInfo: false,
+      isShownAddEpicModal: false,
+      isShownAddUserStoryModal: false,
     };
   },
   components: {
     draggable,
     Icon,
   },
-  computed: {
-    pendingEpicSummaryState() {
-      return (this.pendingEpic.summary !== undefined
-        && this.pendingEpic.summary.length > 0);
-    },
-    pendingUserStoryState() {
-      return (this.pendingUserStorySummaryState
-        && this.pendingUserStoryGoalState
-        && this.pendingUserStoryCategoriesState);
-    },
-    pendingUserStorySummaryState() {
-      return (this.pendingUserStory.summary !== undefined
-        && this.pendingUserStory.summary.length > 0);
-    },
-    pendingUserStoryGoalState() {
-      return (this.pendingUserStory.goal !== undefined
-        && this.pendingUserStory.goal.length > 0);
-    },
-    pendingUserStoryCategoriesState() {
-      const l = this.categories.length;
-      for (let i = 0; i < l; i += 1) {
-        if (this.categories[i].state) {
-          return true;
-        }
-      }
-      return false;
-    },
-  },
   methods: {
-    openAddEpicModal() {
-      this.$refs.addEpicModal.show();
+    focusEpicSummaryForm() {
+      // form is not generated at the 1st time
+      if (this.$refs.epicSummaryForm !== undefined) {
+        this.$refs.epicSummaryForm.$el.querySelector('input').focus();
+      }
     },
-    openUserStoryModal(event) {
-      this.$refs.addUserStoryModal.show();
-      this.parentEpic = this.epics[event.target.dataset.epickey];
-      this.parentEpicKey = event.target.dataset.epickey;
+    focusUserStorySummaryForm() {
+      // form is not generated at the 1st time
+      if (this.$refs.userStorySummaryForm !== undefined) {
+        this.$refs.userStorySummaryForm.$el.querySelector('input').focus();
+      }
+    },
+    hideEpicInfo() {
+      this.isShownEpicInfo = false;
+    },
+    showEpicInfo() {
+      this.isShownEpicInfo = true;
+      this.focusEpicSummaryForm();
     },
     addEpic() {
       const param = {
@@ -263,25 +278,23 @@ export default {
         summary: this.pendingEpic.summary,
         description: this.pendingEpic.details === '' ? '' : this.pendingEpic.details,
       };
-      this.postRequestor('issues', param, 'response')
+      this.$refs.pendingEpic.validate()
         .then(() => {
-          this.epics.push(this.response);
+          this.postRequestor('issues', param, 'response')
+            .then(() => {
+              this.epics.push(this.response);
+            })
+            .then(() => {
+              this.moveEpicToTopByIndex(`${this.epics.length - 1}`);
+            })
+            .then(() => {
+              this.response = {};
+            });
         })
-        .then(() => {
-          this.moveEpicToTopByIndex(`epic_${this.epics.length - 1}`);
-        })
-        .then(() => {
-          this.response = {};
+        .catch(() => {
         });
     },
     addUserStory() {
-      const categories = [];
-      const l = this.categories.length;
-      for (let i = 0; i < l; i += 1) {
-        if (this.categories[i].state) {
-          categories.push(this.categories[i].id);
-        }
-      }
       const detailItems = [];
       if (this.pendingUserStory.who.length > 0) {
         detailItems.push(`# 誰のために\n\n${this.pendingUserStory.who}`);
@@ -303,8 +316,7 @@ export default {
         priorityId: 3, // FIXME: Should be customizable
         // parentIssueId: epicid,
         summary: this.pendingUserStory.summary,
-        categoryId: categories,
-        // TODO: append other parameters
+        categoryId: this.pendingUserStory.categories,
         description: detailItems.join('\n\n'),
       };
       this.postRequestor('issues', param, 'response')
@@ -319,16 +331,22 @@ export default {
     addEpicAndContinue(event) {
       event.preventDefault();
       this.addEpic();
-      // FIXME: Should not touch DOM directry
-      document.getElementById('epic').focus();
       this.clearPendingEpic();
+      this.focusEpicSummaryForm();
+    },
+    addEpicThenClose() {
+      this.addEpic();
+      this.isShownAddEpicModal = false;
     },
     addUserStoryAndContinue(event) {
       event.preventDefault();
       this.addUserStory();
-      // FIXME: Should not touch DOM directry
-      document.getElementById('story').focus();
       this.clearPendingUserStory();
+      this.focusUserStorySummaryForm();
+    },
+    addUserStoryThenClose() {
+      this.addUserStory();
+      this.isShownAddUserStoryModal = false;
     },
     clearPendingEpic() {
       Object.keys(this.pendingEpic).forEach((prop) => {
@@ -383,20 +401,27 @@ export default {
       this.loadedUserStory = {};
     },
     moveEpicToTop(event) {
+      event.stopPropagation();
       const btnNode = event.target.closest('button');
       const epicref = btnNode.dataset.epicref;
       this.moveEpicToTopByIndex(epicref);
     },
     moveEpicToTopByIndex(idx) {
       this.$refs.epics.$el.insertBefore(
-        this.$refs[idx][0],
+        this.$refs.epics.$el.children[idx],
         this.$refs.epics.$el.children[0]);
     },
     showAddEpicModal() {
-      this.$refs.epic.focus();
+      this.isShownAddEpicModal = true;
+      // FIXME: Dirty...
+      window.setTimeout(this.focusEpicSummaryForm, 100);
     },
     showAddUserStoryModal() {
-      this.$refs.story.focus();
+      const btnNode = event.target.closest('button');
+      this.parentEpicKey = btnNode.dataset.epickey;
+      this.parentEpic = this.epics[this.parentEpicKey];
+      this.isShownAddUserStoryModal = true;
+      window.setTimeout(this.focusUserStorySummaryForm, 100);
     },
     setParentEpic(epic) {
       this.parentEpic = epic;
@@ -466,11 +491,46 @@ export default {
 </script>
 
 <style scoped>
-#epics li:first-child .moveToTopButton {
+main {
+  height: 100%;
+}
+#epics .move-to-top-button {
+  margin: auto 0.5rem;
+}
+#epics .epic-item:first-child .move-to-top-button {
   display: none;
+}
+.controllers {
+  margin-bottom: 20px;
+}
+.user-stories li {
+  display: block;
+  border-style: solid none none;
+  border-color: #dcdfe6; /* Same as nase border */
+  border-width: 1px 0;
+  min-height: 2rem;
+  margin: 0;
+  width: 100%;
+}
+.user-stories li:last-child {
+  border-bottom-style: solid;
+}
+.user-stories .completed-story {
+  background-color: #909399; /* Same as Info color */
+  color: #c0c4cc; /* Same as placeholder text */
+}
+.addUserStoryModal .el-form-item {
+  margin-bottom: 0;
+}
+.addUserStoryModal .el-form-item.buttons {
+  margin-top: 22px;
+}
+.addUserStoryModal p {
+  margin-bottom: 0;
 }
 .handle {
   cursor: grab;
+  padding: 1rem;
 }
 .dragging .handle {
   /* FIXME: Does not applied */

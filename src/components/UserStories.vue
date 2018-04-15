@@ -1,42 +1,25 @@
 <template>
-  <div :class="{ 'container-fluid': !isFixedViewMode, container: isFixedViewMode }">
-    <b-row class="mt-3">
-      <b-col>
-        <p class="mt-2 text-center text-muted" v-if="loading">
-          <icon name="spinner" scale="5" label="Loading..." spin></icon>
-        </p>
-      </b-col>
-    </b-row>
-  </div>
+  <el-main v-loading="loading">
+    <el-row>
+      <el-col>
+      </el-col>
+    </el-row>
+  </el-main>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-
-import 'vue-awesome/icons/spinner';
-
 export default {
-  name: 'Userstories',
+  name: 'UserStories',
   data() {
     return {
       loading: true,
     };
   },
-  computed: {
-    isFixedViewMode: {
-      get() {
-        return this.$store.getters.isFixedViewMode;
-      },
-      set(value) {
-        this.$store.dispatch('changeViewMode', value);
-      },
-    },
-  },
-  components: {
-    Icon,
-  },
 };
 </script>
 
 <style scoped>
+main {
+  height: 100%;
+}
 </style>

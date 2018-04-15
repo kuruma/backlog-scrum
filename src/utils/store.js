@@ -5,11 +5,10 @@ import Jssha from 'jssha';
 Vue.use(Vuex);
 
 const LOCAL_STORAGE_PREFIX = 'blscrum_';
-const DEFAULT_VIEW_MODE = true;
 
 const state = {
   backlogApiKey: '',
-  backlogCategoryIds: '',
+  backlogCategoryIds: [],
   backlogEpicId: -1,
   backlogFqdn: '',
   backlogProjectKey: '',
@@ -17,7 +16,6 @@ const state = {
   backlogUrgentId: -1,
   backlogUserStoryId: -1,
   firebaseUri: '',
-  isFixedViewMode: DEFAULT_VIEW_MODE,
   isLockedTeamSettings: false,
 };
 
@@ -26,32 +24,26 @@ const actions = {
     return new Promise((resolve) => {
       const key = (params.blkey !== undefined)
         ? params.blkey
-        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`).toString()
-          || '';
+        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`) || '';
       const fqdn = (params.bldomain !== undefined && params.blspace !== undefined)
         ? `${params.blspace}.${params.bldomain}`
-        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogFqdn`).toString()
-          || '';
+        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogFqdn`) || '';
       const proj = (params.blproj !== undefined)
         ? params.blproj
-        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogProj`).toString()
-          || '';
+        : localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogProj`) || '';
       commit('storeApiKey', key);
       commit('storeFqdn', fqdn);
       commit('storeProjectKey', proj);
-      const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '-1';
-      const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '-1';
-      const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`) || '-1';
-      const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '[]';
-      const categoryids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`) || '[]';
+      const epicid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`) || '';
+      const urgentid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`) || '';
+      const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`) || '';
+      const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '';
+      const categoryids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`) || '';
       commit('storeEpicId', parseInt(epicid, 10));
       commit('storeUrgentId', parseInt(urgentid, 10));
       commit('storeUserStoryId', parseInt(storyid, 10));
       commit('storeTaskIds', JSON.parse(taskids));
       commit('storeCategoryIds', JSON.parse(categoryids));
-      const modeStr = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}viewMode`);
-      const mode = (typeof modeStr === 'string' && modeStr.toLowerCase() === 'true');
-      commit('storeViewMode', (mode === null) ? DEFAULT_VIEW_MODE : mode);
       const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
       commit('storeFirebaseUri', (typeof fburi === 'string') ? fburi : '');
       const locked = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`) || false;
@@ -86,9 +78,6 @@ const actions = {
   updateUserStoryId({ commit }, id) {
     commit('storeUserStoryId', id);
   },
-  changeViewMode({ commit }, mode) {
-    commit('storeViewMode', mode);
-  },
   changeLockedTeamSettings({ commit }, bool) {
     commit('storeLockedTeamSettings', bool);
   },
@@ -100,12 +89,22 @@ const mutations = {
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogApiKey`, str);
   },
   storeCategoryIds(s, ids) {
-    state.backlogCategoryIds = ids;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`, JSON.stringify(ids));
+    if (Array.isArray(ids) && ids.length > 0) {
+      state.backlogCategoryIds = ids;
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`, JSON.stringify(ids));
+    } else {
+      state.backlogCategoryIds = '';
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`);
+    }
   },
   storeEpicId(s, num) {
-    state.backlogEpicId = num;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`, num);
+    if (typeof num === 'number' && num >= 0) {
+      state.backlogEpicId = num;
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`, num);
+    } else {
+      state.backlogEpicId = '';
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogEpicId`);
+    }
   },
   storeFirebaseUri(s, str) {
     state.firebaseUri = str;
@@ -116,24 +115,40 @@ const mutations = {
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogFqdn`, str);
   },
   storeProjectKey(s, str) {
-    state.backlogProjectKey = str;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogProj`, str);
+    if (typeof str === 'string' && str.length > 0) {
+      state.backlogProjectKey = str;
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogProj`, str);
+    } else {
+      state.backlogProjectKey = '';
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogProj`);
+    }
   },
   storeTaskIds(s, arr) {
-    state.backlogTaskIds = arr;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`, JSON.stringify(arr));
+    if (Array.isArray(arr) && arr.length > 0) {
+      state.backlogTaskIds = arr;
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`, JSON.stringify(arr));
+    } else {
+      state.backlogTaskIds = '';
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`);
+    }
   },
   storeUrgentId(s, num) {
-    state.backlogUrgentId = num;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`, num);
+    if (typeof num === 'number' && num >= 0) {
+      state.backlogUrgentId = num;
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`, num);
+    } else {
+      state.backlogUrgentId = '';
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogUrgentId`);
+    }
   },
   storeUserStoryId(s, num) {
-    state.backlogUserStoryId = num;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`, num);
-  },
-  storeViewMode(s, mode) {
-    state.isFixedViewMode = mode;
-    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}viewMode`, mode);
+    if (typeof num === 'number' && num >= 0) {
+      state.backlogUserStoryId = num;
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`, num);
+    } else {
+      state.backlogUserStoryId = '';
+      localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`);
+    }
   },
   storeLockedTeamSettings(s, bool) {
     state.isLockedTeamSettings = bool;
@@ -157,7 +172,6 @@ const getters = {
   backlogUrgentId: s => s.backlogUrgentId,
   backlogUserStoryId: s => s.backlogUserStoryId,
   firebaseUri: s => s.firebaseUri,
-  isFixedViewMode: s => s.isFixedViewMode,
   isLockedTeamSettings: s => s.isLockedTeamSettings,
   projectHash: (s) => {
     const sha = new Jssha('SHA3-224', 'TEXT');
