@@ -25,15 +25,6 @@ export default {
   mixins: [
     backlog,
   ],
-  computed: {
-    activeStatusIds() {
-      // FIXME: filtering rule should not hardcoded
-      return this.statuses.filter(x => x.name !== '完了').map(x => x.id);
-    },
-    statusIds() {
-      return this.statuses.map(x => x.id);
-    },
-  },
   methods: {
     applyDatastore() {
       this.loading = true;
@@ -46,11 +37,10 @@ export default {
         .then(() =>
           this.loadBacklogUserStories(this.projects.id,
             this.$store.getters.backlogUserStoryId, this.activeStatusIds))
-        .then(() => {
-          this.loading = false;
-        })
         .catch(() => {
-          // FIXME: Should be error handling
+          // FIXME: Error handling
+        })
+        .finally(() => {
           this.loading = false;
         });
     },

@@ -152,9 +152,9 @@
             <template slot="append">をする。</template>
           </el-input>
         </el-form-item>
-        <el-form-item prop="categories">
-          <el-checkbox-group v-model="pendingUserStory.categories">
-            <el-checkbox v-for="c in categories" :key="`${c.projectId}_${c.id}`"
+        <el-form-item prop="teamCategories">
+          <el-checkbox-group v-model="pendingUserStory.teamCategories">
+            <el-checkbox v-for="c in teamCategories" :key="`${c.projectId}_${c.id}`"
               :label="c.id" border>
               {{ c.name }}
             </el-checkbox>
@@ -203,35 +203,29 @@ export default {
   ],
   data() {
     return {
-      collapsedEpics: [],
-      firstView: true,
       epicRules: {
         summary: [
           { required: true, message: '必須項目です', trigger: 'blur' },
         ],
       },
       loading: true,
-      projects: {},
-      space: {},
-      userStories: {},
       userStoryRules: {
         summary: [
           { required: true, message: '必須項目です', trigger: 'blur' },
         ],
-        categories: [
+        teamCategories: [
           { min: 1, message: '少なくとも1つ以上のカテゴリに属する必要があります', trigger: 'blur,change' },
         ],
       },
       loadedUserStory: {},
       parentEpic: {},
       parentEpicKey: -1,
-      categories: {},
       pendingUserStory: {
         sumary: '',
         who: '',
         why: '',
         goal: '',
-        categories: [],
+        teamCategories: [],
         details: '',
       },
       pendingEpic: {
@@ -243,6 +237,7 @@ export default {
       isShownEpicInfo: false,
       isShownAddEpicModal: false,
       isShownAddUserStoryModal: false,
+      teamCategories: [], // Loaded categories info filtered by teams' one
     };
   },
   components: {
@@ -270,27 +265,26 @@ export default {
       this.focusEpicSummaryForm();
     },
     addEpic() {
-      const param = {
-        projectId: this.projects.id,
-        issueTypeId: this.$store.getters.backlogEpicId,
-        priorityId: 3, // FIXME: Should be customizable
-        summary: this.pendingEpic.summary,
-        description: this.pendingEpic.details === '' ? '' : this.pendingEpic.details,
-      };
       this.$refs.pendingEpic.validate()
+        .then(() =>
+          this.postBacklogNewEpic(
+            this.projects.id,
+            this.$store.getters.backlogEpicId,
+            this.pendingEpic.summary,
+            (this.pendingEpic.details === '') ? '' : this.pendingEpic.details,
+            'response',
+          ))
         .then(() => {
-          this.postRequestor('issues', param, 'response')
-            .then(() => {
-              this.epics.push(this.response);
-            })
-            .then(() => {
-              this.moveEpicToTopByIndex(`${this.epics.length - 1}`);
-            })
-            .then(() => {
-              this.response = {};
-            });
+          this.epics.push(this.response);
+        })
+        .then(() => {
+          this.moveEpicToTopByIndex(`${this.epics.length - 1}`);
         })
         .catch(() => {
+          // TODO: Error handling
+        })
+        .finally(() => {
+          this.response = {};
         });
     },
     addUserStory() {
@@ -307,23 +301,19 @@ export default {
       if (this.pendingUserStory.details.length > 0) {
         detailItems.push(`# 詳細\n\n${this.pendingUserStory.details}`);
       }
-      // TODO: set epic id as parent issue
-      // const epicid = this.parentEpic.id;
-      const param = {
-        projectId: this.projects.id,
-        issueTypeId: this.$store.getters.backlogUserStoryId,
-        priorityId: 3, // FIXME: Should be customizable
-        // parentIssueId: epicid,
-        summary: this.pendingUserStory.summary,
-        categoryId: this.pendingUserStory.categories,
-        description: detailItems.join('\n\n'),
-      };
-      this.postRequestor('issues', param, 'response')
+      this.postBacklogNewUserStoryRelatedEpic(
+        this.projects.id,
+        this.$store.getters.backlogUserStoryId,
+        // this.parentEpic.id,
+        this.pendingUserStory.summary,
+        this.pendingUserStory.teamCategories,
+        detailItems.join('\n\n'),
+        'response')
         .then(() => {
-          // TODO: insert response issuce to the last of user story list
+        // TODO: insert response issuce to the last of user story list
           this.userStories[this.parentEpicKey].push(this.response);
         })
-        .then(() => {
+        .finally(() => {
           this.response = {};
         });
     },
@@ -371,7 +361,7 @@ export default {
       this.isShownUserStories = false;
       this.parentEpicKey = -1;
     },
-    loadUserStories() {
+    loadUserStories() { // TODO: Refactoring required★
       this.isShownUserStories = true;
       // FIXME: Flexible limitation
       const l = (this.$refs.epics.$el.children.length < 20)
@@ -420,6 +410,7 @@ export default {
       this.parentEpicKey = btnNode.dataset.epickey;
       this.parentEpic = this.epics[this.parentEpicKey];
       this.isShownAddUserStoryModal = true;
+      // FIXME: Dirty...
       window.setTimeout(this.focusUserStorySummaryForm, 100);
     },
     setParentEpic(epic) {
@@ -431,52 +422,32 @@ export default {
         const epicNode = this.$refs.epics.$el.children[i];
         const epic = this.epics[epicNode.dataset.epickey];
         i += 1;
-        // TODO: impl. save priority of epics
-        console.log(`${epic.summary}の優先度を${i}で上書きします`);
+        this.updatePriorityOfIssue(epic.id, i);
       }
     },
     applyDatastore() {
       this.loading = true;
-      this.requestor('space')
+      this.loadBacklogProject()
         .then(() =>
-          this.requestor(`projects/${this.projectKey}`))
-        .then(() => {
-          const param = {
-            'projectId[]': this.projects.id,
-            parentChild: 1, // Except child task
-            count: 100,
-            sort: 'updated',
-          };
-          const eid = this.$store.getters.backlogEpicId;
-          if (eid > 0) {
-            // TODO: Should be error handling
-            param['issueTypeId[]'] = `${eid}`;
-          }
-          this.requestor(
-            'issues',
-            param,
-            'epics',
-          );
-        })
+          this.loadBacklogStatuses())
         .then(() =>
-          this.requestor(`projects/${this.projectKey}/categories`, undefined, 'categories'))
+          this.loadBacklogEpics(this.projects.id,
+            this.$store.getters.backlogEpicId, this.activeStatusIds))
+        .then(() =>
+          this.loadBacklogCategories(this.projects.id))
         .then(() => {
-          this.categories = this.categories.filter(
+          this.teamCategories = this.categories.filter(
             value =>
               this.$store.getters.backlogCategoryIds.findIndex(
                 v =>
                   value.id === v,
               ) >= 0);
-          this.categories.forEach((element, index) => {
-            this.$set(this.categories[index], 'state', false);
-          });
-        })
-        .then(() => {
-          this.loading = false;
         })
         .catch(() => {
+          // FIXME: Error handling
+        })
+        .finally(() => {
           this.loading = false;
-          // TODO
         });
     },
   },
