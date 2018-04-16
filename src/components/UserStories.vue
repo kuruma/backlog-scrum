@@ -2,6 +2,9 @@
   <el-main v-loading="loading">
     <el-row>
       <el-col :span="12">
+        <ul>
+          <li v-for="s in userStories" :key="s.id">{{ s.issueKey }} : {{ s.summary }}</li>
+        </ul>
       </el-col>
       <el-col :span="12">
       </el-col>
@@ -22,9 +25,34 @@ export default {
   mixins: [
     backlog,
   ],
+  computed: {
+    activeStatusIds() {
+      // FIXME: filtering rule should not hardcoded
+      return this.statuses.filter(x => x.name !== '完了').map(x => x.id);
+    },
+    statusIds() {
+      return this.statuses.map(x => x.id);
+    },
+  },
   methods: {
     applyDatastore() {
-      this.loading = false;
+      this.loading = true;
+      this.loadBacklogProject()
+        .then(() =>
+          this.loadBacklogStatuses())
+        .then(() =>
+          this.loadBacklogEpics(this.projects.id,
+            this.$store.getters.backlogEpicId, this.activeStatusIds))
+        .then(() =>
+          this.loadBacklogUserStories(this.projects.id,
+            this.$store.getters.backlogUserStoryId, this.activeStatusIds))
+        .then(() => {
+          this.loading = false;
+        })
+        .catch(() => {
+          // FIXME: Should be error handling
+          this.loading = false;
+        });
     },
   },
   created() {

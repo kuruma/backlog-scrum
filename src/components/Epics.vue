@@ -211,7 +211,6 @@ export default {
         ],
       },
       loading: true,
-      epics: [],
       projects: {},
       space: {},
       userStories: {},
