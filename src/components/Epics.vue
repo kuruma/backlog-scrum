@@ -74,16 +74,17 @@
               </el-row>
               <el-row type="flex" justify="end">
                 <!-- TODO: Set story point here -->
-                <el-radio-group size="mini">
-                  <el-radio-button disabled label="1"/>
-                  <el-radio-button disabled label="2"/>
-                  <el-radio-button disabled label="3"/>
-                  <el-radio-button disabled label="5"/>
-                  <el-radio-button disabled label="8"/>
-                  <el-radio-button disabled label="13"/>
-                  <el-radio-button disabled label="21"/>
-                  <el-radio-button disabled label="∞"/>
-                  <el-radio-button label="?" selected/>
+                <el-radio-group v-model="storyPoints[story.id]"
+                  @change="setStoryPointOfUserStory(story.id)" size="mini">
+                  <el-radio-button label="1">1</el-radio-button>
+                  <el-radio-button label="2">2</el-radio-button>
+                  <el-radio-button label="3">3</el-radio-button>
+                  <el-radio-button label="5">5</el-radio-button>
+                  <el-radio-button label="8">8</el-radio-button>
+                  <el-radio-button label="13">13</el-radio-button>
+                  <el-radio-button label="21">21 </el-radio-button>
+                  <el-radio-button label="99">∞</el-radio-button>
+                  <el-radio-button label="100" selected>?</el-radio-button>
                 </el-radio-group>
               </el-row>
             </li>
@@ -218,6 +219,7 @@ export default {
         ],
       },
       loadedUserStory: {},
+      storyPoints: {},
       parentEpic: {},
       parentEpicKey: -1,
       pendingUserStory: {
@@ -316,6 +318,11 @@ export default {
         .finally(() => {
           this.response = {};
         });
+    },
+    setStoryPointOfUserStory(storyId) {
+      // TODO: Set custom var of priority
+      console.log(this.storyPoints[storyId]);
+      this.updatePriorityOfIssue(storyId, undefined, this.storyPoints[storyId]);
     },
     addEpicAndContinue(event) {
       event.preventDefault();
