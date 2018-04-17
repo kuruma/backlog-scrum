@@ -17,7 +17,7 @@
         </el-tooltip>
       </el-col>
     </el-row>
-    <el-row type="flex">
+    <el-row type="flex" class="backlogs">
       <el-col :span="12" class="backlog">
         <h2>プロダクトバックログ</h2>
         <draggable @end="endMovingStories" :options="{
@@ -25,7 +25,8 @@
             animation: 250,
             delay: 50,
             handle: '.handle',
-          }" element="el-collapse" id="stories" ref="stories" accordion>
+          }" element="el-collapse" id="productbacklogs" ref="productbacklogs"
+          accordion class="backlog-list">
           <el-collapse-item v-for="(story, key) in userStories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storykey="`${key}`" class="story-item">
             <template slot="title">
@@ -55,7 +56,8 @@
             animation: 250,
             delay: 50,
             handle: '.handle',
-          }" element="el-collapse" id="stories" ref="stories" accordion>
+          }" element="el-collapse" id="sprintbacklogs" ref="sprintbacklogs"
+          accordion class="backlog-list">
         </draggable>
       </el-col>
     </el-row>
@@ -140,11 +142,9 @@ export default {
 
 <style scoped>
 main {
+  display: flex;
+  flex-direction: column;
   height: 100%;
-}
-.backlog h2 {
-  font-size: inherit;
-  font-weight: bold;
 }
 .handle {
   cursor: grab;
@@ -153,5 +153,21 @@ main {
 .dragging .handle {
   /* FIXME: Does not applied */
   cursor: grabbing;
+}
+.backlogs {
+  flex-grow: 1;
+}
+.backlog {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.backlog h2 {
+  font-size: inherit;
+  font-weight: bold;
+}
+.backlog .backlog-list {
+  flex-grow: 1;
+  padding-top: 1.3rem;
 }
 </style>
