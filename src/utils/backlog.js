@@ -33,7 +33,6 @@ export default {
         count: 100, // Maximum
         sort: 'updated',
       };
-      console.log(1, param);
       return this.getFromBacklog('epics', 'issues', param);
     },
     loadBacklogProject() {
@@ -66,7 +65,6 @@ export default {
         param.parentIssueId = [relatedEpicIssueTypeId];
         param.parentChild = 2; // Only child tasks
       }
-      console.log(2, param);
       return this.getFromBacklog('userStories', 'issues', param);
     },
     postBacklogNewEpic(projectId, epicIssueTypeId, summary, description, responseStoreName) {
@@ -77,7 +75,6 @@ export default {
         summary,
         description,
       };
-      console.log(3, param);
       return this.postToBacklog('issues', param, responseStoreName);
     },
     postBacklogNewUserStoryRelatedEpic(projectId, userStoryIssueTypeId, /* epicIssueTypeId, */
@@ -92,7 +89,6 @@ export default {
         categoryId: teamCategories,
         description,
       };
-      console.log(4, param);
       return this.postToBacklog('issues', param, responseStoreName);
     },
     updatePriorityOfIssue(issueId, priorityVarId, priority) {

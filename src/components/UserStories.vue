@@ -28,7 +28,8 @@
           }" element="el-collapse" id="productbacklogs" ref="productbacklogs"
           accordion class="backlog-list">
           <el-collapse-item v-for="(story, key) in userStories" :key="story.id" :name="story.id"
-            :ref="`story_${key}`" :data-storykey="`${key}`" class="story-item">
+            :ref="`story_${key}`" :data-storyid="story.id"
+            class="story-item">
             <template slot="title">
               <el-row type="flex">
                 <el-col :span="18">
@@ -98,6 +99,13 @@ export default {
   },
   methods: {
     syncUserStoriesPriorities() {
+      const l = this.$refs.sprintbacklogs.$el.children.length;
+      for (let i = 0; i < l;) {
+        const storyId = this.$refs.sprintbacklogs.$el.children[i].dataset.storyid;
+        i += 1;
+        // TODO: Set priority custom var id
+        this.updatePriorityOfIssue(storyId, undefined, i);
+      }
     },
     endMovingStories() {
     },
