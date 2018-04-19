@@ -38,6 +38,7 @@ import Icon from 'vue-awesome/components/Icon';
 import 'vue-awesome/icons/ellipsis-v';
 import 'vue-awesome/icons/chess';
 import 'vue-awesome/icons/sort';
+import 'vue-awesome/icons/tasks';
 
 export default {
   name: 'App',

@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Settings from '@/components/Settings';
 import Epics from '@/components/Epics';
 import UserStories from '@/components/UserStories';
+import Kanban from '@/components/Kanban';
 
 Vue.use(Router);
 
@@ -23,6 +24,14 @@ export default new Router({
       group: 1,
       icon: 'sort',
       title: 'ユーザストーリ',
+    },
+    {
+      path: '/kanban',
+      name: 'kanban',
+      component: Kanban,
+      group: 1,
+      icon: 'tasks',
+      title: 'カンバン',
     },
     {
       path: '/settings',
