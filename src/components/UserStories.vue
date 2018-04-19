@@ -1,0 +1,181 @@
+<template>
+  <el-main v-loading="loading">
+    <el-row class="controllers">
+      <el-col :span="16">
+        <el-radio-group v-model="workingCategory">
+          <el-radio-button v-for="(t, key) in teamCategories"
+            :key="`${t.projectId}_${t.id}`" :label="t.id" :checked="key === 0">
+            {{ t.name }}
+          </el-radio-button>
+        </el-radio-group>
+      </el-col>
+      <el-col justify="end" :span="8" align="right">
+        <el-tooltip content="ユーザストーリの優先順位を保存" effect="dark" placement="top">
+          <el-button @click="syncUserStoriesPriorities">
+            <icon name="save" label="ユーザストーリの優先順位を保存"/>
+          </el-button>
+        </el-tooltip>
+      </el-col>
+    </el-row>
+    <el-row type="flex" class="backlogs">
+      <el-col :span="12" class="backlog">
+        <h2>プロダクトバックログ</h2>
+        <draggable @end="endMovingStories" :options="{
+            group: 'stories',
+            animation: 250,
+            delay: 50,
+            handle: '.handle',
+          }" element="el-collapse" id="productbacklogs" ref="productbacklogs"
+          accordion class="backlog-list">
+          <el-collapse-item v-for="(story, key) in userStories" :key="story.id" :name="story.id"
+            :ref="`story_${key}`" :data-storyid="story.id"
+            class="story-item">
+            <template slot="title">
+              <el-row type="flex">
+                <el-col :span="18">
+                  <span class="handle"><icon name="bars"/></span>
+                  {{ story.summary }}
+                </el-col>
+                <el-col justify="end" :span="3" align="right">
+                  <small v-if="story.dueDate">
+                    <icon name="calendar-alt" label="期限"/>
+                    {{ dateToString(story.dueDate) }}
+                  </small>
+                </el-col>
+              </el-row>
+            </template>
+            <div class="story-details">
+              {{ story.description }}
+            </div>
+          </el-collapse-item>
+        </draggable>
+      </el-col>
+      <el-col :span="12" class="backlog">
+        <h2>{{ workingCategoryName }}のスプリントバックログ</h2>
+        <draggable @end="endMovingStories" :options="{
+            group: 'stories',
+            animation: 250,
+            delay: 50,
+            handle: '.handle',
+          }" element="el-collapse" id="sprintbacklogs" ref="sprintbacklogs"
+          accordion class="backlog-list">
+        </draggable>
+      </el-col>
+    </el-row>
+  </el-main>
+</template>
+
+<script>
+import draggable from 'vuedraggable';
+import Icon from 'vue-awesome/components/Icon';
+import backlog from '@/utils/backlog';
+
+import 'vue-awesome/icons/calendar-alt';
+import 'vue-awesome/icons/save';
+
+export default {
+  name: 'UserStories',
+  data() {
+    return {
+      loading: true,
+      teamCategories: [],
+      workingCategory: {},
+    };
+  },
+  components: {
+    draggable,
+    Icon,
+  },
+  mixins: [
+    backlog,
+  ],
+  computed: {
+    workingCategoryName() {
+      if (this.teamCategories.length === 0) {
+        return '';
+      }
+      return this.teamCategories.filter(x => x.id === this.workingCategory)[0].name;
+    },
+  },
+  methods: {
+    syncUserStoriesPriorities() {
+      const l = this.$refs.sprintbacklogs.$el.children.length;
+      for (let i = 0; i < l;) {
+        const storyId = this.$refs.sprintbacklogs.$el.children[i].dataset.storyid;
+        i += 1;
+        // TODO: Set priority custom var id
+        this.updatePriorityOfIssue(storyId, undefined, i);
+      }
+    },
+    endMovingStories() {
+    },
+    applyDatastore() {
+      this.loading = true;
+      this.loadBacklogProject()
+        .then(() =>
+          this.loadBacklogStatuses())
+        .then(() =>
+          this.loadBacklogCategories(this.projects.id))
+        .then(() => {
+          this.teamCategories = this.categories.filter(
+            value =>
+              this.$store.getters.backlogCategoryIds.findIndex(
+                v =>
+                  value.id === v,
+              ) >= 0);
+          this.workingCategory = this.teamCategories[0].id;
+        })
+        .then(() => this.loadBacklogEpics(this.projects.id,
+          this.$store.getters.backlogEpicId, this.activeStatusIds))
+        .then(() =>
+          this.loadBacklogUserStories(this.projects.id,
+            this.$store.getters.backlogUserStoryId, this.activeStatusIds))
+        .catch(() => {
+          // FIXME: Error handling
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+  },
+  created() {
+    this.$on('datastore-updated', this.applyDatastore);
+    // datastore-updated only called this page is loaded at 1st time
+    if (this.projectKey) {
+      this.applyDatastore();
+    }
+  },
+};
+</script>
+
+<style scoped>
+main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.handle {
+  cursor: grab;
+  padding: 1rem;
+}
+.dragging .handle {
+  /* FIXME: Does not applied */
+  cursor: grabbing;
+}
+.backlogs {
+  flex-grow: 1;
+}
+.backlog {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.backlog h2 {
+  font-size: inherit;
+  font-weight: bold;
+}
+.backlog .backlog-list {
+  flex-grow: 1;
+  padding-top: 1.3rem;
+}
+</style>
