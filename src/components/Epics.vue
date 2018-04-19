@@ -429,7 +429,8 @@ export default {
         const epicNode = this.$refs.epics.$el.children[i];
         const epic = this.epics[epicNode.dataset.epickey];
         i += 1;
-        this.updatePriorityOfIssue(epic.id, i);
+        // TODO: Set priority custom var id
+        this.updatePriorityOfIssue(epic.id, undefined, i);
       }
     },
     applyDatastore() {
