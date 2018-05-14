@@ -57,7 +57,7 @@
             </el-col>
             <el-col justify="end" :span="3" align="center">
               <el-tooltip content="最上位に移動" effect="dark" placement="top">
-                <el-button @click="moveEpicToTop" class="move-to-top-button" :data-epicref="key"
+                <el-button @click="moveEpicToTop" class="move-to-top-button"
                   round size="small">
                   <icon name="level-up-alt" label="最上位に移動"/>
                 </el-button>
@@ -407,9 +407,17 @@ export default {
     },
     moveEpicToTop(event) {
       event.stopPropagation();
-      const btnNode = event.target.closest('button');
-      const epicref = btnNode.dataset.epicref;
-      this.moveEpicToTopByIndex(epicref);
+      const itemNode = event.target.closest('.epic-item');
+      const itemsNode = itemNode.closest('#epics');
+      console.log(itemNode, itemsNode);
+      const items = itemsNode.querySelectorAll('.epic-item');
+      let idx;
+      for (idx = 0; idx < items.length; idx += 1) {
+        if (items[idx] === itemNode) {
+          break;
+        }
+      }
+      this.moveEpicToTopByIndex(idx);
     },
     moveEpicToTopByIndex(idx) {
       this.$refs.epics.$el.insertBefore(
