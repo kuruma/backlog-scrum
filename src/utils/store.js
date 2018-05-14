@@ -11,7 +11,9 @@ const state = {
   backlogCategoryIds: [],
   backlogEpicId: -1,
   backlogFqdn: '',
+  backlogPriorityVarId: -1,
   backlogProjectKey: '',
+  backlogStoryPointVarId: -1,
   backlogTaskIds: [],
   backlogUrgentId: -1,
   backlogUserStoryId: -1,
@@ -66,8 +68,14 @@ const actions = {
   updateFqdn({ commit }, fqdn) {
     commit('storeFqdn', fqdn);
   },
+  updatePriorityVarId({ commit }, id) {
+    commit('storePriorityVarId', id);
+  },
   updateProjectKey({ commit }, key) {
     commit('storeProjectKey', key);
+  },
+  updateStoryPointVarId({ commit }, id) {
+    commit('storeStoryPointVarId', id);
   },
   updateTaskIds({ commit }, ids) {
     commit('storeTaskIds', ids);
@@ -114,6 +122,10 @@ const mutations = {
     state.backlogFqdn = str;
     localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogFqdn`, str);
   },
+  storePriorityVarId(s, id) {
+    state.backlogPriorityVarId = id;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogPriorityVarId`, id);
+  },
   storeProjectKey(s, str) {
     if (typeof str === 'string' && str.length > 0) {
       state.backlogProjectKey = str;
@@ -122,6 +134,10 @@ const mutations = {
       state.backlogProjectKey = '';
       localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}backlogProj`);
     }
+  },
+  storeStoryPointVarId(s, id) {
+    state.backlogStoryPointVarId = id;
+    localStorage.setItem(`${LOCAL_STORAGE_PREFIX}backlogStoryPointVarId`, id);
   },
   storeTaskIds(s, arr) {
     if (Array.isArray(arr) && arr.length > 0) {
@@ -167,7 +183,9 @@ const getters = {
   backlogEpicId: s => s.backlogEpicId,
   backlogFqdn: s => s.backlogFqdn,
   backlogHostname: s => s.backlogFqdn.split('.')[0],
+  backlogPriorityVarId: s => s.backlogPriorityVarId,
   backlogProjectKey: s => s.backlogProjectKey,
+  backlogStoryPointVarId: s => s.backlogStoryPointVarId,
   backlogTaskIds: s => s.backlogTaskIds,
   backlogUrgentId: s => s.backlogUrgentId,
   backlogUserStoryId: s => s.backlogUserStoryId,

@@ -117,6 +117,24 @@
               ここで選択したカテゴリのユーザストーリやタスクを緊急タスクとして強調表示します。
             </small>
           </el-form-item>
+          <el-form-item label="優先度">
+            <el-select v-model.number="teamFormPriorityId" :disabled="isLockedTeamSettings"
+              clearable aria-describedby="teamFormPriorityIdHelp">
+              <el-option v-for="v in customvars" :value="v.name" :key="`${v.id}`" :label="v.name"/>
+            </el-select>
+            <small id="teamFormPriorityIdHelp">
+              ここで選択したカスタム変数に、優先度を格納します。
+            </small>
+          </el-form-item>
+          <el-form-item label="ストーリポイント">
+            <el-select v-model.number="teamFormStoryPointId" :disabled="isLockedTeamSettings"
+              clearable aria-describedby="teamFormStoryPointIdHelp">
+              <el-option v-for="v in customvars" :value="v.name" :key="`${v.id}`" :label="v.name"/>
+            </el-select>
+            <small id="teamFormStoryPointIdHelp">
+              ここで選択したカスタム変数に、ストーリポイントを格納します。
+            </small>
+          </el-form-item>
           <el-form-item>
             <el-button v-if="isLockedTeamSettings" @click="changeLockedTeamSettings(false)">
               <icon name="unlock"/>
@@ -127,7 +145,7 @@
               <icon name="lock"/>
               ロック
             </el-button>
-         </el-form-item>
+          </el-form-item>
         </el-form>
         <el-form v-if="activeView === 'sync'" label-width="10rem">
           <el-form-item label="Firebase URI">
@@ -161,11 +179,13 @@ export default {
   data() {
     return {
       loadedCategories: false,
+      loadedCustomVars: false,
       loadedIssueTypes: false,
       requestedProjectParameters: false,
       activeView: 'backlog',
       defaultDomain: 'backlog.jp',
       categories: [],
+      customvars: [],
       types: [],
     };
   },
@@ -187,6 +207,10 @@ export default {
         this.requestor(`projects/${this.teamFormProjectKey}/categories`, undefined, 'categories')
           .then(() => {
             this.loadedCategories = true;
+          });
+        this.requestor(`projects/${this.teamFormProjectKey}/customFields`, undefined, 'customvars')
+          .then(() => {
+            this.loadedCustomVars = true;
           });
       }
     },
@@ -234,7 +258,7 @@ export default {
       },
     },
     loadedParameters() {
-      return (this.loadedCategories && this.loadedIssueTypes);
+      return (this.loadedCategories && this.loadedIssueTypes && this.loadedCustomVars);
     },
     readyToRequestProjectParameters() {
       return (this.backlogFormApikey
@@ -265,12 +289,28 @@ export default {
         this.$store.dispatch('updateEpicId', value);
       },
     },
+    teamFormPriorityId: {
+      get() {
+        return this.$store.getters.backlogPriorityVarId;
+      },
+      set(value) {
+        this.$store.dispatch('updatePriorityVarId', value);
+      },
+    },
     teamFormProjectKey: {
       get() {
         return this.$store.getters.backlogProjectKey;
       },
       set(value) {
         this.$store.dispatch('updateProjectKey', value);
+      },
+    },
+    teamFormStoryPointId: {
+      get() {
+        return this.$store.getters.backlogStoryPointVarId;
+      },
+      set(value) {
+        this.$store.dispatch('updateStoryPointVarId', value);
       },
     },
     teamFormTaskIds: {

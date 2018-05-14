@@ -320,9 +320,9 @@ export default {
         });
     },
     setStoryPointOfUserStory(storyId) {
-      // TODO: Set custom var of priority
+      const spid = this.$store.getters.backlogStoryPointVarId;
       console.log(this.storyPoints[storyId]);
-      this.updateStorypointOfIssue(storyId, undefined, this.storyPoints[storyId]);
+      this.updateStoryPointOfIssue(storyId, spid, this.storyPoints[storyId]);
     },
     addEpicAndContinue(event) {
       event.preventDefault();
@@ -425,12 +425,12 @@ export default {
     },
     syncEpicsOrder() {
       const l = this.$refs.epics.$el.children.length;
+      const priId = this.$store.getters.backlogPriorityVarId;
       for (let i = 0; i < l;) {
         const epicNode = this.$refs.epics.$el.children[i];
         const epic = this.epics[epicNode.dataset.epickey];
         i += 1;
-        // TODO: Set priority custom var id
-        this.updatePriorityOfIssue(epic.id, undefined, i);
+        this.updatePriorityOfIssue(epic.id, priId, i);
       }
     },
     applyDatastore() {
