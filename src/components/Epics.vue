@@ -99,7 +99,14 @@
         </div>
         <div class="epic-info" v-if="isShownEpicInfo">
           <p>{{ epic.description }}</p>
-          <small>{{ epic.createdUser.name }}</small>
+          <small>
+            <icon name="user" title="チケット作成者"/>
+            {{ epic.createdUser.name }}:
+            <icon name="ticket-alt" title="バグチケット"/>
+            <a :href="generateBacklogUriFromKeyId(epic.issueKey)">
+              {{ epic.issueKey }}
+            </a>
+          </small>
         </div>
       </el-collapse-item>
     </draggable>
@@ -195,6 +202,8 @@ import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/level-up-alt';
 import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/ticket-alt';
+import 'vue-awesome/icons/user';
 
 export default {
   name: 'Epics',

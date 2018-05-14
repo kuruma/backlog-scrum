@@ -45,7 +45,17 @@
               </el-row>
             </template>
             <div class="story-details">
-              {{ story.description }}
+              <div class="story-description">
+                {{ story.description }}
+              </div>
+              <div class="story-info">
+                <small>
+                  <icon name="ticket-alt" title="バグチケット"/>
+                  <a :href="generateBacklogUriFromKeyId(story.issueKey)">
+                    {{ story.issueKey }}
+                  </a>
+                </small>
+              </div>
             </div>
           </el-collapse-item>
         </draggable>
@@ -72,6 +82,7 @@ import backlog from '@/utils/backlog';
 
 import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/save';
+import 'vue-awesome/icons/ticket-alt';
 
 export default {
   name: 'UserStories',

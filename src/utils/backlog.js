@@ -13,6 +13,9 @@ export default {
     };
   },
   methods: {
+    generateBacklogUriFromKeyId(keyId) {
+      return `https://${this.fqdn}/view/${keyId}`;
+    },
     loadBacklogCategories(projectId) {
       if (this.categories.length > 0) {
         // this function should work only once
@@ -99,12 +102,12 @@ export default {
       param[`customField_${priorityVarId}`] = priority;
       return this.postToBacklog(`issues/${issueId}`, param);
     },
-    updateStorypointOfIssue(issueId, storypointVarId, storypoint) {
-      if (storypointVarId === undefined) {
+    updateStoryPointOfIssue(issueId, storyPointVarId, storyPoint) {
+      if (storyPointVarId === undefined) {
         return Promise.reject('ストーリポイントの格納先が設定されていないため、保存に失敗しました。');
       }
       const param = {};
-      param[`customField_${storypointVarId}`] = storypoint;
+      param[`customField_${storyPointVarId}`] = storyPoint;
       return this.postToBacklog(`issues/${issueId}`, param);
     },
     requestor(path, queries = {}, dataName) { // Obsolete
