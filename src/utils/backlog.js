@@ -99,6 +99,14 @@ export default {
       param[`customField_${priorityVarId}`] = priority;
       return this.postToBacklog(`issues/${issueId}`, param);
     },
+    updateStorypointOfIssue(issueId, storypointVarId, storypoint) {
+      if (storypointVarId === undefined) {
+        return Promise.reject('ストーリポイントの格納先が設定されていないため、保存に失敗しました。');
+      }
+      const param = {};
+      param[`customField_${storypointVarId}`] = storypoint;
+      return this.postToBacklog(`issues/${issueId}`, param);
+    },
     requestor(path, queries = {}, dataName) { // Obsolete
       const name = dataName || path.split('/')[0];
       return new Promise((resolve, reject) => {
