@@ -10,6 +10,7 @@ export default {
       projects: {},
       statuses: [],
       userStories: [],
+      urgents: [],
     };
   },
   methods: {
@@ -23,19 +24,19 @@ export default {
       }
       return this.getFromBacklog('categories', `projects/${projectId}/categories`);
     },
-    loadBacklogEpics(projectId, epicIssueTypeId, statusIds) {
-      if (this.epics.length > 0) {
-        // this function should work only once
-        return Promise.resolve('nothing to do');
-      }
+    loadBacklogEpics(projectId, epicIssueTypeId, statusIds, priorityVarId, maxResults) {
       const param = {
         projectId: [projectId],
         issueTypeId: [epicIssueTypeId],
         statusId: statusIds,
         parentChild: 1, // Except child task
-        count: 100, // Maximum
-        sort: 'updated',
+        count: maxResults || 100, // Maximum
       };
+      if (typeof priorityVarId === 'number') {
+        param.sort = `customField_${priorityVarId}`;
+      } else {
+        param.sort = 'updated';
+      }
       return this.getFromBacklog('epics', 'issues', param);
     },
     loadBacklogProject() {
@@ -52,23 +53,53 @@ export default {
       }
       return this.getFromBacklog('statuses');
     },
-    loadBacklogUserStories(projectId, userStoryIssueTypeId, statusIds, relatedEpicIssueTypeId) {
+    // loadBacklogUserStories(): Expect to use internally
+    loadBacklogUserStories(variable, priorityVarId,
+      projectId, issueTypeId, categoryIds,
+      statusIds, relatedEpicIssueTypeIds,
+      includeParentIssues, includeChildIssues, includeSingleIssues) {
       if (this.userStories.length > 0) {
         // this function should work only once
         return Promise.resolve('nothing to do');
       }
       const param = {
         projectId: [projectId],
-        issueTypeId: [userStoryIssueTypeId],
+        categoryId: categoryIds,
         statusId: statusIds,
         count: 100, // Maximum
-        sort: 'updated',
       };
-      if (relatedEpicIssueTypeId !== undefined) {
-        param.parentIssueId = [relatedEpicIssueTypeId];
-        param.parentChild = 2; // Only child tasks
+      if (issueTypeId !== undefined) {
+        param.issueTypeId = [issueTypeId];
       }
-      return this.getFromBacklog('userStories', 'issues', param);
+      if (relatedEpicIssueTypeIds !== undefined) {
+        param.parentIssueId = relatedEpicIssueTypeIds;
+        param.parentChild = 2; // Only child tasks
+      } else if (includeParentIssues && includeChildIssues && includeSingleIssues) {
+        param.parentChild = 0;
+      } else if (includeParentIssues && !includeChildIssues && includeSingleIssues) {
+        param.parentChild = 1;
+      } else if (!includeParentIssues && includeChildIssues && !includeSingleIssues) {
+        param.parentChild = 2;
+      } else if (!includeParentIssues && !includeChildIssues && includeSingleIssues) {
+        param.parentChild = 3;
+      } else if (includeParentIssues && !includeChildIssues && !includeSingleIssues) {
+        param.parentChild = 4;
+      }
+      // FIXME: priorityVarId may less than 0
+      if (typeof priorityVarId === 'number' && priorityVarId > 0) {
+        param.sort = `customField_${priorityVarId}`;
+      } else {
+        param.sort = 'updated';
+      }
+      return this.getFromBacklog(variable, 'issues', param);
+    },
+    loadBacklogUncompletedUserStoriesRelatedEpics(projectId,
+      userStoryIssueTypeId, statusIds, priorityVarId) {
+      const epicIds = this.epics.map(epic => epic.id);
+      this.loadBacklogUserStories('userStories', priorityVarId, projectId, userStoryIssueTypeId, undefined, statusIds, epicIds);
+    },
+    loadBacklogUrgentUserStories(projectId, urgentCategoryId, statusIds, priorityVarId) {
+      this.loadBacklogUserStories('urgents', priorityVarId, projectId, undefined, [urgentCategoryId], statusIds);
     },
     postBacklogNewEpic(projectId, epicIssueTypeId, summary, description, responseStoreName) {
       const param = {

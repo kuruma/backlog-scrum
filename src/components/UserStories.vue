@@ -27,7 +27,7 @@
             handle: '.handle',
           }" element="el-collapse" id="productbacklogs" ref="productbacklogs"
           accordion class="backlog-list">
-          <el-collapse-item v-for="(story, key) in userStories" :key="story.id" :name="story.id"
+          <el-collapse-item v-for="(story, key) in stories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storyid="story.id"
             class="story-item">
             <template slot="title">
@@ -101,6 +101,9 @@ export default {
     backlog,
   ],
   computed: {
+    stories() {
+      return this.urgents.concat(this.userStories);
+    },
     workingCategoryName() {
       if (this.teamCategories.length === 0) {
         return '';
@@ -137,10 +140,16 @@ export default {
           this.workingCategory = this.teamCategories[0].id;
         })
         .then(() => this.loadBacklogEpics(this.projects.id,
-          this.$store.getters.backlogEpicId, this.activeStatusIds))
+          this.$store.getters.backlogEpicId, this.activeStatusIds,
+          this.$store.getters.backlogPriorityVarId,
+          20)) // FIXME: Should be customizable
+        .then(() => this.loadBacklogUrgentUserStories(this.projects.id,
+          this.$store.getters.backlogUrgentId, this.activeStatusIds,
+          this.$store.getters.backlogPriorityVarId))
         .then(() =>
-          this.loadBacklogUserStories(this.projects.id,
-            this.$store.getters.backlogUserStoryId, this.activeStatusIds))
+          this.loadBacklogUncompletedUserStoriesRelatedEpics(this.projects.id,
+            this.$store.getters.backlogUserStoryId, this.activeStatusIds,
+            this.$store.getters.backlogPriorityVarId))
         .catch(() => {
           // FIXME: Error handling
         })
