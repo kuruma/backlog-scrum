@@ -10,9 +10,9 @@
         </el-radio-group>
       </el-col>
       <el-col justify="end" :span="8" align="right">
-        <el-tooltip content="ユーザストーリの優先順位を保存" effect="dark" placement="top">
+        <el-tooltip content="スプリントバックログを保存" effect="dark" placement="top">
           <el-button @click="syncUserStoriesPriorities">
-            <icon name="save" label="ユーザストーリの優先順位を保存"/>
+            <icon name="save" label="スプリントバックログを保存"/>
           </el-button>
         </el-tooltip>
       </el-col>
