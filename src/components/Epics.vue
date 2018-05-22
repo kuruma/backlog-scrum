@@ -409,7 +409,6 @@ export default {
       event.stopPropagation();
       const itemNode = event.target.closest('.epic-item');
       const itemsNode = itemNode.closest('#epics');
-      console.log(itemNode, itemsNode);
       const items = itemsNode.querySelectorAll('.epic-item');
       let idx;
       for (idx = 0; idx < items.length; idx += 1) {

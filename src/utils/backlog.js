@@ -131,7 +131,7 @@ export default {
       }
       const param = {};
       param[`customField_${priorityVarId}`] = priority;
-      return this.postToBacklog(`issues/${issueId}`, param);
+      return this.patchToBacklog(`issues/${issueId}`, param);
     },
     updateStoryPointOfIssue(issueId, storyPointVarId, storyPoint) {
       if (storyPointVarId === undefined) {
@@ -139,7 +139,7 @@ export default {
       }
       const param = {};
       param[`customField_${storyPointVarId}`] = storyPoint;
-      return this.postToBacklog(`issues/${issueId}`, param);
+      return this.patchToBacklog(`issues/${issueId}`, param);
     },
     requestor(path, queries = {}, dataName) { // Obsolete
       const name = dataName || path.split('/')[0];
@@ -167,6 +167,23 @@ export default {
           .then((res) => {
             Vue.set(this, name, res.data);
             resolve(res.status);
+          })
+          .catch(() => {
+            reject(0);
+          });
+      });
+    },
+    patchToBacklog(path, queries = {}, responseStoreName) {
+      const params = new URLSearchParams();
+      Object.keys(queries).forEach((prop) => {
+        params.append(prop, queries[prop]);
+      });
+      return new Promise((resolve, reject) => {
+        axios.patch(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}`, params)
+          .then((res) => {
+            if (responseStoreName !== undefined) {
+              Vue.set(this, responseStoreName, res.data);
+            }
           })
           .catch(() => {
             reject(0);
