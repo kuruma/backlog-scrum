@@ -16,7 +16,7 @@
       </el-col>
     </el-row>
     <el-row type="flex" class="kanban">
-      <el-col :span="6" class="status status-todo">
+      <el-col :span="6" class="status status-todo" :data-statusid="kanbanStatusIds.todo">
         <h2>未着手</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -76,7 +76,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="6" class="status status-doing">
+      <el-col :span="6" class="status status-doing" :data-statusid="kanbanStatusIds.doing">
         <h2>処理中</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -136,7 +136,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="6" class="status status-blocked">
+      <el-col :span="6" class="status status-blocked" :data-statusid="kanbanStatusIds.blocked">
         <h2>ブロック</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -197,7 +197,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="3" class="status status-done">
+      <el-col :span="3" class="status status-done" :data-statusid="kanbanStatusIds.done">
         <h2>処理済</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -257,7 +257,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="3" class="status status-completed">
+      <el-col :span="3" class="status status-completed" :data-statusid="kanbanStatusIds.completed">
         <h2>完了</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -346,6 +346,14 @@ export default {
       loading: false,
       ongoingMilestoneId: -1,
       showOnlyAssigned: false,
+      // TODO: should be customizable
+      kanbanStatusIds: {
+        todo: 1,
+        doing: 2,
+        blocked: 0,
+        done: 3,
+        completed: 4,
+      },
     };
   },
   mixins: [
@@ -357,28 +365,28 @@ export default {
       return this.$store.getters.backlogUrgentId;
     },
     todoStories() {
-      // TODO: should be customizable
-      return this.userStories.filter(story => story.status.id === 1);
+      return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.todo);
     },
     doingStories() {
-      // TODO: should be customizable
-      return this.userStories.filter(story => story.status.id === 2);
+      return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.doing);
     },
     blockedStories() {
-      // TODO: should be define on setting page
-      return [];
+      return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.blocked);
     },
     doneStories() {
-      // TODO: should be customizable
-      return this.userStories.filter(story => story.status.id === 3);
+      return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.done);
     },
     completedStories() {
-      // TODO: should be customizable
-      return this.userStories.filter(story => story.status.id === 4);
+      return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.completed);
     },
   },
   methods: {
-    endMovingStories() {
+    endMovingStories(event) {
+      if (event.from !== event.to) {
+        const storyId = event.item.dataset.storyid;
+        const statusId = event.to.closest('.status').dataset.statusid;
+        this.updateStatusOfIssue(storyId, statusId);
+      }
     },
     getAssigneeName(story) {
       return story.assignee.name;

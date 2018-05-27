@@ -157,6 +157,11 @@ export default {
       param[`customField_${priorityVarId}`] = priority;
       return this.patchToBacklog(`issues/${issueId}`, param);
     },
+    updateStatusOfIssue(issueId, statusId) {
+      const param = {};
+      param.statusId = statusId;
+      return this.patchToBacklog(`issues/${issueId}`, param);
+    },
     updateStoryPointOfIssue(issueId, storyPointVarId, storyPoint) {
       if (storyPointVarId === undefined) {
         return Promise.reject('ストーリポイントの格納先が設定されていないため、保存に失敗しました。');
