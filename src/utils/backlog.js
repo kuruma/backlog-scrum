@@ -8,6 +8,7 @@ export default {
       categories: [],
       epics: [],
       milestones: [],
+      myself: {},
       projects: {},
       statuses: [],
       userStories: [],
@@ -46,6 +47,13 @@ export default {
         return Promise.resolve('nothing to do');
       }
       return this.getFromBacklog('milestones', `projects/${projectId}/versions`);
+    },
+    loadBacklogMyself() {
+      if (Object.keys(this.myself).length > 0) {
+        // this function should work only once
+        return Promise.resolve('nothing to do');
+      }
+      return this.getFromBacklog('myself', 'users/myself');
     },
     loadBacklogProject() {
       if (Object.keys(this.projects).length > 0) {

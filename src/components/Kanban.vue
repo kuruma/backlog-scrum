@@ -1,5 +1,22 @@
 <template>
-  <el-main>
+  <el-main v-loading="loading">
+    <el-row class="controllers">
+      <el-col justify="start" :span="16">
+        <el-tooltip content="すべてのストーリを表示" v-if="showOnlyAssigned" effect="dark" placement="top">
+          <el-button @click="showAllStories">
+            <icon name="user-circle" title="すべてのストーリを表示"/>
+          </el-button>
+        </el-tooltip>
+        <el-tooltip content="担当しているストーリだけを表示" v-if="!showOnlyAssigned"
+          effect="dark" placement="top">
+          <el-button @click="showAssignedStories">
+            <icon name="users" title="担当しているストーリだけを表示"/>
+          </el-button>
+       </el-tooltip>
+      </el-col>
+      <el-col justify="end" :span="8" align="right">
+      </el-col>
+    </el-row>
     <el-row type="flex" class="kanban">
       <el-col :span="6" class="status status-todo">
         <h2>未着手</h2>
@@ -11,7 +28,12 @@
           }" element="div" id="todostories" ref="todostories" class="story-list todo-story-list">
           <el-card v-for="(story, key) in todoStories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storyid="story.id"
-            :class="isUrgentStory(story.category) ? 'story-item urgent' : 'story-item'">
+            v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
+            class="story-item"
+            :class="{
+              urgent: isUrgentStory(story.category),
+              assigned: story.assignee !== null && story.assignee.id === myself.id,
+              }">
             <template slot="header" class="clearfix">
               <small class="epic-summary">{{ getEpicSummaryById(story.parentIssueId) }}</small>
               {{ story.summary }}
@@ -66,7 +88,12 @@
           }" element="div" id="doingstories" ref="doingstories" class="story-list doing-story-list">
           <el-card v-for="(story, key) in doingStories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storyid="story.id"
-            :class="isUrgentStory(story.category) ? 'story-item urgent' : 'story-item'">
+            v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
+            class="story-item"
+            :class="{
+              urgent: isUrgentStory(story.category),
+              assigned: story.assignee !== null && story.assignee.id === myself.id,
+              }">
             <template slot="header" class="clearfix">
               <small class="epic-summary">{{ getEpicSummaryById(story.parentIssueId) }}</small>
               {{ story.summary }}
@@ -122,7 +149,12 @@
           class="story-list blocked-stoty-list">
           <el-card v-for="(story, key) in blockedStories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storyid="story.id"
-            :class="isUrgentStory(story.category) ? 'story-item urgent' : 'story-item'">
+            v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
+            class="story-item"
+            :class="{
+              urgent: isUrgentStory(story.category),
+              assigned: story.assignee !== null && story.assignee.id === myself.id,
+              }">
             <template slot="header" class="clearfix">
               <small class="epic-summary">{{ getEpicSummaryById(story.parentIssueId) }}</small>
               {{ story.summary }}
@@ -177,7 +209,12 @@
           }" element="div" id="donestories" ref="donestories" class="story-list done-story-list">
           <el-card v-for="(story, key) in doneStories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storyid="story.id"
-            :class="isUrgentStory(story.category) ? 'story-item urgent' : 'story-item'">
+            v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
+            class="story-item"
+            :class="{
+              urgent: isUrgentStory(story.category),
+              assigned: story.assignee !== null && story.assignee.id === myself.id,
+              }">
             <template slot="header" class="clearfix">
               <small class="epic-summary">{{ getEpicSummaryById(story.parentIssueId) }}</small>
               {{ story.summary }}
@@ -233,7 +270,12 @@
           class="story-list completed-story-list">
           <el-card v-for="(story, key) in completedStories" :key="story.id" :name="story.id"
             :ref="`story_${key}`" :data-storyid="story.id"
-            :class="isUrgentStory(story.category) ? 'story-item urgent' : 'story-item'">
+            v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
+            class="story-item"
+            :class="{
+              urgent: isUrgentStory(story.category),
+              assigned: story.assignee !== null && story.assignee.id === myself.id,
+              }">
             <template slot="header" class="clearfix">
               <small class="epic-summary">{{ getEpicSummaryById(story.parentIssueId) }}</small>
               {{ story.summary }}
@@ -292,6 +334,7 @@ import 'vue-awesome/icons/calendar';
 import 'vue-awesome/icons/tag';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
+import 'vue-awesome/icons/users';
 import 'vue-awesome/icons/user-circle';
 
 export default {
@@ -302,7 +345,9 @@ export default {
   },
   data() {
     return {
+      loading: false,
       ongoinggMilestoneId: -1,
+      showOnlyAssigned: false,
     };
   },
   mixins: [
@@ -368,11 +413,19 @@ export default {
     isUrgentStory(categoryArray) {
       return categoryArray.filter(category => category.id === this.backlogUrgentId).length > 0;
     },
+    showAllStories() {
+      this.showOnlyAssigned = false;
+    },
+    showAssignedStories() {
+      this.showOnlyAssigned = true;
+    },
     applyDatastore() {
       this.loading = true;
       this.loadBacklogProject()
         .then(() =>
           this.loadBacklogStatuses())
+        .then(() =>
+          this.loadBacklogMyself())
         .then(() =>
           this.loadBacklogCategories(this.projects.id))
         .then(() => {
