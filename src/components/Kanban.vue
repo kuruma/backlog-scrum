@@ -14,8 +14,6 @@
           </el-button>
        </el-tooltip>
       </el-col>
-      <el-col justify="end" :span="8" align="right">
-      </el-col>
     </el-row>
     <el-row type="flex" class="kanban">
       <el-col :span="6" class="status status-todo">
@@ -346,7 +344,7 @@ export default {
   data() {
     return {
       loading: false,
-      ongoinggMilestoneId: -1,
+      ongoingMilestoneId: -1,
       showOnlyAssigned: false,
     };
   },
@@ -499,11 +497,16 @@ export default {
 }
 .el-card__header,
 .el-card__body {
-  padding: .2rem;
+  padding: 0;
 }
 .story-item {
-  border-left: .25rem solid #909399; /* Color: Info */
-  margin-bottom: .25rem;
+  border-left: .2rem solid #909399; /* Color: Info */
+  margin-bottom: .2rem;
+  padding: .2rem .4rem .2rem .6rem;
+}
+.story-item.assigned {
+  border-left-width: .4rem;
+  padding-left: .4rem;
 }
 .story-item.urgent {
   border-left-color: #E6A23C; /* Color: Warning */
