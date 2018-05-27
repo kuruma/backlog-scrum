@@ -14,9 +14,11 @@
           </el-button>
        </el-tooltip>
       </el-col>
+      <el-col justify="end" :span="8" align="right">
+      </el-col>
     </el-row>
     <el-row type="flex" class="kanban">
-      <el-col :span="6" class="status status-todo" :data-statusid="kanbanStatusIds.todo">
+      <el-col :span="8" class="status status-todo" :data-statusid="kanbanStatusIds.todo">
         <h2>未着手</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -76,7 +78,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="6" class="status status-doing" :data-statusid="kanbanStatusIds.doing">
+      <el-col :span="8" class="status status-doing" :data-statusid="kanbanStatusIds.doing">
         <h2>処理中</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -136,68 +138,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="6" class="status status-blocked" :data-statusid="kanbanStatusIds.blocked">
-        <h2>ブロック</h2>
-        <draggable @end="endMovingStories" :options="{
-            group: 'stories',
-            animation: 250,
-            delay: 50,
-            handle: '.el-card__header',
-          }" element="div" id="blockedstories" ref="blockedstories"
-          class="story-list blocked-stoty-list">
-          <el-card v-for="(story, key) in blockedStories" :key="story.id" :name="story.id"
-            :ref="`story_${key}`" :data-storyid="story.id"
-            v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
-            class="story-item"
-            :class="{
-              urgent: isUrgentStory(story.category),
-              assigned: story.assignee !== null && story.assignee.id === myself.id,
-              }">
-            <template slot="header" class="clearfix">
-              <small class="epic-summary">{{ getEpicSummaryById(story.parentIssueId) }}</small>
-              {{ story.summary }}
-            </template>
-            <div class="story-info">
-              <ul>
-                <li>
-                  <small class="story-info-id">
-                    <icon name="ticket-alt" title="バグチケット"/>
-                    <a :href="generateBacklogUriFromKeyId(story.issueKey)">
-                      {{ story.issueKey }}
-                    </a>
-                  </small>
-                </li>
-                <li>
-                  <small class="story-info-reporter">
-                    <icon name="user" title="作成者"/>
-                    {{ getCreatedUserName(story) }}
-                  </small>
-                </li>
-                <li>
-                  <small v-if="story.dueDate">
-                    <icon name="calendar-alt" label="期限"/>
-                    {{ dateToString(story.dueDate) }}
-                  </small>
-                </li>
-                <li>
-                  <small v-if="story.assignee !== null"
-                    class="story-info-assignee">
-                    <icon name="user-circle" title="担当者"/>
-                    {{ getAssigneeName(story) }}
-                  </small>
-                </li>
-                <li>
-                  <small v-for="category in story.category" :key="category.id" class="category">
-                    <icon name="tag" title="カテゴリ"/>
-                    {{ category.name }}
-                  </small>
-                </li>
-              </ul>
-            </div>
-          </el-card>
-        </draggable>
-      </el-col>
-      <el-col :span="3" class="status status-done" :data-statusid="kanbanStatusIds.done">
+      <el-col :span="4" class="status status-done" :data-statusid="kanbanStatusIds.done">
         <h2>処理済</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -257,7 +198,7 @@
           </el-card>
         </draggable>
       </el-col>
-      <el-col :span="3" class="status status-completed" :data-statusid="kanbanStatusIds.completed">
+      <el-col :span="4" class="status status-completed" :data-statusid="kanbanStatusIds.completed">
         <h2>完了</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -350,7 +291,6 @@ export default {
       kanbanStatusIds: {
         todo: 1,
         doing: 2,
-        blocked: 0,
         done: 3,
         completed: 4,
       },
@@ -369,9 +309,6 @@ export default {
     },
     doingStories() {
       return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.doing);
-    },
-    blockedStories() {
-      return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.blocked);
     },
     doneStories() {
       return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.done);
