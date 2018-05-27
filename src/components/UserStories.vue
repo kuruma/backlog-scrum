@@ -1,7 +1,7 @@
 <template>
   <el-main v-loading="loading">
     <el-row class="controllers">
-      <el-col :span="12">
+      <el-col span="12">
         <el-radio-group v-model="workingCategory">
           <el-radio-button v-for="(t, key) in teamCategories"
             :key="`${t.projectId}_${t.id}`" :label="t.id" :checked="key === 0">
@@ -9,7 +9,7 @@
           </el-radio-button>
         </el-radio-group>
       </el-col>
-      <el-col justify="end" :span="12" align="right">
+      <el-col justify="end" span="12" align="right">
         <el-select v-model.number="nextMilestoneId">
           <el-option v-for="m in milestones" :value="m.id" :key="m.id" :label="m.name"/>
         </el-select>
@@ -21,7 +21,7 @@
       </el-col>
     </el-row>
     <el-row type="flex" class="backlogs">
-      <el-col :span="12" class="backlog">
+      <el-col span="12" class="backlog">
         <h2>プロダクトバックログ</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
@@ -35,11 +35,11 @@
             class="story-item">
             <template slot="title">
               <el-row type="flex">
-                <el-col :span="18">
+                <el-col span="18">
                   <span class="handle"><icon name="bars"/></span>
                   {{ story.summary }}
                 </el-col>
-                <el-col justify="end" :span="3" align="right">
+                <el-col justify="end" span="3" align="right">
                   <small v-if="story.dueDate">
                     <icon name="calendar-alt" label="期限"/>
                     {{ dateToString(story.dueDate) }}
@@ -63,7 +63,7 @@
           </el-collapse-item>
         </draggable>
       </el-col>
-      <el-col :span="12" class="backlog">
+      <el-col span="12" class="backlog">
         <h2>{{ workingCategoryName }}のスプリントバックログ</h2>
         <draggable @end="endMovingStories" :options="{
             group: 'stories',
