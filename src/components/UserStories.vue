@@ -1,7 +1,7 @@
 <template>
   <el-main v-loading="loading">
     <el-row class="controllers">
-      <el-col :span="16">
+      <el-col :span="12">
         <el-radio-group v-model="workingCategory">
           <el-radio-button v-for="(t, key) in teamCategories"
             :key="`${t.projectId}_${t.id}`" :label="t.id" :checked="key === 0">
@@ -9,7 +9,10 @@
           </el-radio-button>
         </el-radio-group>
       </el-col>
-      <el-col justify="end" :span="8" align="right">
+      <el-col justify="end" :span="12" align="right">
+        <el-select v-model.number="nextMilestoneId">
+          <el-option v-for="m in milestones" :value="m.id" :key="m.id" :label="m.name"/>
+        </el-select>
         <el-tooltip content="スプリントバックログを保存" effect="dark" placement="top">
           <el-button @click="syncUserStoriesPriorities">
             <icon name="save" label="スプリントバックログを保存"/>
@@ -79,6 +82,7 @@
 import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
+import date from '@/utils/date';
 
 import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/save';
@@ -89,6 +93,7 @@ export default {
   data() {
     return {
       loading: true,
+      nextMilestoneId: -1,
       teamCategories: [],
       workingCategory: {},
     };
@@ -99,6 +104,7 @@ export default {
   },
   mixins: [
     backlog,
+    date,
   ],
   computed: {
     stories() {
@@ -112,13 +118,23 @@ export default {
     },
   },
   methods: {
+    getNextMilestoneId() {
+      const now = new Date().getTime();
+      const timezoneOffset = 9 * 60 * 60 * 1000; // FIXME: JST = +9:00
+      return this.milestones.map((milestone) => {
+        const tmp = milestone;
+        tmp.date = new Date(milestone.startDate).getTime() + timezoneOffset;
+        return tmp;
+      }).filter(milestone => milestone.date >= now).sort((a, b) => a.date - b.date)[0].id;
+    },
     syncUserStoriesPriorities() {
       const l = this.$refs.sprintbacklogs.$el.children.length;
+      // 未実装、要修正
+      const priorityVarId = this.$store.getters.backlogPriorityVarId;
       for (let i = 0; i < l;) {
         const storyId = this.$refs.sprintbacklogs.$el.children[i].dataset.storyid;
         i += 1;
-        // TODO: Set priority custom var id
-        this.updatePriorityOfIssue(storyId, undefined, i);
+        this.updatePriorityOfIssue(storyId, priorityVarId, i);
       }
     },
     endMovingStories() {
@@ -138,6 +154,11 @@ export default {
                   value.id === v,
               ) >= 0);
           this.workingCategory = this.teamCategories[0].id;
+        })
+        .then(() =>
+          this.loadBacklogMilestones(this.projects.id))
+        .then(() => {
+          this.nextMilestoneId = this.getNextMilestoneId();
         })
         .then(() => this.loadBacklogEpics(this.projects.id,
           this.$store.getters.backlogEpicId, this.activeStatusIds,

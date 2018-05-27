@@ -7,6 +7,7 @@ export default {
     return {
       categories: [],
       epics: [],
+      milestones: [],
       projects: {},
       statuses: [],
       userStories: [],
@@ -39,6 +40,13 @@ export default {
       }
       return this.getFromBacklog('epics', 'issues', param);
     },
+    loadBacklogMilestones(projectId) {
+      if (Object.keys(this.milestones).length > 0) {
+        // this function should work only once
+        return Promise.resolve('nothing to do');
+      }
+      return this.getFromBacklog('milestones', `projects/${projectId}/versions`);
+    },
     loadBacklogProject() {
       if (Object.keys(this.projects).length > 0) {
         // this function should work only once
@@ -56,7 +64,7 @@ export default {
     // loadBacklogUserStories(): Expect to use internally
     loadBacklogUserStories(variable, priorityVarId,
       projectId, issueTypeId, categoryIds,
-      statusIds, relatedEpicIssueTypeIds,
+      statusIds, relatedEpicIssueTypeIds, milestoneId,
       includeParentIssues, includeChildIssues, includeSingleIssues) {
       if (this.userStories.length > 0) {
         // this function should work only once
@@ -65,11 +73,16 @@ export default {
       const param = {
         projectId: [projectId],
         categoryId: categoryIds,
-        statusId: statusIds,
         count: 100, // Maximum
       };
       if (issueTypeId !== undefined) {
         param.issueTypeId = [issueTypeId];
+      }
+      if (statusIds !== undefined) {
+        param.statusId = statusIds;
+      }
+      if (milestoneId !== undefined) {
+        param.milestoneId = [milestoneId];
       }
       if (relatedEpicIssueTypeIds !== undefined) {
         param.parentIssueId = relatedEpicIssueTypeIds;
@@ -92,6 +105,9 @@ export default {
         param.sort = 'updated';
       }
       return this.getFromBacklog(variable, 'issues', param);
+    },
+    loadBacklogOngoingUserStories(projectId, milestoneId) {
+      this.loadBacklogUserStories('userStories', undefined, projectId, undefined, undefined, undefined, undefined, milestoneId);
     },
     loadBacklogUncompletedUserStoriesRelatedEpics(projectId,
       userStoryIssueTypeId, statusIds, priorityVarId) {
