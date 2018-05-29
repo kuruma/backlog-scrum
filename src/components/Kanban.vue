@@ -73,7 +73,8 @@
                   </small>
                 </li>
                 <li>
-                  <small v-for="category in story.category" :key="category.id" class="category">
+                  <small v-for="category in story.category" :key="category.id" class="category"
+                    v-if="category.id !== backlogUrgentId">
                     <icon name="tag" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
@@ -133,7 +134,8 @@
                   </small>
                 </li>
                 <li>
-                  <small v-for="category in story.category" :key="category.id" class="category">
+                  <small v-for="category in story.category" :key="category.id" class="category"
+                    v-if="category.id !== backlogUrgentId">
                     <icon name="tag" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
@@ -193,7 +195,8 @@
                   </small>
                 </li>
                 <li>
-                  <small v-for="category in story.category" :key="category.id" class="category">
+                  <small v-for="category in story.category" :key="category.id" class="category"
+                    v-if="category.id !== backlogUrgentId">
                     <icon name="tag" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
@@ -254,7 +257,8 @@
                   </small>
                 </li>
                 <li>
-                  <small v-for="category in story.category" :key="category.id" class="category">
+                  <small v-for="category in story.category" :key="category.id" class="category"
+                    v-if="category.id !== backlogUrgentId">
                     <icon name="tag" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
@@ -403,10 +407,19 @@ export default {
         this.pendingUrgentTask.details,
         'response')
         .then(() => {
-          const l = this.userStories.length;
           this.userStories.unshift(this.response);
         })
+        .catch((rejected) => {
+          this.$message.error({
+            showClose: true,
+            message: `Backlogへの送信時に課題予期せぬエラーが発生しました:\n${rejected}`,
+          });
+        })
         .finally(() => {
+          this.$message.success({
+            showClose: true,
+            message: `Backlogへ「${this.response.summary}」を追加しました。`,
+          });
           this.response = {};
         });
     },
@@ -416,7 +429,10 @@ export default {
           this.addUrgentTask();
           this.isShownAddUrgentTaskModal = false;
         } else {
-          this.$message.error('入力不備を修正してください。');
+          this.$message.error({
+            showClose: true,
+            message: '入力不備を修正してください。',
+          });
         }
       });
     },
