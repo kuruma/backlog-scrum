@@ -11,6 +11,7 @@ export default {
       milestones: [],
       myself: {},
       projects: {},
+      response: {},
       statuses: [],
       userStories: [],
       urgents: [],
@@ -138,7 +139,6 @@ export default {
     },
     postBacklogNewUrgentTask(projectId, userStoryIssueTypeId, summary, teamCategories, milestoneId,
       description, responseStoreName) {
-      console.log(teamCategories);
       const param = {
         projectId,
         issueTypeId: userStoryIssueTypeId,
@@ -148,7 +148,6 @@ export default {
         milestoneId: [milestoneId],
         description,
       };
-      console.log(param);
       return this.postToBacklog('issues', param, responseStoreName);
     },
     postBacklogNewUserStoryRelatedEpic(projectId, userStoryIssueTypeId, /* epicIssueTypeId, */
@@ -228,6 +227,7 @@ export default {
           .then((res) => {
             if (responseStoreName !== undefined) {
               Vue.set(this, responseStoreName, res.data);
+              resolve(res.data);
             }
           })
           .catch(() => {
@@ -242,6 +242,7 @@ export default {
           .then((res) => {
             if (responseStoreName !== undefined) {
               Vue.set(this, responseStoreName, res.data);
+              resolve(res.data);
             }
           })
           .catch(() => {

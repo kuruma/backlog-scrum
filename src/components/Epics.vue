@@ -243,7 +243,6 @@ export default {
         summary: '',
         details: '',
       },
-      response: {},
       isShownUserStories: false,
       isShownEpicInfo: false,
       isShownAddEpicModal: false,

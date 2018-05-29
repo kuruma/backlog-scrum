@@ -357,6 +357,7 @@ export default {
           { type: 'array', required: true, message: '少なくとも1つ以上のカテゴリに属する必要があります', trigger: 'change' },
         ],
       },
+      postedStories: [],
     };
   },
   mixins: [
@@ -394,8 +395,8 @@ export default {
         this.pendingUrgentTask.details,
         'response')
         .then(() => {
-        // TODO: insert response issuce to the last of user story list
-          this.userStories.push(this.response);
+          const l = this.userStories.length;
+          this.userStories.unshift(this.response);
         })
         .finally(() => {
           this.response = {};
