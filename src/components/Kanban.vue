@@ -54,6 +54,12 @@
                   </small>
                 </li>
                 <li>
+                  <small class="story-info-update">
+                    <icon name="clock" title="最終更新日時"/>
+                    {{ datetimeToString(story.updated || story.created) }}
+                  </small>
+                </li>
+                <li>
                   <small class="story-info-reporter">
                     <icon name="user" title="作成者"/>
                     {{ getCreatedUserName(story) }}
@@ -112,6 +118,12 @@
                     <a :href="generateBacklogUriFromKeyId(story.issueKey)">
                       {{ story.issueKey }}
                     </a>
+                  </small>
+                </li>
+                <li>
+                  <small class="story-info-update">
+                    <icon name="clock" title="最終更新日時"/>
+                    {{ datetimeToString(story.updated || story.created) }}
                   </small>
                 </li>
                 <li>
@@ -176,6 +188,12 @@
                   </small>
                 </li>
                 <li>
+                  <small class="story-info-update">
+                    <icon name="clock" title="最終更新日時"/>
+                    {{ datetimeToString(story.updated || story.created) }}
+                  </small>
+                </li>
+                <li>
                   <small class="story-info-reporter">
                     <icon name="user" title="作成者"/>
                     {{ getCreatedUserName(story) }}
@@ -235,6 +253,12 @@
                     <a :href="generateBacklogUriFromKeyId(story.issueKey)">
                       {{ story.issueKey }}
                     </a>
+                  </small>
+                </li>
+                <li>
+                  <small class="story-info-update">
+                    <icon name="clock" title="最終更新日時"/>
+                    {{ datetimeToString(story.updated || story.created) }}
                   </small>
                 </li>
                 <li>
@@ -314,6 +338,7 @@ import backlog from '@/utils/backlog';
 import date from '@/utils/date';
 
 import 'vue-awesome/icons/calendar';
+import 'vue-awesome/icons/clock';
 import 'vue-awesome/icons/plus';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
