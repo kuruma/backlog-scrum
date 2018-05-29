@@ -12,7 +12,17 @@
           <el-button @click="showAssignedStories">
             <icon name="users" title="担当しているストーリだけを表示"/>
           </el-button>
-       </el-tooltip>
+        </el-tooltip>
+        <el-tooltip content="ストーリの詳細を隠す" v-if="isShownStoryDetails" effect="dark" placement="top">
+          <el-button @click="hideStoryDetails">
+            <icon name="file-alt" title="ストーリの詳細を隠す"/>
+          </el-button>
+        </el-tooltip>
+        <el-tooltip content="ストーリの詳細を表示" v-if="!isShownStoryDetails" effect="dark" placement="top">
+          <el-button @click="showStoryDetails">
+            <icon name="file" title="ストーリの詳細を表示"/>
+          </el-button>
+        </el-tooltip>
       </el-col>
       <el-col justify="end" :span="8" align="right">
         <el-tooltip content="緊急タスクを追加" effect="dark" placement="top">
@@ -45,7 +55,7 @@
             </template>
             <div class="story-info">
               <ul>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-id">
                     <icon name="ticket-alt" title="バグチケット"/>
                     <a :href="generateBacklogUriFromKeyId(story.issueKey)">
@@ -59,13 +69,13 @@
                     {{ datetimeToString(story.updated || story.created) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-reporter">
                     <icon name="user" title="作成者"/>
                     {{ getCreatedUserName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-if="story.dueDate">
                     <icon name="calendar-alt" label="期限"/>
                     {{ dateToString(story.dueDate) }}
@@ -78,7 +88,7 @@
                     {{ getAssigneeName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
                     <icon name="users" title="カテゴリ"/>
@@ -140,7 +150,7 @@
             </template>
             <div class="story-info">
               <ul>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-id">
                     <icon name="ticket-alt" title="バグチケット"/>
                     <a :href="generateBacklogUriFromKeyId(story.issueKey)">
@@ -154,13 +164,13 @@
                     {{ datetimeToString(story.updated || story.created) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-reporter">
                     <icon name="user" title="作成者"/>
                     {{ getCreatedUserName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-if="story.dueDate">
                     <icon name="calendar-alt" label="期限"/>
                     {{ dateToString(story.dueDate) }}
@@ -173,7 +183,7 @@
                     {{ getAssigneeName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
                     <icon name="users" title="カテゴリ"/>
@@ -235,7 +245,7 @@
             </template>
             <div class="story-info">
               <ul>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-id">
                     <icon name="ticket-alt" title="バグチケット"/>
                     <a :href="generateBacklogUriFromKeyId(story.issueKey)">
@@ -249,13 +259,13 @@
                     {{ datetimeToString(story.updated || story.created) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-reporter">
                     <icon name="user" title="作成者"/>
                     {{ getCreatedUserName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-if="story.dueDate">
                     <icon name="calendar-alt" label="期限"/>
                     {{ dateToString(story.dueDate) }}
@@ -268,7 +278,7 @@
                     {{ getAssigneeName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
                     <icon name="users" title="カテゴリ"/>
@@ -331,7 +341,7 @@
             </template>
             <div class="story-info">
               <ul>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-id">
                     <icon name="ticket-alt" title="バグチケット"/>
                     <a :href="generateBacklogUriFromKeyId(story.issueKey)">
@@ -345,13 +355,13 @@
                     {{ datetimeToString(story.updated || story.created) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small class="story-info-reporter">
                     <icon name="user" title="作成者"/>
                     {{ getCreatedUserName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-if="story.dueDate">
                     <icon name="calendar-alt" label="期限"/>
                     {{ dateToString(story.dueDate) }}
@@ -364,7 +374,7 @@
                     {{ getAssigneeName(story) }}
                   </small>
                 </li>
-                <li>
+                <li v-if="isShownStoryDetails">
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
                     <icon name="users" title="カテゴリ"/>
@@ -441,6 +451,8 @@ import 'vue-awesome/icons/calendar';
 import 'vue-awesome/icons/clock';
 import 'vue-awesome/icons/comment-dots';
 import 'vue-awesome/icons/edit';
+import 'vue-awesome/icons/file';
+import 'vue-awesome/icons/file-alt';
 import 'vue-awesome/icons/plus';
 import 'vue-awesome/icons/sign-in-alt';
 import 'vue-awesome/icons/sign-out-alt';
@@ -459,6 +471,7 @@ export default {
     return {
       // TODO: should be customizable
       isShownAddUrgentTaskModal: false,
+      isShownStoryDetails: false,
       kanbanStatusIds: {
         todo: 1,
         doing: 2,
@@ -618,6 +631,9 @@ export default {
     hideAddUrgentTaskModal() {
       this.isShownAddUrgentTaskModal = false;
     },
+    hideStoryDetails() {
+      this.isShownStoryDetails = false;
+    },
     initPendingUrgentTask() {
       this.pendingUrgentTask.teamCategories = [this.backlogUrgentId];
     },
@@ -645,6 +661,9 @@ export default {
     },
     showEditStoryModal() {
       this.$message.error('unimplemented');
+    },
+    showStoryDetails() {
+      this.isShownStoryDetails = true;
     },
     applyDatastore() {
       this.loading = true;
