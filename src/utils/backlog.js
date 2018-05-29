@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import { mapGetters } from 'vuex';
 import axios from 'axios';
+import qs from 'qs';
 
 export default {
   data() {
@@ -135,11 +136,26 @@ export default {
       };
       return this.postToBacklog('issues', param, responseStoreName);
     },
+    postBacklogNewUrgentTask(projectId, userStoryIssueTypeId, summary, teamCategories, milestoneId,
+      description, responseStoreName) {
+      console.log(teamCategories);
+      const param = {
+        projectId,
+        issueTypeId: userStoryIssueTypeId,
+        priorityId: 3, // FIXME: Should be customizable
+        summary,
+        categoryId: teamCategories,
+        milestoneId: [milestoneId],
+        description,
+      };
+      console.log(param);
+      return this.postToBacklog('issues', param, responseStoreName);
+    },
     postBacklogNewUserStoryRelatedEpic(projectId, userStoryIssueTypeId, /* epicIssueTypeId, */
       summary, teamCategories, description, responseStoreName) {
       // TODO: set epic id as parent issue
       const param = {
-        projectId: [projectId],
+        projectId,
         issueTypeId: [userStoryIssueTypeId],
         priorityId: 3, // FIXME: Should be customizable
         // parentIssueId: epicIssueTypeId,
@@ -220,12 +236,9 @@ export default {
       });
     },
     postToBacklog(path, queries = {}, responseStoreName) {
-      const params = new URLSearchParams();
-      Object.keys(queries).forEach((prop) => {
-        params.append(prop, queries[prop]);
-      });
       return new Promise((resolve, reject) => {
-        axios.post(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}`, params)
+        axios.post(`https://${this.fqdn}/api/v2/${path}?apiKey=${this.apiKey}`, qs.stringify(queries),
+          { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
           .then((res) => {
             if (responseStoreName !== undefined) {
               Vue.set(this, responseStoreName, res.data);

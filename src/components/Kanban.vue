@@ -15,6 +15,11 @@
        </el-tooltip>
       </el-col>
       <el-col justify="end" :span="8" align="right">
+        <el-tooltip content="緊急タスクを追加" effect="dark" placement="top">
+          <el-button @click="showAddUrgentTaskModal">
+            <icon name="plus" label="緊急タスクを追加"/>
+          </el-button>
+        </el-tooltip>
       </el-col>
     </el-row>
     <el-row type="flex" class="kanban">
@@ -260,6 +265,42 @@
         </draggable>
       </el-col>
     </el-row>
+    <el-dialog title="緊急タスクの追加" :visible.sync="isShownAddUrgentTaskModal"
+      @close="clearPendingUrgentTask" width="90%" append-to-body class="addUrgentTaskModal">
+      <el-form :model="pendingUrgentTask" :rules="urgentTaskRules" ref="pendingUrgentTask">
+        <el-form-item prop="summary">
+          <el-input v-model="pendingUrgentTask.summary" auto-complete="off"
+            placeholder="概要" ref="urgentTaskSummaryForm"/>
+        </el-form-item>
+        <el-form-item prop="issueTypeId">
+          <el-radio-group v-model="pendingUrgentTask.issueTypeId" size="small">
+            <el-radio-button v-for="t in types" :key="t.id" :label="t.id">
+              {{ t.name }}
+            </el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="teamCategories">
+          <el-checkbox-group v-model="pendingUrgentTask.teamCategories">
+            <el-checkbox v-for="c in teamAndUrgentCategories" :key="`${c.projectId}_${c.id}`"
+              :checked="c.id === backlogUrgentId"
+              :label="c.id" border>
+              {{ c.name }}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="詳細">
+          <el-input type="textarea" v-model="pendingUrgentTask.details"
+            placeholder="詳細（メモ）" size="small"/>
+        </el-form-item>
+        <el-form-item class="buttons">
+          <el-row type="flex" justify="end">
+            <el-button type="primary" @click="addUrgentTaskThenClose">
+              登録
+            </el-button>
+          </el-row>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </el-main>
 </template>
 
@@ -270,6 +311,7 @@ import backlog from '@/utils/backlog';
 import date from '@/utils/date';
 
 import 'vue-awesome/icons/calendar';
+import 'vue-awesome/icons/plus';
 import 'vue-awesome/icons/tag';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
@@ -284,15 +326,36 @@ export default {
   },
   data() {
     return {
-      loading: false,
-      ongoingMilestoneId: -1,
-      showOnlyAssigned: false,
       // TODO: should be customizable
+      isShownAddUrgentTaskModal: false,
       kanbanStatusIds: {
         todo: 1,
         doing: 2,
         done: 3,
         completed: 4,
+      },
+      loading: false,
+      ongoingMilestoneId: -1,
+      pendingUrgentTask: {
+        sumary: '',
+        issueTypeId: undefined,
+        teamCategories: [],
+        details: '',
+      },
+      showOnlyAssigned: false,
+      teamCategories: [],
+      types: [],
+      urgentCategory: [],
+      urgentTaskRules: {
+        summary: [
+          { required: true, message: '必須項目です', trigger: 'blur' },
+        ],
+        issueTypeId: [
+          { required: true, message: '必須項目です', trigger: 'change' },
+        ],
+        teamCategories: [
+          { type: 'array', required: true, message: '少なくとも1つ以上のカテゴリに属する必要があります', trigger: 'change' },
+        ],
       },
     };
   },
@@ -316,13 +379,55 @@ export default {
     completedStories() {
       return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.completed);
     },
+    teamAndUrgentCategories() {
+      return this.urgentCategory.concat(this.teamCategories);
+    },
   },
   methods: {
+    addUrgentTask() {
+      this.postBacklogNewUrgentTask(
+        this.projects.id,
+        this.pendingUrgentTask.issueTypeId,
+        this.pendingUrgentTask.summary,
+        this.pendingUrgentTask.teamCategories,
+        this.ongoingMilestoneId,
+        this.pendingUrgentTask.details,
+        'response')
+        .then(() => {
+        // TODO: insert response issuce to the last of user story list
+          this.userStories.push(this.response);
+        })
+        .finally(() => {
+          this.response = {};
+        });
+    },
+    addUrgentTaskThenClose() {
+      this.$refs.pendingUrgentTask.validate((valid) => {
+        if (valid) {
+          this.addUrgentTask();
+          this.isShownAddUrgentTaskModal = false;
+        } else {
+          this.$message.error('入力不備を修正してください。');
+        }
+      });
+    },
+    clearPendingUrgentTask() {
+      Object.keys(this.pendingUrgentTask).forEach((prop) => {
+        this.pendingUrgentTask[prop] = '';
+      });
+      this.initPendingUrgentTask();
+    },
     endMovingStories(event) {
       if (event.from !== event.to) {
         const storyId = event.item.dataset.storyid;
         const statusId = event.to.closest('.status').dataset.statusid;
         this.updateStatusOfIssue(storyId, statusId);
+      }
+    },
+    focusAddUrgentTaskForm() {
+      // form is not generated at the 1st time
+      if (this.$refs.urgentTaskSummaryForm !== undefined) {
+        this.$refs.urgentTaskSummaryForm.$el.querySelector('input').focus();
       }
     },
     getAssigneeName(story) {
@@ -353,6 +458,12 @@ export default {
         return tmp;
       }).filter(milestone => milestone.date <= now).sort((a, b) => b.date - a.date)[0].id;
     },
+    hideAddUrgentTaskModal() {
+      this.isShownAddUrgentTaskModal = false;
+    },
+    initPendingUrgentTask() {
+      this.pendingUrgentTask.teamCategories = [this.backlogUrgentId];
+    },
     isUrgentStory(categoryArray) {
       return categoryArray.filter(category => category.id === this.backlogUrgentId).length > 0;
     },
@@ -361,6 +472,12 @@ export default {
     },
     showAssignedStories() {
       this.showOnlyAssigned = true;
+      this.focusAddUrgentTaskForm();
+    },
+    showAddUrgentTaskModal() {
+      this.isShownAddUrgentTaskModal = true;
+      // FIXME: Dirty...
+      window.setTimeout(this.focusAddUrgentTaskForm, 100);
     },
     applyDatastore() {
       this.loading = true;
@@ -378,7 +495,16 @@ export default {
                 v =>
                   value.id === v,
               ) >= 0);
-          this.workingCategory = this.teamCategories[0].id;
+          this.urgentCategory = this.categories.filter(
+            value => value.id === this.$store.getters.backlogUrgentId);
+        })
+        .then(() =>
+          // TODO: Should be defined in backlog.js
+          this.requestor(`projects/${this.projects.id}/issueTypes`, undefined, 'types'))
+        .then(() => {
+          // TODO: typesをbacklogTaskIdsでフィルタリング
+          // this.$store.getter.backlogTaskIds
+          this.loadedIssueTypes = true;
         })
         .then(() =>
           this.loadBacklogMilestones(this.projects.id))
