@@ -274,16 +274,15 @@
         </el-form-item>
         <el-form-item prop="issueTypeId">
           <el-radio-group v-model="pendingUrgentTask.issueTypeId" size="small">
-            <el-radio-button v-for="t in types" :key="t.id" :label="t.id">
+            <el-radio-button v-for="t in selectedTypes" :key="t.id" :label="t.id">
               {{ t.name }}
             </el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item prop="teamCategories">
-          <el-checkbox-group v-model="pendingUrgentTask.teamCategories">
+          <el-checkbox-group v-model="pendingUrgentTask.teamCategories" size="small">
             <el-checkbox v-for="c in teamAndUrgentCategories" :key="`${c.projectId}_${c.id}`"
-              :checked="c.id === backlogUrgentId"
-              :label="c.id" border>
+              :checked="c.id === backlogUrgentId" :label="c.id" border>
               {{ c.name }}
             </el-checkbox>
           </el-checkbox-group>
@@ -367,6 +366,15 @@ export default {
   computed: {
     backlogUrgentId() {
       return this.$store.getters.backlogUrgentId;
+    },
+    selectedTypes() {
+      const userStoryId = this.$store.getters.backlogUserStoryId;
+      if (userStoryId < 0) {
+        return this.types; // uninitialized yet
+      }
+      const taskIds = this.$store.getters.backlogTaskIds;
+      const selectedTypeIds = taskIds.concat(userStoryId);
+      return this.types.filter(type => selectedTypeIds.indexOf(type.id) >= 0);
     },
     todoStories() {
       return this.userStories.filter(story => story.status.id === this.kanbanStatusIds.todo);
