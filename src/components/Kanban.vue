@@ -86,6 +86,34 @@
                   </small>
                 </li>
               </ul>
+              <el-row>
+                <el-col align="right">
+                  <el-button-group>
+                    <el-tooltip content="担当になる" effect="dark" placement="top"
+                      v-if="story.assignee === null || story.assignee.id !== myself.id">
+                      <el-button @click="defineAssignee" size="mini" :type="story.assignee === null ? 'primary' : 'info'" plain>
+                        <icon name="sign-in-alt" title="担当になる"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="担当から外れる" effect="dark" placement="top"
+                      v-if="story.assignee !== null && story.assignee.id === myself.id">
+                      <el-button @click="releaseAssignee" size="mini" type="warning" plain>
+                        <icon name="sign-out-alt" title="担当から外れる"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="編集" effect="dark" placement="top">
+                      <el-button @click="showEditStoryModal" size="mini" type="info" plain>
+                        <icon name="edit" title="編集"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="コメントを追加" effect="dark" placement="top">
+                      <el-button @click="showAddCommentModal" size="mini" type="info" plain>
+                        <icon name="comment-dots" title="コメントを追加"/>
+                      </el-button>
+                    </el-tooltip>
+                  </el-button-group>
+                </el-col>
+              </el-row>
             </div>
           </el-card>
         </draggable>
@@ -153,6 +181,34 @@
                   </small>
                 </li>
               </ul>
+              <el-row>
+                <el-col align="right">
+                  <el-button-group>
+                    <el-tooltip content="担当になる" effect="dark" placement="top"
+                      v-if="story.assignee === null || story.assignee.id !== myself.id">
+                      <el-button @click="defineAssignee" size="mini" :type="story.assignee === null ? 'primary' : 'info'" plain>
+                        <icon name="sign-in-alt" title="担当になる"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="担当から外れる" effect="dark" placement="top"
+                      v-if="story.assignee !== null && story.assignee.id === myself.id">
+                      <el-button @click="releaseAssignee" size="mini" type="warning" plain>
+                        <icon name="sign-out-alt" title="担当から外れる"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="編集" effect="dark" placement="top">
+                      <el-button @click="showEditStoryModal" size="mini" type="info" plain>
+                        <icon name="edit" title="編集"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="コメントを追加" effect="dark" placement="top">
+                      <el-button @click="showAddCommentModal" size="mini" type="info" plain>
+                        <icon name="comment-dots" title="コメントを追加"/>
+                      </el-button>
+                    </el-tooltip>
+                  </el-button-group>
+                </el-col>
+              </el-row>
             </div>
           </el-card>
         </draggable>
@@ -220,6 +276,34 @@
                   </small>
                 </li>
               </ul>
+              <el-row>
+                <el-col align="right">
+                  <el-button-group>
+                    <el-tooltip content="担当になる" effect="dark" placement="top"
+                      v-if="story.assignee === null || story.assignee.id !== myself.id">
+                      <el-button @click="defineAssignee" size="mini" :type="story.assignee === null ? 'primary' : 'info'" plain>
+                        <icon name="sign-in-alt" title="担当になる"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="担当から外れる" effect="dark" placement="top"
+                      v-if="story.assignee !== null && story.assignee.id === myself.id">
+                      <el-button @click="releaseAssignee" size="mini" type="warning" plain>
+                        <icon name="sign-out-alt" title="担当から外れる"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="編集" effect="dark" placement="top">
+                      <el-button @click="showEditStoryModal" size="mini" type="info" plain>
+                        <icon name="edit" title="編集"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="コメントを追加" effect="dark" placement="top">
+                      <el-button @click="showAddCommentModal" size="mini" type="info" plain>
+                        <icon name="comment-dots" title="コメントを追加"/>
+                      </el-button>
+                    </el-tooltip>
+                  </el-button-group>
+                </el-col>
+              </el-row>
             </div>
           </el-card>
         </draggable>
@@ -288,6 +372,22 @@
                   </small>
                 </li>
               </ul>
+              <el-row>
+                <el-col align="right">
+                  <el-button-group>
+                    <el-tooltip content="編集" effect="dark" placement="top">
+                      <el-button @click="showEditStoryModal" size="mini" type="info" plain>
+                        <icon name="edit" title="編集"/>
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="コメントを追加" effect="dark" placement="top">
+                      <el-button @click="showAddCommentModal" size="mini" type="info" plain>
+                        <icon name="comment-dots" title="コメントを追加"/>
+                      </el-button>
+                    </el-tooltip>
+                  </el-button-group>
+                </el-col>
+              </el-row>
             </div>
           </el-card>
         </draggable>
@@ -339,7 +439,11 @@ import date from '@/utils/date';
 
 import 'vue-awesome/icons/calendar';
 import 'vue-awesome/icons/clock';
+import 'vue-awesome/icons/comment-dots';
+import 'vue-awesome/icons/edit';
 import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/sign-in-alt';
+import 'vue-awesome/icons/sign-out-alt';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
 import 'vue-awesome/icons/users';
@@ -466,6 +570,10 @@ export default {
       });
       this.initPendingUrgentTask();
     },
+    defineAssignee(event) {
+      console.log(event);
+      this.$message.error('unimplemented');
+    },
     endMovingStories(event) {
       if (event.from !== event.to) {
         const storyId = event.item.dataset.storyid;
@@ -519,14 +627,24 @@ export default {
     showAllStories() {
       this.showOnlyAssigned = false;
     },
+    releaseAssignee(event) {
+      console.log(event);
+      this.$message.error('unimplemented');
+    },
     showAssignedStories() {
       this.showOnlyAssigned = true;
       this.focusAddUrgentTaskForm();
+    },
+    showAddCommentModal() {
+      this.$message.error('unimplemented');
     },
     showAddUrgentTaskModal() {
       this.isShownAddUrgentTaskModal = true;
       // FIXME: Dirty...
       window.setTimeout(this.focusAddUrgentTaskForm, 100);
+    },
+    showEditStoryModal() {
+      this.$message.error('unimplemented');
     },
     applyDatastore() {
       this.loading = true;
