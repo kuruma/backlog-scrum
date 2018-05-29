@@ -75,7 +75,7 @@
                 <li>
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
-                    <icon name="tag" title="カテゴリ"/>
+                    <icon name="users" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
                 </li>
@@ -136,7 +136,7 @@
                 <li>
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
-                    <icon name="tag" title="カテゴリ"/>
+                    <icon name="users" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
                 </li>
@@ -197,7 +197,7 @@
                 <li>
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
-                    <icon name="tag" title="カテゴリ"/>
+                    <icon name="users" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
                 </li>
@@ -259,7 +259,7 @@
                 <li>
                   <small v-for="category in story.category" :key="category.id" class="category"
                     v-if="category.id !== backlogUrgentId">
-                    <icon name="tag" title="カテゴリ"/>
+                    <icon name="users" title="カテゴリ"/>
                     {{ category.name }}
                   </small>
                 </li>
@@ -315,7 +315,6 @@ import date from '@/utils/date';
 
 import 'vue-awesome/icons/calendar';
 import 'vue-awesome/icons/plus';
-import 'vue-awesome/icons/tag';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
 import 'vue-awesome/icons/users';
