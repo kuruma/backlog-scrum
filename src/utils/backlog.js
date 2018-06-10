@@ -127,6 +127,21 @@ export default {
     loadBacklogUrgentUserStories(projectId, urgentCategoryId, statusIds, priorityVarId) {
       this.loadBacklogUserStories('urgents', priorityVarId, projectId, undefined, [urgentCategoryId], statusIds);
     },
+    overwriteUserStory(story) {
+      const l = this.userStories.length;
+      let targetStoryIndex = 0;
+      for (; targetStoryIndex < l; targetStoryIndex += 1) {
+        if (this.userStories[targetStoryIndex].id === story.id) {
+          break;
+        }
+      }
+      if (targetStoryIndex >= l) {
+        console.warn('Unexpected: Updated story has gone from user stories list.');
+        return false;
+      }
+      this.$set(this.userStories, targetStoryIndex, story);
+      return true;
+    },
     postBacklogNewEpic(projectId, epicIssueTypeId, summary, description, responseStoreName) {
       const param = {
         projectId: [projectId],
@@ -163,6 +178,11 @@ export default {
         description,
       };
       return this.postToBacklog('issues', param, responseStoreName);
+    },
+    updateAssigneeOfIssue(issueId, assigneeId) {
+      const param = {};
+      param.assigneeId = assigneeId;
+      return this.patchToBacklog(`issues/${issueId}`, param);
     },
     updatePriorityOfIssue(issueId, priorityVarId, priority) {
       if (priorityVarId === undefined) {
@@ -227,8 +247,8 @@ export default {
           .then((res) => {
             if (responseStoreName !== undefined) {
               Vue.set(this, responseStoreName, res.data);
-              resolve(res.data);
             }
+            resolve(res.data);
           })
           .catch(() => {
             reject(0);
@@ -242,8 +262,8 @@ export default {
           .then((res) => {
             if (responseStoreName !== undefined) {
               Vue.set(this, responseStoreName, res.data);
-              resolve(res.data);
             }
+            resolve(res.data);
           })
           .catch(() => {
             reject(0);

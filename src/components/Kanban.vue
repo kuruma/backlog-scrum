@@ -587,16 +587,30 @@ export default {
       this.initPendingUrgentTask();
     },
     defineAssignee(event) {
-      console.log(event);
-      this.$message.error('unimplemented');
+      const storyNode = event.target.closest('.story-item');
+      const storyId = storyNode.dataset.storyid;
+      this.updateAssigneeOfIssue(storyId, this.myself.id)
+        .then((data) => {
+          this.overwriteUserStory(data);
+          this.$message.success({
+            showClose: true,
+            message: `#${storyId}の担当者を自分に変更しました。`,
+          });
+        })
+        .catch((rejected) => {
+          this.$message.error({
+            showClose: true,
+            message: `担当者の変更に失敗しました。リロードしてからもう一度試してください:\n${rejected}`,
+          });
+        });
     },
     endMovingStories(event) {
       if (event.from !== event.to) {
         const storyId = event.item.dataset.storyid;
         const statusId = event.to.closest('.status').dataset.statusid;
         this.updateStatusOfIssue(storyId, statusId)
-          .then(() => {
-            // FIXME: Should update kanban after update status
+          .then((data) => {
+            this.overwriteUserStory(data);
             this.$message.success({
               showClose: true,
               message: '状態の更新は成功しました。表示される内容を更新するにはリロードしてください。',
@@ -660,8 +674,22 @@ export default {
       this.showOnlyAssigned = false;
     },
     releaseAssignee(event) {
-      console.log(event);
-      this.$message.error('unimplemented');
+      const storyNode = event.target.closest('.story-item');
+      const storyId = storyNode.dataset.storyid;
+      this.updateAssigneeOfIssue(storyId, '')
+        .then((data) => {
+          this.overwriteUserStory(data);
+          this.$message.success({
+            showClose: true,
+            message: `#${storyId}の担当者から外れました。`,
+          });
+        })
+        .catch((rejected) => {
+          this.$message.error({
+            showClose: true,
+            message: `担当者の変更に失敗しました。リロードしてからもう一度試してください:\n${rejected}`,
+          });
+        });
     },
     showAssignedStories() {
       this.showOnlyAssigned = true;
