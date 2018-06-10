@@ -594,8 +594,10 @@ export default {
       });
       this.initPendingUrgentTask();
     },
-    closeAddCommentModal(inputs) {
-      console.log(inputs);
+    closeAddCommentModal(result) {
+      if (result.updatedStoryId !== undefined) {
+        this.overriteUpdatedDatetime(result.updatedStoryId, result.body.updated);
+      }
       this.isShownAddCommentModal = false;
     },
     defineAssignee(event) {

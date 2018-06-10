@@ -127,6 +127,16 @@ export default {
     loadBacklogUrgentUserStories(projectId, urgentCategoryId, statusIds, priorityVarId) {
       this.loadBacklogUserStories('urgents', priorityVarId, projectId, undefined, [urgentCategoryId], statusIds);
     },
+    overriteUpdatedDatetime(storyId, datetime) {
+      const l = this.userStories.length;
+      let targetStoryIndex = 0;
+      for (; targetStoryIndex < l; targetStoryIndex += 1) {
+        if (this.userStories[targetStoryIndex].id === storyId) {
+          break;
+        }
+      }
+      this.$set(this.userStories[targetStoryIndex], 'updated', datetime);
+    },
     overwriteUserStory(story) {
       const l = this.userStories.length;
       let targetStoryIndex = 0;
@@ -141,6 +151,12 @@ export default {
       }
       this.$set(this.userStories, targetStoryIndex, story);
       return true;
+    },
+    postBacklogComment(issueId, content) {
+      const param = {
+        content,
+      };
+      return this.postToBacklog(`issues/${issueId}/comments`, param);
     },
     postBacklogNewEpic(projectId, epicIssueTypeId, summary, description, responseStoreName) {
       const param = {
