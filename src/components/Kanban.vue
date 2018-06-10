@@ -613,7 +613,7 @@ export default {
             this.overwriteUserStory(data);
             this.$message.success({
               showClose: true,
-              message: '状態の更新は成功しました。表示される内容を更新するにはリロードしてください。',
+              message: '状態を更新しました。',
             });
           })
           .catch((rejected) => {
