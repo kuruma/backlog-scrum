@@ -101,7 +101,8 @@
                   <el-button-group>
                     <el-tooltip content="担当になる" effect="dark" placement="top"
                       v-if="story.assignee === null || story.assignee.id !== myself.id">
-                      <el-button @click="defineAssignee" size="mini" :type="story.assignee === null ? 'primary' : 'info'" plain>
+                      <el-button @click="defineAssignee" size="mini"
+                        :type="story.assignee === null ? 'primary' : 'info'" plain>
                         <icon name="sign-in-alt" title="担当になる"/>
                       </el-button>
                     </el-tooltip>
@@ -196,7 +197,8 @@
                   <el-button-group>
                     <el-tooltip content="担当になる" effect="dark" placement="top"
                       v-if="story.assignee === null || story.assignee.id !== myself.id">
-                      <el-button @click="defineAssignee" size="mini" :type="story.assignee === null ? 'primary' : 'info'" plain>
+                      <el-button @click="defineAssignee" size="mini"
+                        :type="story.assignee === null ? 'primary' : 'info'" plain>
                         <icon name="sign-in-alt" title="担当になる"/>
                       </el-button>
                     </el-tooltip>
@@ -291,7 +293,8 @@
                   <el-button-group>
                     <el-tooltip content="担当になる" effect="dark" placement="top"
                       v-if="story.assignee === null || story.assignee.id !== myself.id">
-                      <el-button @click="defineAssignee" size="mini" :type="story.assignee === null ? 'primary' : 'info'" plain>
+                      <el-button @click="defineAssignee" size="mini"
+                        :type="story.assignee === null ? 'primary' : 'info'" plain>
                         <icon name="sign-in-alt" title="担当になる"/>
                       </el-button>
                     </el-tooltip>
@@ -591,7 +594,20 @@ export default {
       if (event.from !== event.to) {
         const storyId = event.item.dataset.storyid;
         const statusId = event.to.closest('.status').dataset.statusid;
-        this.updateStatusOfIssue(storyId, statusId);
+        this.updateStatusOfIssue(storyId, statusId)
+          .then(() => {
+            // FIXME: Should update kanban after update status
+            this.$message.success({
+              showClose: true,
+              message: '状態の更新は成功しました。表示される内容を更新するにはリロードしてください。',
+            });
+          })
+          .catch((rejected) => {
+            this.$message.error({
+              showClose: true,
+              message: `ステータスの更新が失敗しました。リロードしてからもう一度同じ操作を行ってください:\n${rejected}`,
+            });
+          });
       }
     },
     focusAddUrgentTaskForm() {
