@@ -146,7 +146,6 @@ export default {
         }
       }
       if (targetStoryIndex >= l) {
-        console.warn('Unexpected: Updated story has gone from user stories list.');
         return false;
       }
       this.$set(this.userStories, targetStoryIndex, story);
