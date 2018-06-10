@@ -406,6 +406,10 @@
         </draggable>
       </el-col>
     </el-row>
+    <add-comment-dialog
+      @add-comment-modal-closed="closeAddCommentModal"
+      :visibility="isShownAddCommentModal"
+      :storyId="addCommentTargetStoryId"/>
     <el-dialog title="緊急タスクの追加" :visible.sync="isShownAddUrgentTaskModal"
       @close="clearPendingUrgentTask" width="90%" append-to-body class="addUrgentTaskModal">
       <el-form :model="pendingUrgentTask" :rules="urgentTaskRules" ref="pendingUrgentTask">
@@ -449,6 +453,7 @@ import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
 import date from '@/utils/date';
+import AddCommentDialog from '@/components/AddCommentDialog';
 
 import 'vue-awesome/icons/calendar';
 import 'vue-awesome/icons/clock';
@@ -469,9 +474,12 @@ export default {
   components: {
     draggable,
     Icon,
+    AddCommentDialog,
   },
   data() {
     return {
+      addCommentTargetStoryId: -1,
+      isShownAddCommentModal: false,
       // TODO: should be customizable
       isShownAddUrgentTaskModal: false,
       isShownStoryDetails: false,
@@ -586,6 +594,10 @@ export default {
       });
       this.initPendingUrgentTask();
     },
+    closeAddCommentModal(inputs) {
+      console.log(inputs);
+      this.isShownAddCommentModal = false;
+    },
     defineAssignee(event) {
       const storyNode = event.target.closest('.story-item');
       const storyId = storyNode.dataset.storyid;
@@ -695,8 +707,9 @@ export default {
       this.showOnlyAssigned = true;
       this.focusAddUrgentTaskForm();
     },
-    showAddCommentModal() {
-      this.$message.error('unimplemented');
+    showAddCommentModal(event) {
+      this.isShownAddCommentModal = true;
+      this.addCommentTargetStoryId = event.target.closest('.story-item').dataset.storyid;
     },
     showAddUrgentTaskModal() {
       this.isShownAddUrgentTaskModal = true;
