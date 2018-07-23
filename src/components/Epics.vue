@@ -372,8 +372,7 @@ export default {
         }
       }
     },
-    loadUserStories(epicid, epicNodeKey) { // TODO: Refactoring required★
-      // TODO: Support Parent/Child issues
+    loadUserStories(epicid, epicNodeKey) {
       const param = {
         'projectId[]': this.projects.id,
         'parentIssueId[]': epicid,
