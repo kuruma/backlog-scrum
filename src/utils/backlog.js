@@ -266,7 +266,7 @@ export default {
             resolve(res.data);
           })
           .catch(() => {
-            reject(0);
+            reject('予期せぬエラーが発生しました。');
           });
       });
     },

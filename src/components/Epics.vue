@@ -377,6 +377,7 @@ export default {
           this.$set(this.userStories, epicNodeKey, this.loadedUserStory);
         })
         .catch(() => {
+          const refName = `epic_${epicid}`;
           delete this.$refs[refName][0].$el.dataset.loadedrelatedstories;
         });
       this.loadedUserStory = {};
@@ -415,14 +416,30 @@ export default {
     setParentEpic(epic) {
       this.parentEpic = epic;
     },
+    syncEpicOrder(epicid, priorityVariableId, orderNumber) {
+      this.updatePriorityOfIssue(epicid, priorityVariableId, orderNumber)
+        .then(() => {
+          this.$message.success({
+            showClose: true,
+            message: `${epicid} の優先度を ${orderNumber} に設定しました。`,
+          });
+        })
+        .catch((rejected) => {
+          this.$message.error({
+            showClose: true,
+            message: `${epicid} の優先度保存に失敗しました:\n${rejected}`,
+          });
+        });
+    },
     syncEpicsOrder() {
       const l = this.$refs.epics.$el.children.length;
       const priId = this.$store.getters.backlogPriorityVarId;
-      for (let i = 0; i < l;) {
+      let order = 1001;
+      for (let i = 0; i < l; i += 1) {
         const epicNode = this.$refs.epics.$el.children[i];
         const epic = this.epics[epicNode.dataset.epickey];
-        i += 1;
-        this.updatePriorityOfIssue(epic.id, priId, i);
+        order += 10;
+        this.syncEpicOrder(epic.id, priId, order);
       }
     },
     applyDatastore() {
