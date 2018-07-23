@@ -299,7 +299,20 @@ export default {
     setStoryPointOfUserStory(storyId) {
       const spid = this.$store.getters.backlogStoryPointVarId;
       console.log(this.storyPoints[storyId]);
-      this.updateStoryPointOfIssue(storyId, spid, this.storyPoints[storyId]);
+      this.updateStoryPointOfIssue(storyId, spid, this.storyPoints[storyId])
+        .then(() => {
+          this.$message.success({
+            showClose: true,
+            message: `${storyId} のストーリーポイントを ${this.storyPoints[storyId]} に設定しました。`,
+          });
+        })
+        .catch((rejected) => {
+          // FIXME: GUI should reflects sync failure
+          this.$message.error({
+            showClose: true,
+            message: `${storyId} の優先度保存に失敗しました:\n${rejected}`,
+          });
+        });
     },
     addEpicAndContinue(event) {
       event.preventDefault();
