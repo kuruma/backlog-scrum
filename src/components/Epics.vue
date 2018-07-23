@@ -310,14 +310,14 @@ export default {
         .then(() => {
           this.$message.success({
             showClose: true,
-            message: `${storyId} のストーリーポイントを ${this.storyPoints[storyId]} に設定しました。`,
+            message: `ストーリポイントを ${this.storyPoints[storyId]} に設定しました。`,
           });
         })
         .catch((rejected) => {
           // FIXME: GUI should reflects sync failure
           this.$message.error({
             showClose: true,
-            message: `${storyId} の優先度保存に失敗しました:\n${rejected}`,
+            message: `ストーリポイント保存に失敗しました(#${storyId}):\n${rejected}`,
           });
         });
     },
@@ -467,13 +467,13 @@ export default {
         .then(() => {
           this.$message.success({
             showClose: true,
-            message: `${epicid} の優先度を ${orderNumber} に設定しました。`,
+            message: `優先度を ${orderNumber} に設定しました。`,
           });
         })
         .catch((rejected) => {
           this.$message.error({
             showClose: true,
-            message: `${epicid} の優先度保存に失敗しました:\n${rejected}`,
+            message: `優先度の保存に失敗しました(#${epicid}):\n${rejected}`,
           });
         });
     },
