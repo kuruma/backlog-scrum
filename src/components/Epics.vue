@@ -7,16 +7,6 @@
             <icon name="plus" label="エピックを追加"/>
           </el-button>
         </el-tooltip>
-        <el-tooltip content="ユーザストーリを読込" v-if="!isShownUserStories" effect="dark" placement="top">
-          <el-button @click="loadUserStories">
-            <icon name="angle-double-down" title="ユーザストーリを読込"/>
-          </el-button>
-        </el-tooltip>
-        <el-tooltip content="ユーザストーリを隠す" v-if="isShownUserStories" effect="dark" placement="top">
-          <el-button @click="hideUserStories">
-            <icon name="angle-double-up" title="ユーザストーリを隠す"/>
-          </el-button>
-        </el-tooltip>
       </el-col>
       <el-col justify="end" :span="8" align="right">
         <el-tooltip content="エピックの優先順位を保存" effect="dark" placement="top">
@@ -30,9 +20,9 @@
         animation: 250,
         delay: 50,
         handle: '.handle',
-      }" element="el-collapse" id="epics" ref="epics">
+      }" element="el-collapse" :component-data="getEpicsComponentData()" id="epics" ref="epics">
       <el-collapse-item v-for="(epic, key) in epics" :key="epic.id" :name="epic.id"
-        :ref="`epic_${key}`" :data-epickey="`${key}`" class="epic-item">
+        :ref="`epic_${epic.id}`" class="epic-item" :data-epickey="`${key}`">
         <template slot="title">
           <el-row type="flex">
             <el-col :span="18">
@@ -55,7 +45,7 @@
             </el-col>
           </el-row>
         </template>
-        <div class="epic-details" v-if="isShownUserStories">
+        <div class="epic-details">
           <ul class="user-stories">
             <li v-for="story in userStories[key]" :key="story.id" :ref="`stories_${key}`"
               :class="{ 'completed-story': story.status.name === '完了' }">
@@ -231,7 +221,6 @@ export default {
         summary: '',
         details: '',
       },
-      isShownUserStories: false,
       isShownAddEpicModal: false,
       isShownAddUserStoryModal: false,
       teamCategories: [], // Loaded categories info filtered by teams' one
@@ -352,36 +341,45 @@ export default {
         console.log(`${event.from.id} was updated`);
       }
     },
-    hideUserStories() {
-      this.isShownUserStories = false;
-      this.parentEpicKey = -1;
+    getEpicsComponentData() {
+      return {
+        on: {
+          change: this.loadUserStoriesRelatedEpic,
+        },
+      };
     },
-    loadUserStories() { // TODO: Refactoring required★
-      this.isShownUserStories = true;
-      // FIXME: Flexible limitation
-      const l = (this.$refs.epics.$el.children.length < 20)
-        ? this.$refs.epics.$el.children.length
-        : 20;
+    loadUserStoriesRelatedEpic(value) {
+      const l = value.length;
       for (let i = 0; i < l; i += 1) {
-        const key = this.$refs.epics.$el.children[i].dataset.epickey;
-        // TODO: Support Parent/Child issues
-        // const id = this.epics[key].id;
-        const param = {
-          'projectId[]': this.projects.id,
-          // 'parentIssueId[]': id,
-          'issueTypeId[]': this.$store.getters.backlogUserStoryId,
-          // parentChild: 2, // Only child task
-          count: 100,
-          sort: 'updated',
-        };
-        if (this.userStories[key] === undefined) {
-          this.$set(this.userStories, key, []);
+        const refName = `epic_${value[i]}`;
+        const node = this.$refs[refName][0].$el;
+        if (typeof node.dataset.loadedrelatedstories === 'undefined') {
+          this.$refs[refName][0].$el.dataset.loadedrelatedstories = true;
+          this.loadUserStories(value[i], node.dataset.epickey);
         }
-        this.requestor('issues', param, 'loadedUserStory')
-          .then(() => {
-            this.userStories[key] = this.loadedUserStory;
-          });
       }
+    },
+    loadUserStories(epicid, epicNodeKey) { // TODO: Refactoring required★
+      // TODO: Support Parent/Child issues
+      const param = {
+        'projectId[]': this.projects.id,
+        // 'parentIssueId[]': epicid,
+        'issueTypeId[]': this.$store.getters.backlogUserStoryId,
+        // parentChild: 2, // Only child task
+        count: 100,
+        sort: 'updated',
+      };
+      if (this.userStories[epicNodeKey] === undefined) {
+        console.log(123);
+        this.$set(this.userStories, epicNodeKey, []);
+      }
+      this.requestor('issues', param, 'loadedUserStory')
+        .then(() => {
+          this.$set(this.userStories, epicNodeKey, this.loadedUserStory);
+        })
+        .catch(() => {
+          delete this.$refs[refName][0].$el.dataset.loadedrelatedstories;
+        });
       this.loadedUserStory = {};
     },
     moveEpicToTop(event) {
