@@ -363,9 +363,9 @@ export default {
       // TODO: Support Parent/Child issues
       const param = {
         'projectId[]': this.projects.id,
-        // 'parentIssueId[]': epicid,
+        'parentIssueId[]': epicid,
         'issueTypeId[]': this.$store.getters.backlogUserStoryId,
-        // parentChild: 2, // Only child task
+        parentChild: 2, // Only child task
         count: 100,
         sort: 'updated',
       };
