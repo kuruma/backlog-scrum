@@ -291,7 +291,7 @@ export default {
       this.postBacklogNewUserStoryRelatedEpic(
         this.projects.id,
         this.$store.getters.backlogUserStoryId,
-        // this.parentEpic.id,
+        this.parentEpic.id,
         this.pendingUserStory.summary,
         this.pendingUserStory.teamCategories,
         detailItems.join('\n\n'),

@@ -159,8 +159,8 @@ export default {
     },
     postBacklogNewEpic(projectId, epicIssueTypeId, summary, description, responseStoreName) {
       const param = {
-        projectId: [projectId],
-        issueTypeId: [epicIssueTypeId],
+        projectId,
+        issueTypeId: epicIssueTypeId,
         priorityId: 3, // FIXME: Should be customizable
         summary,
         description,
@@ -180,14 +180,14 @@ export default {
       };
       return this.postToBacklog('issues', param, responseStoreName);
     },
-    postBacklogNewUserStoryRelatedEpic(projectId, userStoryIssueTypeId, /* epicIssueTypeId, */
+    postBacklogNewUserStoryRelatedEpic(projectId, userStoryIssueTypeId, epicIssueTypeId,
       summary, teamCategories, description, responseStoreName) {
       // TODO: set epic id as parent issue
       const param = {
         projectId,
-        issueTypeId: [userStoryIssueTypeId],
+        issueTypeId: userStoryIssueTypeId,
         priorityId: 3, // FIXME: Should be customizable
-        // parentIssueId: epicIssueTypeId,
+        parentIssueId: epicIssueTypeId,
         summary,
         categoryId: teamCategories,
         description,
