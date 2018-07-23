@@ -341,7 +341,6 @@ export default {
       let str = '';
       if (this.types.length > 0) {
         const index = this.types.findIndex(x => x.id === this.teamFormEpicId);
-        console.log(this.types[index]);
         str = this.types[index].name;
       }
       return str;

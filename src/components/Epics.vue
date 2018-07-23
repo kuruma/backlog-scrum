@@ -306,7 +306,6 @@ export default {
     },
     setStoryPointOfUserStory(storyId) {
       const spid = this.$store.getters.backlogStoryPointVarId;
-      console.log(this.storyPoints[storyId]);
       this.updateStoryPointOfIssue(storyId, spid, this.storyPoints[storyId])
         .then(() => {
           this.$message.success({
@@ -355,11 +354,8 @@ export default {
     endMovingEpic(event) {
       if (event.from !== event.to) {
         // TODO: impl. to sync
-        console.log(`${event.from.id} was updated`);
-        console.log(`${event.to.id} was updated`);
       } else if (event.oldIndex !== event.newIndex) {
         // TODO: impl. to sync
-        console.log(`${event.from.id} was updated`);
       }
     },
     getEpicsComponentData() {
@@ -447,7 +443,6 @@ export default {
       this.parentEpic = epic;
     },
     sortEpicsByPriority() {
-      console.log(1);
       const epics = this.$refs.epics;
       const epicItems = epics.$children[0].$children;
       const el = epicItems.length;
@@ -461,7 +456,6 @@ export default {
         };
       }
       mst.sort((a, b) => a.priority - b.priority);
-      console.log(mst);
       const epicsNode = epics.$el;
       for (let i = 0; i < el; i += 1) {
         const ref = mst[i].ref;
