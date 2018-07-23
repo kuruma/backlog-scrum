@@ -46,6 +46,17 @@
           </el-row>
         </template>
         <div class="epic-details">
+          <div class="epic-info">
+            <p>{{ epic.description }}</p>
+            <small>
+              <icon name="user" title="チケット作成者"/>
+              {{ epic.createdUser.name }}:
+              <icon name="ticket-alt" title="バグチケット"/>
+              <a :href="generateBacklogUriFromKeyId(epic.issueKey)">
+                {{ epic.issueKey }}
+              </a>
+            </small>
+          </div>
           <ul class="user-stories">
             <li v-for="story in userStories[key]" :key="story.id" :ref="`stories_${key}`"
               :class="{ 'completed-story': story.status.name === '完了' }">
@@ -76,17 +87,6 @@
               </el-button>
             </li>
           </ul>
-        </div>
-        <div class="epic-info">
-          <p>{{ epic.description }}</p>
-          <small>
-            <icon name="user" title="チケット作成者"/>
-            {{ epic.createdUser.name }}:
-            <icon name="ticket-alt" title="バグチケット"/>
-            <a :href="generateBacklogUriFromKeyId(epic.issueKey)">
-              {{ epic.issueKey }}
-            </a>
-          </small>
         </div>
       </el-collapse-item>
     </draggable>
