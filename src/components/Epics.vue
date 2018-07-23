@@ -7,16 +7,6 @@
             <icon name="plus" label="エピックを追加"/>
           </el-button>
         </el-tooltip>
-        <el-tooltip content="エピックの詳細を隠す" v-if="isShownEpicInfo" effect="dark" placement="top">
-          <el-button @click="hideEpicInfo">
-            <icon name="file-alt" title="エピックの詳細を隠す"/>
-          </el-button>
-        </el-tooltip>
-        <el-tooltip content="エピックの詳細を表示" v-if="!isShownEpicInfo" effect="dark" placement="top">
-          <el-button @click="showEpicInfo">
-            <icon name="file" title="エピックの詳細を表示" v-if="!isShownEpicInfo"/>
-          </el-button>
-        </el-tooltip>
         <el-tooltip content="ユーザストーリを読込" v-if="!isShownUserStories" effect="dark" placement="top">
           <el-button @click="loadUserStories">
             <icon name="angle-double-down" title="ユーザストーリを読込"/>
@@ -97,7 +87,7 @@
             </li>
           </ul>
         </div>
-        <div class="epic-info" v-if="isShownEpicInfo">
+        <div class="epic-info">
           <p>{{ epic.description }}</p>
           <small>
             <icon name="user" title="チケット作成者"/>
@@ -194,8 +184,6 @@ import backlog from '@/utils/backlog';
 import date from '@/utils/date';
 
 import 'vue-awesome/icons/save';
-import 'vue-awesome/icons/file';
-import 'vue-awesome/icons/file-alt';
 import 'vue-awesome/icons/angle-double-down';
 import 'vue-awesome/icons/angle-double-up';
 import 'vue-awesome/icons/bars';
@@ -244,7 +232,6 @@ export default {
         details: '',
       },
       isShownUserStories: false,
-      isShownEpicInfo: false,
       isShownAddEpicModal: false,
       isShownAddUserStoryModal: false,
       teamCategories: [], // Loaded categories info filtered by teams' one
@@ -266,13 +253,6 @@ export default {
       if (this.$refs.userStorySummaryForm !== undefined) {
         this.$refs.userStorySummaryForm.$el.querySelector('input').focus();
       }
-    },
-    hideEpicInfo() {
-      this.isShownEpicInfo = false;
-    },
-    showEpicInfo() {
-      this.isShownEpicInfo = true;
-      this.focusEpicSummaryForm();
     },
     addEpic() {
       this.$refs.pendingEpic.validate()
