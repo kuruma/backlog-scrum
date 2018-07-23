@@ -370,7 +370,6 @@ export default {
         sort: 'updated',
       };
       if (this.userStories[epicNodeKey] === undefined) {
-        console.log(123);
         this.$set(this.userStories, epicNodeKey, []);
       }
       this.requestor('issues', param, 'loadedUserStory')
