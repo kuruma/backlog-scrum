@@ -7,6 +7,11 @@
             <icon name="plus" label="エピックを追加"/>
           </el-button>
         </el-tooltip>
+        <el-tooltip content="保存済みの優先順位で並べる" effect="dark" placement="top">
+          <el-button @click="sortEpicsByPriority">
+            <icon name="sort-numeric-down" label="保存済みの優先順位で並べる"/>
+          </el-button>
+        </el-tooltip>
       </el-col>
       <el-col justify="end" :span="8" align="right">
         <el-tooltip content="エピックの優先順位を保存" effect="dark" placement="top">
@@ -22,7 +27,9 @@
         handle: '.handle',
       }" element="el-collapse" :component-data="getEpicsComponentData()" id="epics" ref="epics">
       <el-collapse-item v-for="(epic, key) in epics" :key="epic.id" :name="epic.id"
-        :ref="`epic_${epic.id}`" class="epic-item" :data-epickey="`${key}`">
+        :ref="`epic_${epic.id}`" class="epic-item"
+        :data-epickey="`${key}`" :data-epicid="`${epic.id}`"
+        :data-epicpriority="getPriorityOfEpic(epic)">
         <template slot="title">
           <el-row type="flex">
             <el-col :span="18">
@@ -180,6 +187,7 @@ import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/level-up-alt';
 import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/sort-numeric-down';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
 
@@ -361,6 +369,16 @@ export default {
         },
       };
     },
+    getPriorityOfEpic(epic) {
+      const priId = this.$store.getters.backlogPriorityVarId;
+      // FIXME: Dirty compare
+      const xArr = epic.customFields.filter(field => `${field.id}` === `${priId}`);
+      if (xArr.length === 1) {
+        const priority = xArr[0].value - 0;
+        return priority;
+      }
+      return 0;
+    },
     loadUserStoriesRelatedEpic(value) {
       const l = value.length;
       for (let i = 0; i < l; i += 1) {
@@ -427,6 +445,28 @@ export default {
     },
     setParentEpic(epic) {
       this.parentEpic = epic;
+    },
+    sortEpicsByPriority() {
+      console.log(1);
+      const epics = this.$refs.epics;
+      const epicItems = epics.$children[0].$children;
+      const el = epicItems.length;
+      const mst = new Array(el);
+      for (let i = 0; i < el; i += 1) {
+        mst[i] = {
+          key: i,
+          priority: epicItems[i].$el.dataset.epicpriority,
+          ref: `epic_${epicItems[i].$el.dataset.epicid}`,
+          tmp: epicItems[i].$el.dataset.epicid,
+        };
+      }
+      mst.sort((a, b) => a.priority - b.priority);
+      console.log(mst);
+      const epicsNode = epics.$el;
+      for (let i = 0; i < el; i += 1) {
+        const ref = mst[i].ref;
+        epicsNode.append(this.$refs[ref][0].$el);
+      }
     },
     syncEpicOrder(epicid, priorityVariableId, orderNumber) {
       this.updatePriorityOfIssue(epicid, priorityVariableId, orderNumber)
