@@ -121,11 +121,15 @@ export default {
     getNextMilestoneId() {
       const now = new Date().getTime();
       const timezoneOffset = 9 * 60 * 60 * 1000; // FIXME: JST = +9:00
-      return this.milestones.map((milestone) => {
+      const mss = this.milestones.map((milestone) => {
         const tmp = milestone;
         tmp.date = new Date(milestone.startDate).getTime() + timezoneOffset;
         return tmp;
-      }).filter(milestone => milestone.date >= now).sort((a, b) => a.date - b.date)[0].id;
+      }).filter(milestone => milestone.date >= now);
+      if (mss.length === 0) {
+        return -1;
+      }
+      return mss.sort((a, b) => a.date - b.date)[0].id;
     },
     syncUserStoriesPriorities() {
       const l = this.$refs.sprintbacklogs.$el.children.length;
