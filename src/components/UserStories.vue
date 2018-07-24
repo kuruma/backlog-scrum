@@ -163,7 +163,7 @@ export default {
         .then(() => this.loadBacklogEpics(this.projects.id,
           this.$store.getters.backlogEpicId, this.activeStatusIds,
           this.$store.getters.backlogPriorityVarId,
-          20)) // FIXME: Should be customizable
+          100)) // FIXME: Should be customizable
         .then(() => this.loadBacklogUrgentUserStories(this.projects.id,
           this.$store.getters.backlogUrgentId, this.activeStatusIds,
           this.$store.getters.backlogPriorityVarId))
