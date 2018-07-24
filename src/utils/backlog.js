@@ -18,6 +18,26 @@ export default {
     };
   },
   methods: {
+    filterLoadedEpicsOnlyUnassignedAndTeams(categoryIds, urgentId) {
+      this.epics = this.epics.filter((epic) => {
+        const eids = epic.category.map(x => x.id);
+        const l = eids.length;
+        let isTarget = false;
+        if (l === 0) {
+          isTarget = true;
+        } else if (l === 1 && eids[0] === urgentId) {
+          isTarget = true;
+        } else {
+          for (let i = 0; i < l; i += 1) {
+            if (categoryIds.includes(eids[i])) {
+              isTarget = true;
+              break;
+            }
+          }
+        }
+        return isTarget;
+      });
+    },
     generateBacklogUriFromKeyId(keyId) {
       return `https://${this.fqdn}/view/${keyId}`;
     },

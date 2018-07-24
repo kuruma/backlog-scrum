@@ -530,6 +530,10 @@ export default {
                   value.id === v,
               ) >= 0);
         })
+        .then(() => {
+          const teamIds = this.teamCategories.map(x => x.id);
+          this.filterLoadedEpicsOnlyUnassignedAndTeams(teamIds, this.backlogUrgentId);
+        })
         .catch(() => {
           // FIXME: Error handling
         })
