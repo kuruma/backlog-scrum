@@ -32,9 +32,19 @@
         :data-epicpriority="getPriorityOfEpic(epic)">
         <template slot="title">
           <el-row type="flex">
-            <el-col :span="18">
+            <el-col :span="13">
               <span class="handle"><icon name="bars"/></span>
               {{ epic.summary }}
+            </el-col>
+            <el-col justify="end" :span="2" align="right">
+              <small v-if="epic.milestone.length > 0">
+                {{ getLatestMilestoneName(epic.milestone) }}
+              </small>
+            </el-col>
+            <el-col justify="end" :span="2" align="right">
+              <small v-if="epic.status.id !== 1">
+                {{ epic.status.name }}
+              </small>
             </el-col>
             <el-col justify="end" :span="3" align="right">
               <small v-if="epic.dueDate">
@@ -57,7 +67,14 @@
             <p>{{ epic.description }}</p>
             <small>
               <icon name="user" title="チケット作成者"/>
-              {{ epic.createdUser.name }}:
+              {{ epic.createdUser.name }}作成;
+            </small>
+            <small v-for="category in epic.category" :key="category.id"
+              v-if="category.id !== backlogUrgentId">
+              <icon name="users" title="カテゴリ"/>
+                {{ category.name }}
+            </small>
+            <small>
               <icon name="ticket-alt" title="バグチケット"/>
               <a :href="generateBacklogUriFromKeyId(epic.issueKey)">
                 {{ epic.issueKey }}
@@ -365,6 +382,13 @@ export default {
         },
       };
     },
+    getLatestMilestoneName(milestones) {
+      // TODO: impl. to return latest milestone name
+      if (milestones.length === 1) {
+        return milestones[0].name;
+      }
+      return `${milestones[0].name}他`;
+    },
     getPriorityOfEpic(epic) {
       const priId = this.$store.getters.backlogPriorityVarId;
       // FIXME: Dirty compare
@@ -512,6 +536,11 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+    },
+  },
+  computed: {
+    backlogUrgentId() {
+      return this.$store.getters.backlogUrgentId;
     },
   },
   created() {
