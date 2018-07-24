@@ -35,14 +35,14 @@
             class="story-item">
             <template slot="title">
               <el-row type="flex">
-                <el-col :span="18">
+                <el-col :span="22">
                   <span class="handle"><icon name="bars"/></span>
                   {{ story.summary }}
                 </el-col>
-                <el-col justify="end" :span="3" align="right">
-                  <small v-if="story.dueDate">
-                    <icon name="calendar-alt" label="期限"/>
-                    {{ dateToString(story.dueDate) }}
+                <el-col justify="end" :span="2" align="right">
+                  <small v-if="getPriority(story)">
+                    <icon name="list-ol" label="優先順位"/>
+                    {{ getPriority(story) }}
                   </small>
                 </el-col>
               </el-row>
@@ -57,6 +57,10 @@
                   <a :href="generateBacklogUriFromKeyId(story.issueKey)">
                     {{ story.issueKey }}
                   </a>
+                </small>
+                <small v-if="story.dueDate">
+                  <icon name="calendar-alt" label="期限"/>
+                  {{ dateToString(story.dueDate) }}
                 </small>
               </div>
             </div>
@@ -136,6 +140,14 @@ export default {
       }
       return mss.sort((a, b) => a.date - b.date)[0].id;
     },
+    getPriority(issue) {
+      const priorityVarId = this.$store.getters.backlogPriorityVarId;
+      const vars = issue.customFields.filter(field => field.id === priorityVarId);
+      if (vars.length < 1) {
+        return undefined;
+      }
+      return vars[0].value;
+    },
     syncUserStoriesPriorities() {
       const l = this.$refs.sprintbacklogs.$el.children.length;
       // 未実装、要修正
@@ -211,6 +223,13 @@ main {
 .dragging .handle {
   /* FIXME: Does not applied */
   cursor: grabbing;
+}
+#productbacklogs .add-story-to-sprint-backlog-button {
+  color: black;
+  margin: auto 0.5rem;
+}
+#sprintbacklogs .add-story-to-sprint-backlog-button {
+  display: none;
 }
 .backlogs {
   flex-grow: 1;
