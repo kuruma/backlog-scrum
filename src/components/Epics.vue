@@ -83,7 +83,8 @@
           </div>
           <ul class="user-stories">
             <li v-for="story in userStories[key]" :key="story.id" :ref="`stories_${key}`"
-              :class="{ 'completed-story': story.status.name === '完了' }">
+              :data-storyid="`${story.id}`"
+              :class="{ 'completed-story': story.status.name === '完了', 'user-story': true }">
               <el-row>
                 {{ story.summary }}
               </el-row>
@@ -486,7 +487,7 @@ export default {
         epicsNode.append(this.$refs[ref][0].$el);
       }
     },
-    syncEpicOrder(epicid, priorityVariableId, orderNumber) {
+    syncStoryOrder(epicid, priorityVariableId, orderNumber) {
       this.updatePriorityOfIssue(epicid, priorityVariableId, orderNumber)
         .then(() => {
           this.$message.success({
@@ -501,6 +502,15 @@ export default {
           });
         });
     },
+    syncStoriesRelatedEpicOrder(epicNode, priorityVariableId, orderNumber) {
+      const userStoryNodes = epicNode.querySelectorAll('.user-stories .user-story');
+      userStoryNodes.forEach((storyNode) => {
+        const storyId = (typeof storyNode.dataset.storyid === 'string')
+          ? storyNode.dataset.storyid - 0
+          : storyNode.dataset.storyid;
+        this.syncStoryOrder(storyId, priorityVariableId, orderNumber);
+      });
+    },
     syncEpicsOrder() {
       const l = this.$refs.epics.$el.children.length;
       const priId = this.$store.getters.backlogPriorityVarId;
@@ -508,8 +518,9 @@ export default {
       for (let i = 0; i < l; i += 1) {
         const epicNode = this.$refs.epics.$el.children[i];
         const epic = this.epics[epicNode.dataset.epickey];
-        order += 10;
-        this.syncEpicOrder(epic.id, priId, order);
+        this.syncStoriesRelatedEpicOrder(epicNode, priId, order + 1);
+        order += 20;
+        this.syncStoryOrder(epic.id, priId, order);
       }
     },
     applyDatastore() {

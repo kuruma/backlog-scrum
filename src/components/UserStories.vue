@@ -112,9 +112,7 @@ export default {
   ],
   computed: {
     stories() {
-      // TODO: support user stories as child issues
-      // const allStories = this.urgents.concat(this.userStories).concat(this.epics);
-      const allStories = this.urgents.concat(this.epics);
+      const allStories = this.urgents.concat(this.userStories).concat(this.epics);
       return allStories.filter(
         story => this.isUnassignedOrTeamsIssue(
           story, [this.workingCategory], this.$store.getters.backlogUrgentId));
