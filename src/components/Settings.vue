@@ -120,7 +120,7 @@
           <el-form-item label="優先度">
             <el-select v-model.number="teamFormPriorityId" :disabled="isLockedTeamSettings"
               clearable aria-describedby="teamFormPriorityIdHelp">
-              <el-option v-for="v in customvars" :value="v.name" :key="`${v.id}`" :label="v.name"/>
+              <el-option v-for="v in customvars" :value="v.value" :key="`${v.id}`" :label="v.name"/>
             </el-select>
             <small id="teamFormPriorityIdHelp">
               ここで選択したカスタム変数に、優先度を格納します。
