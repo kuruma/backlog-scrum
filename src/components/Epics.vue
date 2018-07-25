@@ -14,6 +14,11 @@
         </el-tooltip>
       </el-col>
       <el-col justify="end" :span="8" align="right">
+        <el-tooltip content="優先順位のついていないエピックを追加する" effect="dark" placement="top">
+          <el-button @click="loadUnorderedEpics">
+            <icon name="plus-square" label="優先順位のついていないエピックを追加する" effect="dard" placement="top"/>
+          </el-button>
+        </el-tooltip>
         <el-tooltip content="エピックの優先順位を保存" effect="dark" placement="top">
           <el-button @click="syncEpicsOrder">
             <icon name="save" label="エピックの優先順位を保存"/>
@@ -205,6 +210,7 @@ import 'vue-awesome/icons/bars';
 import 'vue-awesome/icons/calendar-alt';
 import 'vue-awesome/icons/level-up-alt';
 import 'vue-awesome/icons/plus';
+import 'vue-awesome/icons/plus-square';
 import 'vue-awesome/icons/sort-numeric-down';
 import 'vue-awesome/icons/ticket-alt';
 import 'vue-awesome/icons/user';
@@ -399,6 +405,25 @@ export default {
         return priority;
       }
       return 0;
+    },
+    loadUnorderedEpics() {
+      const dt = new Date();
+      const ds = new Date(dt.getFullYear(), dt.getMonth(), dt.getDay() - 75, 0, 0, 0);
+      const d = {
+        y: ds.getFullYear().toString(),
+        m: `0${ds.getMonth() + 1}`.slice(-2),
+        d: `0${ds.getDay()}`.slice(-2),
+      };
+      const sinceDate = `${d.y}-${d.m}-${d.d}`;
+      this.loadAndAppendBacklogUnorderedEpics(this.projects.id,
+        this.$store.getters.backlogEpicId, this.activeStatusIds,
+        this.$store.getters.backlogPriorityVarId, sinceDate)
+        .catch((rejected) => {
+          this.$message.error({
+            showClose: true,
+            message: `${rejected}`,
+          });
+        });
     },
     loadUserStoriesRelatedEpic(value) {
       const l = value.length;

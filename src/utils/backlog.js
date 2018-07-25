@@ -14,6 +14,7 @@ export default {
       response: {},
       statuses: [],
       userStories: [],
+      unorderedEpics: [],
       urgents: [],
     };
   },
@@ -50,6 +51,37 @@ export default {
       }
       return this.getFromBacklog('categories', `projects/${projectId}/categories`);
     },
+    loadAndAppendBacklogUnorderedEpics(
+      projectId, epicIssueTypeId, statusIds, priorityVarId, createdSince) {
+      const param = {
+        projectId: [projectId],
+        issueTypeId: [epicIssueTypeId],
+        statusId: statusIds,
+        parentChild: 1,
+        count: 100,
+        sort: 'updated',
+        createdSince,
+      };
+      if (typeof priorityVarId === 'number') {
+        param[`customField_${priorityVarId}`] = -1;
+      }
+      return this.getFromBacklog('unorderedEpics', 'issues', param)
+        .then(() => {
+          const epicIds = this.epics.map(x => x.id);
+          const newEpics = this.unorderedEpicIds
+            .map((x) => {
+              if (epicIds.includes(x.id)) {
+                return false;
+              }
+              return x;
+            })
+            .filter(x => x !== false);
+          const mergedEpics = this.epics.concat(newEpics);
+          Vue.set(this, 'epics', mergedEpics);
+        })
+        .then(() => Promise.resolve('優先順位のついていないエピックの読込が完了しました。'))
+        .catch(() => Promise.reject('優先順位をつけていないエピックの読込に失敗しました。'));
+    },
     loadBacklogEpics(projectId, epicIssueTypeId, statusIds, priorityVarId, maxResults) {
       const param = {
         projectId: [projectId],
@@ -60,6 +92,7 @@ export default {
       };
       if (typeof priorityVarId === 'number') {
         param.sort = `customField_${priorityVarId}`;
+        param.order = 'asc';
       } else {
         param.sort = 'updated';
       }
