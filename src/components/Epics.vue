@@ -276,7 +276,7 @@ export default {
       }
     },
     addEpic() {
-      this.$refs.pendingEpic.validate()
+      return this.$refs.pendingEpic.validate()
         .then(() =>
           this.postBacklogNewEpic(
             this.projects.id,
@@ -286,13 +286,21 @@ export default {
             'response',
           ))
         .then(() => {
+          this.$message.success({
+            showClose: true,
+            message: `エピック「${this.pendingEpic.summary}」を追加しました。`,
+          });
           this.epics.push(this.response);
         })
         .then(() => {
-          this.moveEpicToTopByIndex(`${this.epics.length - 1}`);
+          this.moveEpicToTopByIndex(this.epics.length - 1);
         })
         .catch(() => {
-          // TODO: Error handling
+          // FIXME: GUI should reflects sync failure
+          this.$message.error({
+            showClose: true,
+            message: `エピック「${this.pendingEpic.summary}」の追加に失敗しました。`,
+          });
         })
         .finally(() => {
           this.response = {};
@@ -347,13 +355,17 @@ export default {
     },
     addEpicAndContinue(event) {
       event.preventDefault();
-      this.addEpic();
-      this.clearPendingEpic();
-      this.focusEpicSummaryForm();
+      this.addEpic()
+        .finally(() => {
+          this.clearPendingEpic();
+          this.focusEpicSummaryForm();
+        });
     },
     addEpicThenClose() {
-      this.addEpic();
-      this.isShownAddEpicModal = false;
+      this.addEpic()
+        .finally(() => {
+          this.isShownAddEpicModal = false;
+        });
     },
     addUserStoryAndContinue(event) {
       event.preventDefault();
