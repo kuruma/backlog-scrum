@@ -68,19 +68,18 @@ export default {
       return this.getFromBacklog('unorderedEpics', 'issues', param)
         .then(() => {
           const epicIds = this.epics.map(x => x.id);
-          const newEpics = this.unorderedEpicIds
-            .map((x) => {
-              if (epicIds.includes(x.id)) {
-                return false;
-              }
-              return x;
-            })
+          const newEpics = this.unorderedEpics.map((x) => {
+            if (epicIds.includes(x.id)) {
+              return false;
+            }
+            return x;
+          })
             .filter(x => x !== false);
           const mergedEpics = this.epics.concat(newEpics);
           Vue.set(this, 'epics', mergedEpics);
         })
         .then(() => Promise.resolve('優先順位のついていないエピックの読込が完了しました。'))
-        .catch(() => Promise.reject('優先順位をつけていないエピックの読込に失敗しました。'));
+        .catch(err => Promise.reject(`優先順位をつけていないエピックの読込に失敗しました:\n${err}`));
     },
     loadBacklogEpics(projectId, epicIssueTypeId, statusIds, priorityVarId, maxResults) {
       const param = {
