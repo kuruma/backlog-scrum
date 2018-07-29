@@ -120,28 +120,10 @@
         </div>
       </el-collapse-item>
     </draggable>
-    <el-dialog title="エピックの追加" :visible.sync="isShownAddEpicModal"
-      @close="clearPendingEpic" width="90%" append-to-body class="addEpicModal">
-      <el-form :model="pendingEpic" :rules="epicRules" ref="pendingEpic">
-        <el-form-item label="概要" prop="summary">
-          <el-input v-model="pendingEpic.summary" auto-complete="off"
-            placeholder="エピックのゴールを簡潔に" ref="epicSummaryForm"/>
-        </el-form-item>
-        <el-form-item label="詳細">
-          <el-input type="textarea" v-model="pendingEpic.details" placeholder="詳細（メモ）"/>
-        </el-form-item>
-        <el-form-item class="buttons">
-          <el-row type="flex" justify="end">
-            <el-button type="info" @click="addEpicThenClose">
-              追加して閉じる
-            </el-button>
-            <el-button type="primary" @click="addEpicAndContinue">
-              続けて追加する
-            </el-button>
-          </el-row>
-        </el-form-item>
-      </el-form>
-    </el-dialog>
+    <add-epic-dialog
+      @add-epic-modal-closed="closeAddEpicModal"
+      :properties="addEpicModalProperties"
+      :visibility="isShownAddEpicModal"/>
     <el-dialog title="ユーザストーリの追加" :visible.sync="isShownAddUserStoryModal"
       @close="clearPendingUserStory" width="90%" append-to-body class="addUserStoryModal">
       <el-form :model="pendingUserStory" :rules="userStoryRules" ref="pendingUserStory">
@@ -202,6 +184,7 @@ import draggable from 'vuedraggable';
 import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
 import date from '@/utils/date';
+import AddEpicDialog from '@/components/AddEpicDialog';
 
 import 'vue-awesome/icons/save';
 import 'vue-awesome/icons/angle-double-down';
@@ -223,11 +206,6 @@ export default {
   ],
   data() {
     return {
-      epicRules: {
-        summary: [
-          { required: true, message: '必須項目です', trigger: 'blur' },
-        ],
-      },
       loading: true,
       userStoryRules: {
         summary: [
@@ -249,10 +227,6 @@ export default {
         teamCategories: [],
         details: '',
       },
-      pendingEpic: {
-        summary: '',
-        details: '',
-      },
       isShownAddEpicModal: false,
       isShownAddUserStoryModal: false,
       teamCategories: [], // Loaded categories info filtered by teams' one
@@ -261,50 +235,14 @@ export default {
   components: {
     draggable,
     Icon,
+    AddEpicDialog,
   },
   methods: {
-    focusEpicSummaryForm() {
-      // form is not generated at the 1st time
-      if (this.$refs.epicSummaryForm !== undefined) {
-        this.$refs.epicSummaryForm.$el.querySelector('input').focus();
-      }
-    },
     focusUserStorySummaryForm() {
       // form is not generated at the 1st time
       if (this.$refs.userStorySummaryForm !== undefined) {
         this.$refs.userStorySummaryForm.$el.querySelector('input').focus();
       }
-    },
-    addEpic() {
-      return this.$refs.pendingEpic.validate()
-        .then(() =>
-          this.postBacklogNewEpic(
-            this.projects.id,
-            this.$store.getters.backlogEpicId,
-            this.pendingEpic.summary,
-            (this.pendingEpic.details === '') ? '' : this.pendingEpic.details,
-            'response',
-          ))
-        .then(() => {
-          this.$message.success({
-            showClose: true,
-            message: `エピック「${this.pendingEpic.summary}」を追加しました。`,
-          });
-          this.epics.push(this.response);
-        })
-        .then(() => {
-          this.moveEpicToTopByIndex(this.epics.length - 1);
-        })
-        .catch(() => {
-          // FIXME: GUI should reflects sync failure
-          this.$message.error({
-            showClose: true,
-            message: `エピック「${this.pendingEpic.summary}」の追加に失敗しました。`,
-          });
-        })
-        .finally(() => {
-          this.response = {};
-        });
     },
     addUserStory() {
       const detailItems = [];
@@ -353,20 +291,6 @@ export default {
           });
         });
     },
-    addEpicAndContinue(event) {
-      event.preventDefault();
-      this.addEpic()
-        .finally(() => {
-          this.clearPendingEpic();
-          this.focusEpicSummaryForm();
-        });
-    },
-    addEpicThenClose() {
-      this.addEpic()
-        .finally(() => {
-          this.isShownAddEpicModal = false;
-        });
-    },
     addUserStoryAndContinue(event) {
       event.preventDefault();
       this.addUserStory();
@@ -377,15 +301,14 @@ export default {
       this.addUserStory();
       this.isShownAddUserStoryModal = false;
     },
-    clearPendingEpic() {
-      Object.keys(this.pendingEpic).forEach((prop) => {
-        this.pendingEpic[prop] = '';
-      });
-    },
     clearPendingUserStory() {
       Object.keys(this.pendingUserStory).forEach((prop) => {
         this.pendingUserStory[prop] = '';
       });
+    },
+    closeAddEpicModal() {
+      this.moveEpicToTopByIndex(this.epics.length - 1);
+      this.isShownAddEpicModal = false;
     },
     endMovingEpic(event) {
       if (event.from !== event.to) {
@@ -490,8 +413,6 @@ export default {
     },
     showAddEpicModal() {
       this.isShownAddEpicModal = true;
-      // FIXME: Dirty...
-      window.setTimeout(this.focusEpicSummaryForm, 100);
     },
     showAddUserStoryModal() {
       const btnNode = event.target.closest('button');
@@ -567,7 +488,8 @@ export default {
           this.loadBacklogStatuses())
         .then(() =>
           this.loadBacklogEpics(this.projects.id,
-            this.$store.getters.backlogEpicId, this.activeStatusIds))
+            this.$store.getters.backlogEpicId, this.activeStatusIds,
+            this.$store.getters.backlogPriorityVarId))
         .then(() =>
           this.loadBacklogCategories(this.projects.id))
         .then(() => {
@@ -591,6 +513,13 @@ export default {
     },
   },
   computed: {
+    addEpicModalProperties() {
+      const obj = {
+        projectId: this.projects.id,
+        issueTypeId: this.$store.getters.backlogEpicId,
+      };
+      return obj;
+    },
     backlogUrgentId() {
       return this.$store.getters.backlogUrgentId;
     },

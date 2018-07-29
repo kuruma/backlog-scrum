@@ -41,11 +41,13 @@ const actions = {
       const storyid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogUserStoryId`) || '';
       const taskids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogTaskIds`) || '';
       const categoryids = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogCategoryIds`) || '';
+      const privarid = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}backlogPriorityVarId`) || -1;
       commit('storeEpicId', parseInt(epicid, 10));
       commit('storeUrgentId', parseInt(urgentid, 10));
       commit('storeUserStoryId', parseInt(storyid, 10));
       commit('storeTaskIds', JSON.parse(taskids));
       commit('storeCategoryIds', JSON.parse(categoryids));
+      commit('storePriorityVarId', parseInt(privarid, 10));
       const fburi = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}firebaseUri`);
       commit('storeFirebaseUri', (typeof fburi === 'string') ? fburi : '');
       const locked = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}isLocked`) || false;
@@ -183,7 +185,12 @@ const getters = {
   backlogEpicId: s => s.backlogEpicId,
   backlogFqdn: s => s.backlogFqdn,
   backlogHostname: s => s.backlogFqdn.split('.')[0],
-  backlogPriorityVarId: s => s.backlogPriorityVarId,
+  backlogPriorityVarId: (s) => {
+    if (s.backlogPriorityVarId === -1) {
+      return undefined;
+    }
+    return s.backlogPriorityVarId;
+  },
   backlogProjectKey: s => s.backlogProjectKey,
   backlogStoryPointVarId: s => s.backlogStoryPointVarId,
   backlogTaskIds: s => s.backlogTaskIds,

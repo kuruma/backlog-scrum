@@ -82,7 +82,6 @@ export default {
         this.uncommitedInfo[prop] = '';
       });
       this.$set(this.result, 'body', {});
-      this.$set(this.result, 'updatedStoryId', undefined);
     },
   },
 };
