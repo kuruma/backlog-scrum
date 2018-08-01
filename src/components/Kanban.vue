@@ -665,7 +665,8 @@ export default {
     },
     getOngoingMilestoneId() {
       const now = new Date().getTime();
-      const timezoneOffset = 9 * 60 * 60 * 1000; // FIXME: JST = +9:00
+      console.log(now);
+      const timezoneOffset = 9 * 3600 * 1000; // FIXME: JST = +9:00
       return this.milestones.map((milestone) => {
         const tmp = milestone;
         tmp.date = new Date(milestone.startDate).getTime() + timezoneOffset;
@@ -756,10 +757,6 @@ export default {
         .then(() => {
           this.ongoingMilestoneId = this.getOngoingMilestoneId();
         })
-        .then(() => this.loadBacklogEpics(this.projects.id,
-          this.$store.getters.backlogEpicId, this.activeStatusIds,
-          this.$store.getters.backlogPriorityVarId,
-          20)) // FIXME: Should be customizable
         .then(() => this.loadBacklogOngoingUserStories(this.projects.id,
           this.ongoingMilestoneId))
         .catch(() => {
