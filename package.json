@@ -1,6 +1,6 @@
 {
   "name": "backlog-scrum",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Kanban-style backlog viewer for scrum team",
   "author": "Kuruma <mail@kuruman.org>",
   "private": true,
