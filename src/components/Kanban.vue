@@ -42,7 +42,7 @@
             handle: '.el-card__header',
           }" element="div" id="todostories" ref="todostories" class="story-list todo-story-list">
           <el-card v-for="(story, key) in todoStories" :key="story.id" :name="story.id"
-            :ref="`story_${key}`" :data-storyid="story.id"
+            :ref="`story_${key}`" :data-storyid="story.id" :data-storykey="story.issueKey"
             v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
             class="story-item"
             :class="{
@@ -138,7 +138,7 @@
             handle: '.el-card__header',
           }" element="div" id="doingstories" ref="doingstories" class="story-list doing-story-list">
           <el-card v-for="(story, key) in doingStories" :key="story.id" :name="story.id"
-            :ref="`story_${key}`" :data-storyid="story.id"
+            :ref="`story_${key}`" :data-storyid="story.id" :data-storykey="story.issueKey"
             v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
             class="story-item"
             :class="{
@@ -234,7 +234,7 @@
             handle: '.el-card__header',
           }" element="div" id="donestories" ref="donestories" class="story-list done-story-list">
           <el-card v-for="(story, key) in doneStories" :key="story.id" :name="story.id"
-            :ref="`story_${key}`" :data-storyid="story.id"
+            :ref="`story_${key}`" :data-storyid="story.id" :data-storykey="story.issueKey"
             v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
             class="story-item"
             :class="{
@@ -331,7 +331,7 @@
           }" element="div" id="completedstories" ref="completedstories"
           class="story-list completed-story-list">
           <el-card v-for="(story, key) in completedStories" :key="story.id" :name="story.id"
-            :ref="`story_${key}`" :data-storyid="story.id"
+            :ref="`story_${key}`" :data-storyid="story.id" :data-storykey="story.issueKey"
             v-if="!showOnlyAssigned || (story.assignee !== null && story.assignee.id === myself.id)"
             class="story-item"
             :class="{
@@ -410,6 +410,10 @@
       @add-comment-modal-closed="closeAddCommentModal"
       :visibility="isShownAddCommentModal"
       :storyId="addCommentTargetStoryId"/>
+    <edit-story-dialog
+      @edit-story-modal-closed="closeEditStoryModal"
+      :visibility="isShownEditStoryModal"
+      :storyId="editStoryTargetStoryId"/>
     <el-dialog title="緊急タスクの追加" :visible.sync="isShownAddUrgentTaskModal"
       @close="clearPendingUrgentTask" width="90%" append-to-body class="addUrgentTaskModal">
       <el-form :model="pendingUrgentTask" :rules="urgentTaskRules" ref="pendingUrgentTask">
@@ -454,6 +458,7 @@ import Icon from 'vue-awesome/components/Icon';
 import backlog from '@/utils/backlog';
 import date from '@/utils/date';
 import AddCommentDialog from '@/components/AddCommentDialog';
+import EditStoryDialog from '@/components/EditStoryDialog';
 
 import 'vue-awesome/icons/calendar';
 import 'vue-awesome/icons/clock';
@@ -475,11 +480,14 @@ export default {
     draggable,
     Icon,
     AddCommentDialog,
+    EditStoryDialog,
   },
   data() {
     return {
       addCommentTargetStoryId: -1,
+      editStoryTargetStoryId: -1,
       isShownAddCommentModal: false,
+      isShownEditStoryModal: false,
       // TODO: should be customizable
       isShownAddUrgentTaskModal: false,
       isShownStoryDetails: false,
@@ -600,15 +608,22 @@ export default {
       }
       this.isShownAddCommentModal = false;
     },
+    closeEditStoryModal(result) {
+      if (result !== undefined && result.updatedStoryId !== undefined) {
+        this.overriteUpdatedDatetime(result.updatedStoryId, result.body.updated);
+      }
+      this.isShownEditStoryModal = false;
+    },
     defineAssignee(event) {
       const storyNode = event.target.closest('.story-item');
       const storyId = storyNode.dataset.storyid;
+      const storyKey = storyNode.dataset.storykey;
       this.updateAssigneeOfIssue(storyId, this.myself.id)
         .then((data) => {
           this.overwriteUserStory(data);
           this.$message.success({
             showClose: true,
-            message: `#${storyId}の担当者を自分に変更しました。`,
+            message: `${storyKey}の担当者を自分に変更しました。`,
           });
         })
         .catch((rejected) => {
@@ -621,13 +636,14 @@ export default {
     endMovingStories(event) {
       if (event.from !== event.to) {
         const storyId = event.item.dataset.storyid;
+        const storyKey = event.item.dataset.storykey;
         const statusId = event.to.closest('.status').dataset.statusid;
         this.updateStatusOfIssue(storyId, statusId)
           .then((data) => {
             this.overwriteUserStory(data);
             this.$message.success({
               showClose: true,
-              message: '状態を更新しました。',
+              message: `${storyKey}の状態を更新しました。`,
             });
           })
           .catch((rejected) => {
@@ -665,7 +681,6 @@ export default {
     },
     getOngoingMilestoneId() {
       const now = new Date().getTime();
-      console.log(now);
       const timezoneOffset = 9 * 3600 * 1000; // FIXME: JST = +9:00
       return this.milestones.map((milestone) => {
         const tmp = milestone;
@@ -691,18 +706,19 @@ export default {
     releaseAssignee(event) {
       const storyNode = event.target.closest('.story-item');
       const storyId = storyNode.dataset.storyid;
+      const storyKey = storyNode.dataset.storykey;
       this.updateAssigneeOfIssue(storyId, '')
         .then((data) => {
           this.overwriteUserStory(data);
           this.$message.success({
             showClose: true,
-            message: `#${storyId}の担当者から外れました。`,
+            message: `${storyKey}の担当者から外れました。`,
           });
         })
         .catch((rejected) => {
           this.$message.error({
             showClose: true,
-            message: `担当者の変更に失敗しました。リロードしてからもう一度試してください:\n${rejected}`,
+            message: `${storyKey}の担当者変更に失敗しました。リロードしてからもう一度試してください:\n${rejected}`,
           });
         });
     },
@@ -719,8 +735,9 @@ export default {
       // FIXME: Dirty...
       window.setTimeout(this.focusAddUrgentTaskForm, 100);
     },
-    showEditStoryModal() {
-      this.$message.error('unimplemented');
+    showEditStoryModal(event) {
+      this.isShownEditStoryModal = true;
+      this.editStoryTargetStoryId = event.target.closest('.story-item').dataset.storyid;
     },
     showStoryDetails() {
       this.isShownStoryDetails = true;
